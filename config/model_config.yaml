@@ -5,7 +5,7 @@ llama2-7b:
   answer_tag: ""
   flash_attention2: "true"
   gradient_checkpointing: "true"
-  ft_model_path: "paper_models/final_ft_noLORA_5_epochs_inst_lr1e-05_llama2-7b/checkpoint-625" #this model will be used for unlearning by defauly
+  ft_model_path: "paper_models/final_ft_noLORA_5_epochs_inst_lr1e-05_llama2-7b/checkpoint-625" #this model will be used for unlearning by default
 phi:
   hf_key: "microsoft/phi-1_5"
   question_start_tag: "Question: "
@@ -13,7 +13,7 @@ phi:
   answer_tag: "Answer: "
   flash_attention2: "false"
   gradient_checkpointing: "false"
-  ft_model_path: "paper_models/final_ft_noLORA_5_epochs_inst_lr2e-05_phi_full/checkpoint-625"
+  ft_model_path: "./checkpoints/ft_epoch5_lr2e-05_phi_full_wd0.01/checkpoint-625"
 stablelm:
   hf_key: "stabilityai/stablelm-3b-4e1t"
   question_start_tag: "Question: "

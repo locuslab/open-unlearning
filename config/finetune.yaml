@@ -11,7 +11,7 @@ batch_size: 16
 gradient_accumulation_steps: 1
 num_epochs: 5
 lr: 1e-5
-save_dir: /data/locus/llm_weights/zhilif/TOFU/ft_epoch${num_epochs}_lr${lr}_${model_family}_${split}_wd${weight_decay}
+save_dir: ./checkpoints/ft_epoch${num_epochs}_lr${lr}_${model_family}_${split}_wd${weight_decay}
 
 weight_decay: 0.01
 seed: 42

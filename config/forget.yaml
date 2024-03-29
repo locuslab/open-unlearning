@@ -14,7 +14,7 @@ num_epochs: 5
 forget_loss: grad_ascent
 
 save_dir: ${model_path}/${forget_loss}_${lr}_${split}_${num_epochs}
-overwrite_dir: false
+overwrite_dir: true
 weight_decay: 0.01
 save_model: true
 eval_while_train: false
