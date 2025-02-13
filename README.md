@@ -23,8 +23,8 @@ The dataset is in QA format, making it ideal for use with popular chat models su
 ```
 conda create -n tofu python=3.10
 conda activate tofu
-conda install pytorch pytorch-cuda=11.8 -c pytorch -c nvidia
-conda install -c "nvidia/label/cuda-11.8.0" cuda-toolkit
+conda install pytorch pytorch-cuda=12.4 -c pytorch -c nvidia
+conda install -c "nvidia/label/cuda-12.4.0" cuda-toolkit
 pip install -r requirements.txt
 pip install flash-attn --no-build-isolation
 ```
