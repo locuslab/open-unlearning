@@ -38,7 +38,7 @@ We provide several variants for each of the components in the unlearning pipelin
 | **Unlearning Methods** | GradAscent, GradDiff, NPO, SimNPO, DPO |
 | **Evaluation Metrics** | Verbatim Probability, Verbatim ROUGE, QA-ROUGE, MIA Attacks, TruthRatio, Model Utility |
 | **Datasets**          | MUSE-News (BBC), MUSE-Books (Harry Potter), TOFU (different splits) |
-| **Model Families**    | LLaMA 3.2, LLaMA 3.1, LLaMA-2, Phi-3.5, ICLM (from MUSE), Phi-1.5, Gemma |
+| **Model Families**    | LLaMA 3.2, LLaMA 3.1, LLaMA-2, Phi-3.5, ICLM (from MUSE), Gemma |
 
 ---
 
