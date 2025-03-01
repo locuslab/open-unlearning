@@ -44,7 +44,7 @@ We provide several variants for each of the components in the unlearning pipelin
 
 ## 📌 Table of Contents
 - 📖 [Overview](#-overview)
-- 🗃️ [Available Components](#-available-components)
+- 🗃️ [Available Components](#%EF%B8%8F-available-components)
 - ⚡ [Quickstart](#-quickstart)
   - 🛠️ [Environment Setup](#-environment-setup)
   - 💾 [Data Setup](#-data-setup)
@@ -56,7 +56,7 @@ We provide several variants for each of the components in the unlearning pipelin
 - ➕ [How to Add New Components](#-how-to-add-new-components)
 - 📚 [Further Documentation](#-further-documentation)
 - 🔗 [Support & Contributors](#-support--contributors)
-- 📝 [Citing this work](#-citating-this-work)
+- 📝 [Citing this work](#-citing-this-work)
 - 🤝 [Acknowledgements](#-acknowledgements)
 - 📄 [License](#-license)
 
@@ -198,7 +198,7 @@ If you use OpenUnlearning in your research, please cite:
 
 ---
 
-### 🤝 Acknowledgments
+### 🤝 Acknowledgements
 
 - This repo is inspired from [LLaMA-Factory](https://github.com/hiyouga/LLaMA-Factory). 
 - The [TOFU](https://github.com/locuslab/tofu) and [MUSE](https://github.com/jaechan-repo/muse_bench) benchmarks served as the foundation for our re-implementation. 
