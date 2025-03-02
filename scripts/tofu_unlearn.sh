@@ -13,7 +13,7 @@ trainers_experiments=(
     "GradAscent unlearn/tofu/default.yaml"
     "GradDiff unlearn/tofu/default.yaml"
     "NPO unlearn/tofu/default.yaml"
-    "DPO unlearn/tofu/default.yaml"
+    "DPO unlearn/tofu/idk.yaml"
 )
 forget_retain_splits=(
     "forget01 retain99"
