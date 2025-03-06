@@ -14,7 +14,7 @@ class GradDiff(UnlearnTrainer):
             self.ref_model = self._prepare_ref_model(self.model)
 
     def _prepare_ref_model(self, model):
-        ref_model = copy.deepcopy(model).to("cuda")
+        ref_model = copy.deepcopy(model).to(self.accelerator.device)
         ref_model.eval()
         if self.is_deepspeed_enabled:
             ref_model = self._prepare_deepspeed(ref_model)
