@@ -20,6 +20,7 @@ eval:
   tofu:
     forget_split: ${forget_split}
     retain_logs_path: ${retain_logs_path}
+    overwrite: true
     
 data:
   anchor: forget
