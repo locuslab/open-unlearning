@@ -1,0 +1,13 @@
+defaults:
+  - GradDiff
+
+handler: RMU
+method_args:
+  # The params here are more dependent on model and dataset. Tune them carefully to work
+  gamma: 1.0
+  alpha: 1000 
+  steering_coeff: 300
+  retain_loss_type: null
+  module_regex: model\.layers\.7
+  trainable_params_regex: 
+    - model\.layers\.(5|6|7)\.mlp\.down_proj\.weight

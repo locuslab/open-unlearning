@@ -23,7 +23,7 @@ For all the experiments below, we used the following setup
 | **Hyperparameters**    | Learning Rate (lr) = 1e-5 <br> α = 1, γ = 1, β = 0.1 (where applicable) <br> Number of Epochs = 10 <br> Optimizer: [paged_adamw_32bit](https://huggingface.co/docs/bitsandbytes/main/en/reference/optim/adamw#bitsandbytes.optim.PagedAdamW) |
 
 __Note:__ 
-1. Results may vary even with the same effective hyperparameters when trained with modifications to the distributed training setup, including when training on a single GPU. For example: methods such as SimNPO, can be significantly improved with careful tuning. **Please use these numbers only for reproducibility purposes**.
+1. Results may vary even with the same effective hyperparameters when trained with modifications to the distributed training setup, including when training on a single GPU. For example: methods such as SimNPO & RMU can be significantly improved with careful tuning. **Please use these numbers only for reproducibility purposes**.
 2. NPO in MUSE: for NPO, the MUSE implementation is inconsistent with the [original paper](https://github.com/licong-lin/negative-preference-optimization) as discussed [here]( https://github.com/jaechan-repo/muse_bench/issues/2). This inconsistency is carried over into implementations like [SimNPO](https://github.com/OPTML-Group/Unlearn-Simple/issues/5). Here, we use the original NPO implementation with the same loss function expression across datasets.
 
 
@@ -140,6 +140,17 @@ __Note:__
       <td>0.6</td>
       <td>3.17e-04</td>
     </tr>
+    <tr>
+      <th>RMU</th>
+      <td>6.76e-03</td>
+      <td>7.18e-04</td>
+      <td>0.84</td>
+      <td>1.21e-10</td>
+      <td>0</td>
+      <td>0.81</td>
+      <td>1.18e-17</td>
+      <td>0</td>
+      <td>0.8</td>
   </tbody>
 </table>
 </div>
@@ -257,6 +268,18 @@ __Note:__
       <td>0.54</td>
       <td>1.07e-05</td>
     </tr>
+    <tr>
+      <th>RMU</th>
+      <td>6.76e-03</td>
+      <td>0.60</td>
+      <td>0.47</td>
+      <td>2.89e-11</td>
+      <td>0.6</td>
+      <td>0.47</td>
+      <td>0.32</td>
+      <td>0.59</td>
+      <td>0.64</td>
+    </tr>
   </tbody>
 </table>
 </div>
@@ -353,6 +376,17 @@ __Note:__
       <td>0.84</td>
       <td>-54.26</td>
       <td>0.54</td>
+    </tr>
+    <tr>
+      <th>RMU</th>
+      <td>0.67</td>
+      <td>0.57</td>
+      <td>-99.81</td>
+      <td>0.56</td>
+      <td>0.47</td>
+      <td>1.0</td>
+      <td>-57.35</td>
+      <td>0.67</td>
     </tr>
   </tbody>
 </table>
