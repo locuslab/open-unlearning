@@ -1,0 +1,14 @@
+defaults:
+  - GradDiff
+
+handler: RMU
+method_args:
+  # The params here are more dependent on model and dataset. Tune them carefully to work
+  gamma: 1.0
+  steering_coeff: 2
+  retain_loss_type: EMBED_DIFF
+  alpha: 1 
+  module_regex: model\.layers\.7
+  trainable_params_regex: 
+    - .* # update all parameters (as done in https://github.com/tmlr-group/G-effect/blob/ef368eea3b2c6dba1e090b9ebb021ac9f047e0ae/dataloader.py#L271)
+    # - model\.layers\.(5|6|7)\.mlp\.down_proj\.weight # If you want to update only these weights (as done in https://github.com/centerforaisafety/wmdp/blob/bc5e1ba0367ea826caeeeaa50656336a1e87acfb/rmu/unlearn.py#L26)
