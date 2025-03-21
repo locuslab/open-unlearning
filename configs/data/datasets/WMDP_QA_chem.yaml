@@ -1,0 +1,10 @@
+WMDP_QA_chem:
+  handler: QADataset
+  args:
+    hf_args:
+      path: "cais/wmdp"
+      name: "wmdp-chem"
+      split: "train"
+    question_key: "question"
+    answer_key: "answer"
+    max_length: 512
