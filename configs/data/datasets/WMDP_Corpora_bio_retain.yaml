@@ -1,0 +1,9 @@
+WMDP_Corpora_bio_retain:
+  handler: PretrainingDataset
+  args:
+    hf_args:
+      path: "cais/wmdp-corpora"
+      name: "bio-retain-corpus"
+      split: "train"
+    text_key: "text"
+    max_length: 2048
