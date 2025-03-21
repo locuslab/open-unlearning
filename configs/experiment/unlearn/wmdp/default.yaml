@@ -6,7 +6,7 @@ defaults:
   - override /data: unlearn
   - override /data/datasets@data.forget: WMDP_Corpora_cyber_forget
   - override /data/datasets@data.retain: WMDP_Corpora_cyber_retain
-  - override /eval: wmdp
+  # - override /eval: wmdp ---- TBD
 
 data_split: WMDP
 forget_split: cyber-forget-corpus
