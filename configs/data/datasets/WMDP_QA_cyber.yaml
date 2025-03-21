@@ -1,0 +1,10 @@
+WMDP_QA_cyber:
+  handler: QADataset
+  args:
+    hf_args:
+      path: "cais/wmdp"
+      name: "wmdp-cyber"
+      split: "train"
+    question_key: "question"
+    answer_key: "answer"
+    max_length: 512
