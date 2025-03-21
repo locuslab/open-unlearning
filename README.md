@@ -37,7 +37,7 @@ We provide several variants for each of the components in the unlearning pipelin
 | **Benchmarks**        | [TOFU](https://arxiv.org/abs/2401.06121), [MUSE](https://muse-bench.github.io/), [WMDP](https://www.wmdp.ai/) |
 | **Unlearning Methods** | GradAscent, GradDiff, NPO, SimNPO, DPO, RMU |
 | **Evaluation Metrics** | Verbatim Probability, Verbatim ROUGE, QA-ROUGE, MIA Attacks, TruthRatio, Model Utility |
-| **Datasets**          | MUSE-News (BBC), MUSE-Books (Harry Potter), TOFU (different splits), WMDP-Bio (retain-corpus only), WMDP-Cyber |
+| **Datasets**          | MUSE-News (BBC), MUSE-Books (Harry Potter), TOFU (different splits), WMDP-Bio (retain-corpus only), WMDP-Chem, WMDP-Cyber |
 | **Model Families**    | TOFU: LLaMA-3.2, LLaMA-3.1, LLaMA-2; MUSE: LLaMA-2, ICLM; Additional: Phi-3.5, Phi-1.5, Gemma |
 
 ---
