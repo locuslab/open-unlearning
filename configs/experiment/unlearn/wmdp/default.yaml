@@ -1,11 +1,11 @@
 # @package _global_
 
 defaults:
-  - override /model: Llama-2-7b-hf
+  - override /model: Llama-3.2-1B-Instruct_full
   - override /trainer: RMU
   - override /data: unlearn
   - override /data/datasets@data.forget: WMDP_Corpora_cyber_forget
-  - override /data/datasets@data.retain: WMDP_Corpora_bio_retain
+  - override /data/datasets@data.retain: WMDP_Corpora_cyber_retain
   - override /eval: wmdp
 
 data_split: WMDP
@@ -15,7 +15,7 @@ retain_logs_path: null
 
 model:
   model_args:
-    pretrained_model_name_or_path: open-unlearning/wmdp_Llama-2-7b
+    pretrained_model_name_or_path: open-unlearning/tofu_Llama-3.2-1B-Instruct_full # maybe add Zephyr after RMU
 
 data:
   anchor: forget
@@ -44,4 +44,4 @@ trainer:
     num_train_epochs: 10
     lr_scheduler_type: constant
 
-task_name: wmdp_corpora_unlearn
+task_name: ???

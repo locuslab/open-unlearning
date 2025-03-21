@@ -1,19 +1,19 @@
 # @package _global_
 
 defaults:
-  - override /model: Llama-3.2-1B-Instruct
+  - override /model: Llama-2-7b-hf
   - override /eval: wmdp
 
-forget_split: cyber-forget-corpus
+data_split: WMDP-Cyber
 retain_logs_path: null
 
 model:
   model_args:
-    pretrained_model_name_or_path: open-unlearning/wmdp_Llama-3.2-1B-Instruct_full
+    pretrained_model_name_or_path: open-unlearning/tofu_Llama-3.2-1B-Instruct_full # maybe add Zephyr after RMU
 
 eval:
   wmdp:
-    forget_split: ${forget_split}
+    data_split: ${data_split}
     retain_logs_path: ${retain_logs_path}
 
-task_name: wmdp_unlearn
+task_name: ???
