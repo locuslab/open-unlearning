@@ -1,0 +1,47 @@
+# @package _global_
+
+defaults:
+  - override /model: Llama-2-7b-hf
+  - override /trainer: RMU
+  - override /data: unlearn
+  - override /data/datasets@data.forget: WMDP_Corpora_cyber_forget
+  - override /data/datasets@data.retain: WMDP_Corpora_bio_retain
+  - override /eval: wmdp
+
+data_split: WMDP
+forget_split: cyber-forget-corpus
+retain_split: cyber-retain-corpus
+retain_logs_path: null
+
+model:
+  model_args:
+    pretrained_model_name_or_path: open-unlearning/wmdp_Llama-2-7b
+
+data:
+  anchor: forget
+  forget:
+    WMDP_Corpora_cyber_forget:
+      args:
+        hf_args:
+          name: ${forget_split}
+  retain:
+    WMDP_Corpora_cyber_retain:
+      args:
+        hf_args:
+          name: ${retain_split}
+
+eval:
+  wmdp:
+    data_split: ${data_split}
+    retain_logs_path: ${retain_logs_path}
+    overwrite: true
+
+trainer:
+  args:
+    per_device_train_batch_size: 4
+    gradient_accumulation_steps: 8
+    learning_rate: 1e-5
+    num_train_epochs: 10
+    lr_scheduler_type: constant
+
+task_name: wmdp_corpora_unlearn
