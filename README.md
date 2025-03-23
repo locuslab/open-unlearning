@@ -166,7 +166,7 @@ If you encounter any issues or have questions, feel free to raise an issue in th
 
 ## 📝 Citing this work
 
-If you use OpenUnlearning in your research, please cite:
+If you use OpenUnlearning in your research, please cite OpenUnlearning and the benchmarks from the below:
 
 ```bibtex
 @misc{openunlearning2025,
@@ -182,17 +182,15 @@ If you use OpenUnlearning in your research, please cite:
   booktitle={First Conference on Language Modeling},
   year={2024}
 }
-```
-<details>
-  <summary>Expand for bibtex to cite other benchmarks used from OpenUnlearning</summary>
-
-  ```bibtex
-  @article{shi2024muse,
-    title={Muse: Machine unlearning six-way evaluation for language models},
-    author={Shi, Weijia and Lee, Jaechan and Huang, Yangsibo and Malladi, Sadhika and Zhao, Jieyu and Holtzman, Ari and Liu, Daogao and Zettlemoyer, Luke and Smith, Noah A and Zhang, Chiyuan},
-    journal={arXiv preprint arXiv:2407.06460},
-    year={2024}
-  }
+@article{shi2024muse,
+  title={MUSE: Machine Unlearning Six-Way Evaluation for Language Models},
+  author={Weijia Shi and Jaechan Lee and Yangsibo Huang and Sadhika Malladi and Jieyu Zhao and Ari Holtzman and Daogao Liu and Luke Zettlemoyer and Noah A. Smith and Chiyuan Zhang},
+  year={2024},
+  eprint={2407.06460},
+  archivePrefix={arXiv},
+  primaryClass={cs.CL},
+  url={https://arxiv.org/abs/2407.06460},
+}
 ```
 </details>
 
