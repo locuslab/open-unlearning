@@ -4,6 +4,8 @@
 
 </div>
 
+>​For results where methods have been tuned for optimal performance, please refer to the [`community/leaderboard`](../community/leaderboard.md).
+
 The scripts below execute standard baseline unlearning experiments on the TOFU and MUSE datasets, evaluated using their corresponding benchmarks. 
 ```bash
 bash scripts/tofu_unlearn.sh

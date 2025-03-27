@@ -59,7 +59,7 @@ paths.output_dir=saves/unlearn/NPO/evals
 ```
 
 
-**Note:** The unlearning experiments support evaluation during the unlearning training. But this is supported only on a single GPU, evaluation can be performed during unlearning itself. When multiple GPUs are used to train, checkpoints must be stored and evaluated after training.
+> [!Note]: The unlearning experiments support evaluation during the unlearning finetuning. But this is supported only on a single GPU When multiple GPUs are used to train, checkpoints must be stored and evaluated after training.
 
 ---
 
@@ -242,7 +242,7 @@ CUDA_VISIBLE_DEVICES=0,1 accelerate launch \
   src/train.py --config-name=unlearn.yaml experiment=unlearn/muse/default.yaml task_name=DISTRIBUTED_TRAIN
 ```
 
-**Note:** Evaluation runs are designed to work only a single GPU (this includes running evaluation during training). To run an evaluation job, modify your command to make only one GPU visible (assuming one GPU is enough for inference):
+> [!Note]: Evaluation runs are designed to work only a single GPU (this includes running evaluation during training). To run an evaluation job, modify your command to make only one GPU visible (assuming one GPU is enough for inference):
 
 ```bash
 CUDA_VISIBLE_DEVICES=0 python src/eval.py  experiment=eval/muse/default.yaml task_name=SAMPLE_EVAL

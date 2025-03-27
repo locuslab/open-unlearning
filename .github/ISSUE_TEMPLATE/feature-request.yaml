@@ -32,3 +32,12 @@ body:
       label: Motivation
       description: |
         Please outline the motivation for the proposal. Is your feature request related to a problem? e.g., I'm always frustrated when [...]. If this is related to another GitHub issue, please link here too.
+
+  - type: textarea
+    id: implementation
+    validations:
+      required: false
+    attributes:
+      label: Implementation
+      description: |
+        Please describe your proposed solution in detail. Outline the implementation approach, including any key technical considerations. If there are challenges or blockers preventing implementation, specify them along with potential workarounds or dependencies.

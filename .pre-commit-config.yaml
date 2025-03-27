@@ -4,6 +4,6 @@ repos:
     rev: v0.6.9
     hooks:
     -   id: ruff
-        args: [--fix, scripts, src]
-    -   id: ruff-format
-        args: [scripts, src]
+        args: [check, --fix, scripts, src, setup.py, setup_data.py]
+    -   id: ruff
+        args: [format, scripts, src, setup.py setup_data.py]
