@@ -10,6 +10,7 @@ from trainer.unlearn.npo import NPO
 from trainer.unlearn.dpo import DPO
 from trainer.unlearn.simnpo import SimNPO
 from trainer.unlearn.rmu import RMU
+from trainer.unlearn.undial import UNDIAL
 
 TRAINER_REGISTRY: Dict[str, Any] = {}
 
@@ -31,6 +32,7 @@ def load_trainer_args(trainer_args: DictConfig, dataset):
             // (batch_size * grad_accum_steps * num_devices)
         )
 
+    trainer_args["output_dir"] = trainer_args.get("output_dir", "./output")
     trainer_args = TrainingArguments(**trainer_args)
     return trainer_args
 
@@ -81,3 +83,4 @@ _register_trainer(NPO)
 _register_trainer(DPO)
 _register_trainer(SimNPO)
 _register_trainer(RMU)
+_register_trainer(UNDIAL)
