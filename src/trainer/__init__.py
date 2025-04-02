@@ -32,7 +32,6 @@ def load_trainer_args(trainer_args: DictConfig, dataset):
             // (batch_size * grad_accum_steps * num_devices)
         )
 
-    trainer_args["output_dir"] = trainer_args.get("output_dir", "./output")
     trainer_args = TrainingArguments(**trainer_args)
     return trainer_args
 
