@@ -32,8 +32,11 @@ class Evaluator:
         """Save the logs in a json file"""
         logs = dict(sorted(logs.items()))
         os.makedirs(os.path.dirname(file), exist_ok=True)
-        with open(file, "w") as f:
-            json.dump(logs, f, indent=4)
+        try:
+            with open(file, "w") as f:
+                json.dump(logs, f, indent=4)
+        except Exception as e:
+            raise RuntimeError(f"Failed to save {file}: {e}")
 
     def prepare_model(self, model):
         """Prepare model for evaluation"""
@@ -49,6 +52,8 @@ class Evaluator:
         """Summarize the metrics results"""
         metric_summary = {}
         for metric_name, metric_results in logs.items():
+            if metric_name not in self.metrics:
+                continue
             agg_value = metric_results.get("agg_value", None)
             if agg_value is not None:
                 metric_summary[metric_name] = agg_value
@@ -77,6 +82,7 @@ class Evaluator:
                     logger.info(
                         f"Result for metric {metric_name}:\t{logs[metric_name]['agg_value']}"
                     )
+                self.save_logs(self.summarize(logs), summary_file_path)
                 continue
             _ = logs.pop(metric_name, None)  # overwriting existing evals if present
             kwargs = {
@@ -94,12 +100,7 @@ class Evaluator:
             )
             if "agg_value" in result:
                 logger.info(f"Result for metric {metric_name}:\t{result['agg_value']}")
-            try:
-                self.save_logs(logs, logs_file_path)
-            except Exception as e:
-                raise RuntimeError(f"Failed to save logs: {e}")
-            try:
-                self.save_logs(self.summarize(logs), summary_file_path)
-            except Exception as e:
-                raise RuntimeError(f"Failed to save summary: {e}")
+
+            self.save_logs(logs, logs_file_path)
+            self.save_logs(self.summarize(logs), summary_file_path)
         return logs

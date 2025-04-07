@@ -13,4 +13,4 @@ pre_compute:
   forget_truth_ratio:
     access_key: forget
 
-handler: forget_quality
+handler: ks_test

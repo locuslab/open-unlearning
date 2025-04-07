@@ -1,0 +1,22 @@
+TOFU_QA_forget:
+  access_key: forget
+  handler: QADataset
+  args:
+    hf_args:
+      name: "forget10"
+      split: "train"
+      path: "locuslab/TOFU"
+    question_key: "question"
+    answer_key: "answer"
+    max_length: 512
+TOFU_QA_holdout:
+  access_key: holdout
+  handler: QADataset
+  args:
+    hf_args:
+      name: "holdout10"
+      path: "locuslab/TOFU"
+      split: "train"
+    question_key: "question"
+    answer_key: "answer"
+    max_length: 512

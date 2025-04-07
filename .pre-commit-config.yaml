@@ -6,4 +6,4 @@ repos:
     -   id: ruff
         args: [check, --fix, scripts, src, setup.py, setup_data.py]
     -   id: ruff
-        args: [format, scripts, src, setup.py setup_data.py]
+        args: [format, --check, scripts, src, setup.py setup_data.py]

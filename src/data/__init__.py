@@ -40,9 +40,8 @@ def _load_single_dataset(dataset_name, dataset_cfg: DictConfig, **kwargs):
 def get_datasets(dataset_cfgs: Union[Dict, DictConfig], **kwargs):
     dataset = {}
     for dataset_name, dataset_cfg in dataset_cfgs.items():
-        dataset[dataset_name] = _load_single_dataset(
-            dataset_name, dataset_cfg, **kwargs
-        )
+        access_name = dataset_cfg.get("access_key", dataset_name)
+        dataset[access_name] = _load_single_dataset(dataset_name, dataset_cfg, **kwargs)
     if len(dataset) == 1:
         # return a single dataset
         return list(dataset.values())[0]

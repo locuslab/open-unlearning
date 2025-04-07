@@ -1,0 +1,16 @@
+# @package eval.tofu.metrics.mia_zlib
+defaults:
+  - ../../data/datasets@datasets: TOFU_MIA
+  - ../../collator@collators: DataCollatorForSupervisedDatasetwithIndex
+batch_size: 32
+handler: mia_zlib
+
+datasets:
+  TOFU_QA_forget:
+    args:
+      hf_args:
+        name: ${eval.tofu.forget_split}
+  TOFU_QA_holdout:
+    args:
+      hf_args:
+        name: ${eval.tofu.holdout_split}

@@ -11,10 +11,10 @@ models=(
 )
 per_device_train_batch_size=4 # Effective batch size 32 on two GPUs with gradent_accumulation_steps=8
 
-forget_retain_splits=(
-    "forget01 retain99"
-    "forget05 retain95"
-    "forget10 retain90"
+splits=(
+    "forget01 holdout01 retain99"
+    "forget05 holdout05 retain95"
+    "forget10 holdout10 retain90"
 )
 
 
@@ -23,9 +23,10 @@ forget_retain_splits=(
 ########################################### RETAIN Finetuned TOFU ######################################################
 ########################################################################################################################
 
-for split in "${forget_retain_splits[@]}"; do
+for split in "${splits[@]}"; do
     forget_split=$(echo $split | cut -d' ' -f1)
-    retain_split=$(echo $split | cut -d' ' -f2)
+    holdout_split=$(echo $split | cut -d' ' -f2)
+    retain_split=$(echo $split | cut -d' ' -f3)
     
     for model in "${models[@]}"; do
         CUDA_VISIBLE_DEVICES=0,1 accelerate launch --config_file configs/accelerate/default_config.yaml --main_process_port $MASTER_PORT \
@@ -41,6 +42,7 @@ for split in "${forget_retain_splits[@]}"; do
     
         CUDA_VISIBLE_DEVICES=0 python src/eval.py experiment=eval/tofu/default.yaml \
         forget_split=${forget_split} \
+        holdout_split=${holdout_split} \
         task_name=tofu_${model}_${retain_split} \
         model=${model} \
         model.model_args.pretrained_model_name_or_path=saves/finetune/tofu_${model}_${retain_split}
@@ -65,12 +67,14 @@ for model in "${models[@]}"; do
     trainer.args.gradient_checkpointing=true
 
     # Evaluate the full models on each forget split
-    for split in "${forget_retain_splits[@]}"; do
+    for split in "${splits[@]}"; do
         forget_split=$(echo $split | cut -d' ' -f1)
-        retain_split=$(echo $split | cut -d' ' -f2)
+        holdout_split=$(echo $split | cut -d' ' -f2)
+        retain_split=$(echo $split | cut -d' ' -f3)
 
         CUDA_VISIBLE_DEVICES=0 python src/eval.py experiment=eval/tofu/default.yaml \
         forget_split=${forget_split} \
+        holdout_split=${holdout_split} \
         task_name=tofu_${model}_full_${forget_split} \
         model=${model} \
         model.model_args.pretrained_model_name_or_path=saves/finetune/tofu_${model}_full \

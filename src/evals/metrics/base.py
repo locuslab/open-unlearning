@@ -120,7 +120,7 @@ class UnlearningMetric:
                 reference_logs[reference_log_name][access_name] = _results
                 if _results is None:
                     logger.warning(
-                        f"{key} not present in the {path}, setting it to None!"
+                        f"{key} evals not present in the {path}, setting it to None, may result in error soon if code attempts to access."
                     )
         if reference_logs:
             kwargs.update({"reference_logs": reference_logs})
