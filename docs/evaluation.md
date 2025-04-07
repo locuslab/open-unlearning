@@ -21,6 +21,7 @@ python src/eval.py --config-name=eval.yaml \
 - `--config-name=eval.yaml`- sets task to be [`configs/eval.yaml`](../configs/eval.yaml)
 - `experiment=eval/tofu/default`- set experiment to use [`configs/eval/tofu/default.yaml`](../configs/eval/tofu/default.yaml)
 - `model=Llama-3.2-3B-Instruct`- override the default (`Llama-3.2-1B-Instruct`) model config to use [`configs/model/Llama-3.2-3B-Instruct`](../configs/model/Phi-3.5-mini-instruct.yaml).
+- Output directory: constructed as `saves/eval/SAMPLE_EVAL`
 
 
 Run the MUSE-Books benchmark evaluation on a checkpoint of a Phi-3.5 model:

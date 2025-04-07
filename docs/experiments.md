@@ -11,6 +11,8 @@ The large number of component variants supported in this repository creates the 
 
 At the core, three main Hydra configs—`train.yaml` (generic training), `eval.yaml` (running evaluation), and `unlearn.yaml` (unlearning training)—provide the base configuration for the main types of experiments. These are then extended by experiment-specific configs and command-line overrides. We set up experiment configs for common usecases like LLaMA-2 unlearning on TOFU, LLaMA-2 evaluation on MUSE etc. which set the required datasets, models, and base train and eval configs to make things easier.
 
+Experiment output directories are constructed based on the task mode (`train` / `eval` / `unlearn`) and the task name (provided by the user) as `./saves/${mode}/${task_name}`. The experiment logging will display where the model checkpoints, logs and evaluation dumps are stored.
+
 ---
 
 ### Table of Contents
@@ -34,6 +36,7 @@ At the core, three main Hydra configs—`train.yaml` (generic training), `eval.y
 python src/train.py --config-name=train.yaml experiment=finetune/tofu/default task_name=SAMPLE_TRAIN
 
 ## runs an unlearning training using experiment details from configs/unlearn/tofu/default.yaml
+# output directory will be constructed as: saves/unlearn/SAMPLE_UNLEARN
 python src/train.py --config-name=unlearn.yaml experiment=unlearn/tofu/default task_name=SAMPLE_TRAIN
 
 
