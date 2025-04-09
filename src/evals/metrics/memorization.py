@@ -1,4 +1,5 @@
 import logging
+import torch
 import numpy as np
 import scipy as sc
 from torch.utils.data import DataLoader
@@ -9,6 +10,7 @@ from evals.metrics.utils import (
     evaluate_probability,
     eval_text_similarity,
     run_batchwise_evals,
+    tokenwise_vocab_logprobs,
 )
 from evals.metrics.base import unlearning_metric
 
@@ -136,3 +138,65 @@ def truth_ratio(model, **kwargs):
 def hm_aggregate(model, **kwargs):
     values = [result["agg_value"] for _, result in kwargs["pre_compute"].items()]
     return {"agg_value": sc.stats.hmean(values)}
+
+
+@unlearning_metric(name="exact_memorization")
+def exact_memorization(model, **kwargs):
+    data = kwargs["data"]
+    collator = kwargs["collators"]
+    batch_size = kwargs["batch_size"]
+    dataloader = DataLoader(data, batch_size=batch_size, collate_fn=collator)
+
+    def _exact_memorization(model, batch):
+        log_probs_batch, labels_batch = tokenwise_vocab_logprobs(
+            model, batch, grad=False, return_labels=True
+        )
+        em_batch = []
+        for log_probs, labels in zip(log_probs_batch, labels_batch):
+            assert len(log_probs) == len(labels)
+            preds = torch.argmax(log_probs, dim=-1)
+            em_score = (preds == labels).sum() / len(labels)
+            em_batch.append({"score": em_score.item()})
+        return em_batch
+
+    fun_args = {}
+    scores_by_index = run_batchwise_evals(
+        model, dataloader, _exact_memorization, fun_args, "Calculating EM"
+    )
+    em_values = np.array([evals["score"] for evals in scores_by_index.values()])
+    em_values = aggregate_to_1D(em_values)
+    return {"agg_value": np.mean(em_values), "value_by_index": scores_by_index}
+
+
+@unlearning_metric(name="extraction_strength")
+def extraction_strength(model, **kwargs):
+    data = kwargs["data"]
+    collator = kwargs["collators"]
+    batch_size = kwargs["batch_size"]
+    dataloader = DataLoader(data, batch_size=batch_size, collate_fn=collator)
+
+    def _extraction_strength(model, batch):
+        log_probs_batch, labels_batch = tokenwise_vocab_logprobs(
+            model, batch, grad=False, return_labels=True
+        )
+        es_batch = []
+        for log_probs, labels in zip(log_probs_batch, labels_batch):
+            assert len(log_probs) == len(labels)
+            valid_len = len(labels)
+            preds = torch.argmax(log_probs, dim=-1)
+            for k in range(valid_len):
+                suff_preds = preds[k:]
+                suff_labels = labels[k:]
+                if torch.equal(suff_preds, suff_labels):
+                    break
+            es_score = 1 - (k / valid_len)
+            es_batch.append({"score": es_score})
+        return es_batch
+
+    fun_args = {}
+    scores_by_index = run_batchwise_evals(
+        model, dataloader, _extraction_strength, fun_args, "Calculating ES"
+    )
+    es_values = np.array([evals["score"] for evals in scores_by_index.values()])
+    es_values = aggregate_to_1D(es_values)
+    return {"agg_value": np.mean(es_values), "value_by_index": scores_by_index}

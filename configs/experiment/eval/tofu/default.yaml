@@ -5,6 +5,7 @@ defaults:
   - override /eval: tofu
 
 forget_split: forget10
+holdout_split: holdout10
 retain_logs_path: null
 
 model:
@@ -14,6 +15,7 @@ model:
 eval:
   tofu:
     forget_split: ${forget_split}
+    holdout_split: ${holdout_split}
     retain_logs_path: ${retain_logs_path}
 
 task_name: ???

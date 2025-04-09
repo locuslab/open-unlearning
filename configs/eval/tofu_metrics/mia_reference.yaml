@@ -1,0 +1,17 @@
+# @package eval.tofu.metrics.mia_reference
+defaults:
+  - ../../data/datasets@datasets: TOFU_MIA
+  - ../../collator@collators: DataCollatorForSupervisedDatasetwithIndex
+batch_size: 32
+handler: mia_reference
+reference_model_path: ??? # modify appropriately for example open-unlearning/tofu_Llama-3.2-1B-Instruct_retain90
+
+datasets:
+  TOFU_QA_forget:
+    args:
+      hf_args:
+        name: ${eval.tofu.forget_split}
+  TOFU_QA_holdout:
+    args:
+      hf_args:
+        name: ${eval.tofu.holdout_split}

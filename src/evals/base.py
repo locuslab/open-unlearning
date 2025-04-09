@@ -12,7 +12,9 @@ class Evaluator:
         self.eval_cfg = eval_cfg
         self.metrics_cfg = self.eval_cfg.metrics
         self.metrics = self.load_metrics(self.metrics_cfg)
-        logger.info(f"Output directory {self.eval_cfg.output_dir}")
+        logger.info(
+            f"Evaluations stored in the experiment directory: {self.eval_cfg.output_dir}"
+        )
 
     def get_logs_file_path(self, output_dir, suffix="EVAL"):
         """Returns the path to json file to store results"""
@@ -32,8 +34,11 @@ class Evaluator:
         """Save the logs in a json file"""
         logs = dict(sorted(logs.items()))
         os.makedirs(os.path.dirname(file), exist_ok=True)
-        with open(file, "w") as f:
-            json.dump(logs, f, indent=4)
+        try:
+            with open(file, "w") as f:
+                json.dump(logs, f, indent=4)
+        except Exception as e:
+            raise RuntimeError(f"Failed to save {file}: {e}")
 
     def prepare_model(self, model):
         """Prepare model for evaluation"""
@@ -49,6 +54,8 @@ class Evaluator:
         """Summarize the metrics results"""
         metric_summary = {}
         for metric_name, metric_results in logs.items():
+            if metric_name not in self.metrics:
+                continue
             agg_value = metric_results.get("agg_value", None)
             if agg_value is not None:
                 metric_summary[metric_name] = agg_value
@@ -66,10 +73,14 @@ class Evaluator:
         logs_file_path = self.get_logs_file_path(output_dir)
         summary_file_path = self.get_logs_file_path(output_dir, suffix="SUMMARY")
 
-        # Load exisiting results from file if any.
+        # Load existing results from file if any.
         logs = self.load_logs_from_file(logs_file_path) if not overwrite else {}
 
         logger.info(f"***** Running {self.name} evaluation suite *****")
+        logger.info(f"Fine-grained evaluations will be saved to: {logs_file_path}")
+        logger.info(
+            f"Aggregated evaluations will be summarised in: {summary_file_path}"
+        )
         for metric_name, metric_fn in self.metrics.items():
             if not overwrite and metric_name in logs and logs[metric_name]:
                 logger.info(f"Skipping {metric_name}, already evaluated.")
@@ -77,6 +88,7 @@ class Evaluator:
                     logger.info(
                         f"Result for metric {metric_name}:\t{logs[metric_name]['agg_value']}"
                     )
+                self.save_logs(self.summarize(logs), summary_file_path)
                 continue
             _ = logs.pop(metric_name, None)  # overwriting existing evals if present
             kwargs = {
@@ -94,12 +106,7 @@ class Evaluator:
             )
             if "agg_value" in result:
                 logger.info(f"Result for metric {metric_name}:\t{result['agg_value']}")
-            try:
-                self.save_logs(logs, logs_file_path)
-            except Exception as e:
-                raise RuntimeError(f"Failed to save logs: {e}")
-            try:
-                self.save_logs(self.summarize(logs), summary_file_path)
-            except Exception as e:
-                raise RuntimeError(f"Failed to save summary: {e}")
+            self.save_logs(logs, logs_file_path)
+            self.save_logs(self.summarize(logs), summary_file_path)
+
         return logs

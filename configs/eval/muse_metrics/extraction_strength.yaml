@@ -1,0 +1,12 @@
+# @package eval.muse.metrics.extraction_strength
+defaults:
+  - ../../data/datasets@datasets: MUSE_forget_verbmem
+  - ../../collator@collators: DataCollatorForSupervisedDatasetwithIndex
+
+handler: extraction_strength
+batch_size: 8
+datasets:
+  MUSE_forget_verbmem:
+    args:
+      hf_args:
+        path: muse-bench/MUSE-${eval.muse.data_split}

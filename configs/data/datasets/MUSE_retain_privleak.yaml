@@ -1,9 +1,0 @@
-MUSE_retain_privleak:
-  handler: PretrainingDataset
-  args:
-    hf_args:
-      path: "muse-bench/MUSE-News"
-      name: "privleak"
-      split: "retain"
-    text_key: "text"
-    max_length: 2048
