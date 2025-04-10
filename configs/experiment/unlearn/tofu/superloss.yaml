@@ -1,0 +1,48 @@
+# @package _global_
+
+defaults:
+  - override /model: Llama-3.2-1B-Instruct
+  - override /trainer: GradAscent
+  - override /data: unlearn
+  - override /data/datasets@data.forget: TOFU_QA_forget
+  - override /data/datasets@data.retain: TOFU_QA_retain
+  - override /eval: tofu
+
+model:
+  model_args:
+    pretrained_model_name_or_path: open-unlearning/tofu_Llama-3.2-1B-Instruct_full
+  cl: superloss
+
+forget_split: forget10
+retain_split: retain90
+retain_logs_path: null
+
+eval:
+  tofu:
+    forget_split: ${forget_split}
+    retain_logs_path: ${retain_logs_path}
+    overwrite: true
+    
+data:
+  anchor: forget
+  forget:
+    TOFU_QA_forget: 
+      args:
+        hf_args:
+          name: ${forget_split}
+  retain:
+    TOFU_QA_retain:
+      args:
+        hf_args:
+          name: ${retain_split}
+
+trainer:
+  args:
+    warmup_epochs: 1.0 # custom parameter
+    learning_rate: 1e-5
+    weight_decay: 0.01
+    num_train_epochs: 10
+    # save_strategy: steps
+    # save_steps: 0.5
+
+task_name: ???

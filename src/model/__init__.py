@@ -1,4 +1,5 @@
 from transformers import AutoModelForCausalLM, AutoTokenizer
+from transformers import AutoModelForCausalLM as AutoModelForCausalLMCL
 from omegaconf import DictConfig, open_dict
 import os
 import torch
@@ -39,9 +40,14 @@ def get_model(model_cfg: DictConfig):
     tokenizer_args = model_cfg.tokenizer_args
     torch_dtype = get_dtype(model_args)
     try:
-        model = AutoModelForCausalLM.from_pretrained(
-            torch_dtype=torch_dtype, **model_args, cache_dir=hf_home
-        )
+        if model_cfg.cl is None or model_cfg.cl == 'none':
+            model = AutoModelForCausalLM.from_pretrained(
+                torch_dtype=torch_dtype, **model_args, cache_dir=hf_home
+            )
+        else:
+            model = AutoModelForCausalLMCL.from_pretrained(
+                torch_dtype=torch_dtype, **model_args, cache_dir=hf_home
+            )
     except Exception as e:
         logger.warning(
             f"Model {model_args.pretrained_model_name_or_path} requested with {model_cfg.model_args}"

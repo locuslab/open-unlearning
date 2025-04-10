@@ -1,0 +1,52 @@
+# @package _global_
+
+defaults:
+  - override /model: Llama-2-7b-hf
+  - override /trainer: GradAscent
+  - override /data: unlearn
+  - override /data/datasets@data.forget: MUSE_forget
+  - override /data/datasets@data.retain: MUSE_retain
+  - override /eval: muse
+
+data_split: News
+forget_split: forget
+retain_split: retain1
+retain_logs_path: null
+
+model:
+  model_args:
+    pretrained_model_name_or_path: muse-bench/MUSE-${data_split}_target
+  cl: superloss
+
+data:
+  anchor: forget
+  forget:
+    MUSE_forget: 
+      args:
+        hf_args:
+          split: ${forget_split}
+  retain:
+    MUSE_retain:
+      args:
+        hf_args:
+          split: ${retain_split}
+
+eval:
+  muse:
+    data_split: ${data_split}
+    retain_logs_path: ${retain_logs_path}
+    overwrite: true
+
+trainer:
+  args:
+    per_device_train_batch_size: 4
+    gradient_accumulation_steps: 8
+    learning_rate: 1e-5
+    num_train_epochs: 10
+    lr_scheduler_type: constant
+    # save_strategy: steps
+    # save_steps: 0.5
+    # optim: paged_adamw_32bit
+    # optim: adamw_torch
+
+task_name: ???
