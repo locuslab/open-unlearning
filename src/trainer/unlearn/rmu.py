@@ -136,7 +136,7 @@ class RMU(GradDiff):
             retain_loss = super().compute_retain_loss(model, retain_inputs)
         return retain_loss
 
-    def compute_loss(self, model, inputs, return_outputs=False):
+    def compute_loss_superloss(self, model, inputs, return_outputs=False):
         forget_inputs = inputs["forget"]
         forget_inputs = {
             "input_ids": forget_inputs["input_ids"],
@@ -169,5 +169,42 @@ class RMU(GradDiff):
         retain_loss = self.compute_retain_loss(model=model, retain_inputs=retain_inputs)
 
         loss = self.gamma * forget_loss + self.alpha * retain_loss
+
+        return (loss, forget_outputs) if return_outputs else loss
+
+    def compute_loss_normal(self, model, inputs, return_outputs=False):
+        forget_inputs = inputs["forget"]
+        forget_inputs = {
+            "input_ids": forget_inputs["input_ids"],
+            "attention_mask": forget_inputs["attention_mask"],
+            "labels": forget_inputs["labels"],
+        }
+
+        model_forget_activations, forget_outputs = self.forward_with_cache(
+            model, forget_inputs, self.model_module, no_grad=False
+        )
+        # If multiple datasets or concepts need unlearning, pass the control vector during processing; otherwise, default to a random vector during training.
+        control_vec = forget_inputs.get(
+            "control_vec", self.get_control_vector(model_forget_activations.shape[-1])
+        )
+        control_vec = control_vec.to(
+            dtype=model_forget_activations.dtype, device=model_forget_activations.device
+        )
+        control_vec = control_vec.expand_as(model_forget_activations)
+        mask = forget_inputs["labels"] != -100  # Shape: [b, s]
+        forget_loss = self.compute_activation_loss(
+            model_forget_activations, control_vec, mask
+        )
+
+        retain_inputs = inputs["retain"]
+        retain_inputs = {
+            "input_ids": retain_inputs["input_ids"],
+            "attention_mask": retain_inputs["attention_mask"],
+            "labels": retain_inputs["labels"],
+        }
+        retain_loss = self.compute_retain_loss(model=model, retain_inputs=retain_inputs)
+
+        loss = self.gamma * forget_loss + self.alpha * retain_loss
+        loss = self.calculate_superloss(loss).mean()
 
         return (loss, forget_outputs) if return_outputs else loss
