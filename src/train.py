@@ -4,6 +4,7 @@ from data import get_data, get_collators
 from model import get_model
 from trainer import load_trainer
 from evals import get_evaluator
+from trainer.utils import seed_everything
 
 
 @hydra.main(version_base=None, config_path="../configs", config_name="train.yaml")
@@ -12,6 +13,7 @@ def main(cfg: DictConfig):
     Args:
         cfg (DictConfig): Config to train
     """
+    seed_everything(cfg.trainer.args.seed)
     mode = cfg.get("mode", "train")
     model_cfg = cfg.model
     template_args = model_cfg.template_args

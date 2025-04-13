@@ -1,0 +1,22 @@
+MUSE_MIA_holdout:
+  access_key: holdout
+  handler: CompletionDataset
+  args:
+    hf_args:
+      path: "muse-bench/MUSE-News"
+      name: "privleak"
+      split: "holdout"
+    prefix_key: "prompt" # doesn't exist in dataset
+    text_key: "text"
+    max_length: 2048
+MUSE_MIA_forget:
+  access_key: forget
+  handler: CompletionDataset
+  args:
+    hf_args:
+      path: "muse-bench/MUSE-News"
+      name: "privleak"
+      split: "forget"
+    prefix_key: "prompt" # doesn't exist in dataset
+    text_key: "text"
+    max_length: 2048

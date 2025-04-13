@@ -1,4 +1,4 @@
-# @package eval.muse.metrics.privleak
+# @package eval.tofu.metrics.privleak
 defaults:
   - .@pre_compute.mia_min_k: mia_min_k
 
@@ -8,7 +8,7 @@ pre_compute:
 
 reference_logs:
   retain_model_logs:
-    path: ${eval.muse.retain_logs_path}
+    path: ${eval.tofu.retain_logs_path}
     include: 
       mia_min_k:
         access_key: retain

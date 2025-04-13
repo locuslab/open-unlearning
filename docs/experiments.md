@@ -11,6 +11,8 @@ The large number of component variants supported in this repository creates the 
 
 At the core, three main Hydra configs—`train.yaml` (generic training), `eval.yaml` (running evaluation), and `unlearn.yaml` (unlearning training)—provide the base configuration for the main types of experiments. These are then extended by experiment-specific configs and command-line overrides. We set up experiment configs for common usecases like LLaMA-2 unlearning on TOFU, LLaMA-2 evaluation on MUSE etc. which set the required datasets, models, and base train and eval configs to make things easier.
 
+Experiment output directories are constructed based on the task mode (`train` / `eval` / `unlearn`) and the task name (provided by the user) as `./saves/${mode}/${task_name}`. The experiment logging will display where the model checkpoints, logs and evaluation dumps are stored.
+
 ---
 
 ### Table of Contents
@@ -34,6 +36,7 @@ At the core, three main Hydra configs—`train.yaml` (generic training), `eval.y
 python src/train.py --config-name=train.yaml experiment=finetune/tofu/default task_name=SAMPLE_TRAIN
 
 ## runs an unlearning training using experiment details from configs/unlearn/tofu/default.yaml
+# output directory will be constructed as: saves/unlearn/SAMPLE_UNLEARN
 python src/train.py --config-name=unlearn.yaml experiment=unlearn/tofu/default task_name=SAMPLE_TRAIN
 
 
@@ -59,7 +62,8 @@ paths.output_dir=saves/unlearn/NPO/evals
 ```
 
 
-> [!Note]: The unlearning experiments support evaluation during the unlearning finetuning. But this is supported only on a single GPU When multiple GPUs are used to train, checkpoints must be stored and evaluated after training.
+> [!NOTE]
+The unlearning experiments support evaluation during the unlearning finetuning. But this is supported only on a single GPU When multiple GPUs are used to train, checkpoints must be stored and evaluated after training.
 
 ---
 
@@ -70,7 +74,7 @@ To understand the structure of an evaluation config and the kind of available pa
 To understand the structure of an unlearning config and the kind of available parameters for overriding, refer to: [`configs/experiment/examples/muse_unlearn.yaml`](../configs/experiment/examples/muse_unlearn.yaml).
 
 The following tables list the most commonly used arguments while running experiments.
-
+<!-- 
 <style>
   table {
     width: 100%;
@@ -92,7 +96,7 @@ The following tables list the most commonly used arguments while running experim
   col.description {
     width: 70%;
   }
-</style>
+</style> -->
 
 ### <h3>Model Settings</h3>
 <table>
@@ -242,7 +246,8 @@ CUDA_VISIBLE_DEVICES=0,1 accelerate launch \
   src/train.py --config-name=unlearn.yaml experiment=unlearn/muse/default.yaml task_name=DISTRIBUTED_TRAIN
 ```
 
-> [!Note]: Evaluation runs are designed to work only a single GPU (this includes running evaluation during training). To run an evaluation job, modify your command to make only one GPU visible (assuming one GPU is enough for inference):
+> [!CAUTION]
+> Evaluation runs are designed to work only a single GPU (this includes running evaluation during training). To run an evaluation job, modify your command to make only one GPU visible (assuming one GPU is enough for inference), as shown below
 
 ```bash
 CUDA_VISIBLE_DEVICES=0 python src/eval.py  experiment=eval/muse/default.yaml task_name=SAMPLE_EVAL

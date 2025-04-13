@@ -19,7 +19,8 @@ This process involves three main steps:
 6. [Collator](#collator) - Handles data collation logic
 7. [Experiment](#experiment) - Combines components into a final experiment config
 
-> [!Note] adding each component requires Hydra config management features, which are documented in [`docs/hydra.md`](../docs/hydra.md). 
+> [!NOTE]
+> Adding each component requires Hydra config management features, which are documented in [`docs/hydra.md`](../docs/hydra.md). 
 
 ---
 
@@ -147,7 +148,8 @@ To add a new model architecture:
 ### Implement and register a handler
 For all the models currently supported, HuggingFace's `AutoModelForCausalLM` and `AutoTokenizer` are used, and therefore the user doesn't need to create or register any handler.
 
-> [!Note]: Currently, we do not support loading models modified with LoRA and related variants. If you wish use such features, please create define and register model handlers for this logic in [`src/model`](../src/model) and provide the config info as discussed next.
+> [!NOTE]
+Currently, we do not support loading models modified with LoRA and related variants. If you wish use such features, please create define and register model handlers for this logic in [`src/model`](../src/model) and provide the config info as discussed next.
 
 ### Add to configs
 Model configurations contain details required to load the model+tokenizer such as paths, chat templating arguments, LoRA parameters etc. in [`configs/models`](../configs/models/).
