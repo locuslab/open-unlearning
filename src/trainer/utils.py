@@ -67,31 +67,32 @@ def compute_dpo_loss(model, ref_model, win_inputs=None, lose_inputs=None, beta=1
     loss = -2 / beta * F.logsigmoid(beta * (win_log_ratio - lose_log_ratio)).mean()
     return loss, (win_outputs, lose_outputs)
 
+
 def compute_undial_loss(model, ref_model, inputs, beta):
     # Forward pass on the student (trainable) model
     outputs = model(**inputs)
     logits = outputs.logits
     labels = inputs["labels"]
-    
+
     shift_labels = labels[..., 1:].contiguous()
     shift_logits = logits[..., :-1, :].contiguous()
-    
+
     # Forward pass on the teacher model (no grad)
     with torch.no_grad():
         teacher_logits = ref_model(**inputs).logits
     shift_teacher_logits = teacher_logits[..., :-1, :].contiguous()
-    
+
     # Build the mask that identifies the tokens need to be unlearned
     mask = torch.zeros_like(shift_teacher_logits)
     batch_idx = torch.arange(mask.shape[0]).view(-1, 1, 1)
     seq_idx = torch.arange(mask.shape[1]).view(1, -1, 1)
     mask[batch_idx, seq_idx, shift_labels.unsqueeze(-1)] = 1.0
-    
+
     # Adjust teacher logits: subtract di_strength on the correct token
     pre_softmax = shift_teacher_logits - mask * beta
     soft_label = F.softmax(pre_softmax, dim=-1)
 
-    loss_fct = nn.CrossEntropyLoss(reduction='none')
+    loss_fct = nn.CrossEntropyLoss(reduction="none")
     loss = loss_fct(
         shift_logits.view(-1, shift_logits.size(-1)),
         soft_label.view(-1, soft_label.size(-1)),
