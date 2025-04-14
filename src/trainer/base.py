@@ -47,7 +47,7 @@ class FinetuneTrainer(Trainer):
                     self.log(eval_metrics)
                 else:
                     logger.warning(
-                        "Custom evaluator can be run with this Trainer only on a single GPU"
+                        "Custom evaluator can be run with this Trainer only when a single accelerator process is running."
                     )
                 return eval_metrics
 
