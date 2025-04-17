@@ -5,7 +5,7 @@ model_args:
 tokenizer_args:
   pretrained_model_name_or_path: "meta-llama/Llama-3.2-1B-Instruct"
 template_args:
-  apply_chat_template: True
+  apply_chat_template: false
   system_prompt: You are a helpful assistant.
   system_prompt_with_special_tokens: "<|begin_of_text|><|start_header_id|>system<|end_header_id|>\n\nYou are a helpful assistant.<|eot_id|>"
   user_start_tag: "<|start_header_id|>user<|end_header_id|>\n\n"
