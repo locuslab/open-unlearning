@@ -18,13 +18,16 @@
 
 ## 📖 Overview
 
-We provide efficient and streamlined implementations of the TOFU, MUSE unlearning benchmarks while supporting 6 unlearning methods, 3+ datasets, 9+ evaluation metrics, and 6+ LLM architectures. Each of these can be easily extended to incorporate more variants.
+We provide efficient and streamlined implementations of the TOFU, MUSE, and WMDP unlearning benchmarks while supporting 6 unlearning methods, 3+ datasets, 9+ evaluation metrics, and 6+ LLM architectures. Each of these can be easily extended to incorporate more variants.
 
 We invite the LLM unlearning community to collaborate by adding new benchmarks, unlearning methods, datasets and evaluation metrics here to expand OpenUnlearning's features, gain feedback from wider usage and drive progress in the field.
 
 ---
 
 ### 📢 Updates
+
+#### [Apr 9, 2025]
+- **New Benchmark!** Added support for the [WMDP](https://arxiv.org/abs/2403.03218) (Weapons of Mass Destruction Proxy) benchmark with cyber-forget-corpus and cyber-retain-corpus for unlearning hazardous knowledge.
 
 #### [Apr 6, 2025]
 🚨🚨 **IMPORTANT:** 🚨🚨 Be sure to run `python setup_data.py` immediately after merging the latest version. This is required to refresh the downloaded eval log files and ensure they're compatible with the latest evaluation metrics.
@@ -56,10 +59,10 @@ We provide several variants for each of the components in the unlearning pipelin
 
 | **Component**          | **Available Options** |
 |------------------------|----------------------|
-| **Benchmarks**        | [TOFU](https://arxiv.org/abs/2401.06121), [MUSE](https://muse-bench.github.io/) |
+| **Benchmarks**        | [TOFU](https://arxiv.org/abs/2401.06121), [MUSE](https://muse-bench.github.io/), [WMDP](https://arxiv.org/abs/2403.03218) |
 | **Unlearning Methods** | GradAscent, GradDiff, NPO, SimNPO, DPO, RMU |
 | **Evaluation Metrics** | Verbatim Probability, Verbatim ROUGE, Knowledge QA-ROUGE, Model Utility, Forget Quality, TruthRatio, Extraction Strength, Exact Memorization, 6 MIA attacks |
-| **Datasets**          | MUSE-News (BBC), MUSE-Books (Harry Potter), TOFU (different splits) |
+| **Datasets**          | MUSE-News (BBC), MUSE-Books (Harry Potter), TOFU (different splits), WMDP (cyber corpus) |
 | **Model Families**    | TOFU: LLaMA-3.2, LLaMA-3.1, LLaMA-2; MUSE: LLaMA-2; Additional: Phi-3.5, Phi-1.5, Gemma |
 
 ---
@@ -152,6 +155,7 @@ The scripts below execute standard baseline unlearning experiments on the TOFU a
 ```bash
 bash scripts/tofu_unlearn.sh
 bash scripts/muse_unlearn.sh
+bash scripts/wmdp_unlearn.sh
 ```
 
 The above scripts are not tuned and uses default hyper parameter settings. We encourage you to tune your methods and add your final results in [`community/leaderboard.md`](community/leaderboard.md).

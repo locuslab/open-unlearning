@@ -1,0 +1,49 @@
+# WMDP Unlearning Configuration
+
+defaults:
+  - override /model: Llama-3.2-1B-Instruct
+  - override /trainer: RMU
+  - override /data: unlearn
+  - override /data/datasets@data.forget: WMDP_cyber_forget_corpus
+  - override /data/datasets@data.retain: WMDP_cyber_retain_corpus
+  - override /eval: wmdp
+
+model:
+  model_args:
+    pretrained_model_name_or_path: meta-llama/Llama-3.2-1B-Instruct
+
+forget_split: train
+retain_split: train
+holdout_split: test
+retain_logs_path: null
+
+eval:
+  wmdp:
+    forget_split: ${forget_split}
+    holdout_split: ${holdout_split}
+    retain_logs_path: ${retain_logs_path}
+    overwrite: true
+    
+data:
+  anchor: forget
+  forget:
+    WMDP_cyber_forget_corpus: 
+      args:
+        hf_args:
+          name: "cyber-forget-corpus"
+          split: ${forget_split}
+  retain:
+    WMDP_cyber_retain_corpus:
+      args:
+        hf_args:
+          name: "cyber-retain-corpus"
+          split: ${retain_split}
+
+trainer:
+  args:
+    warmup_epochs: 1.0
+    learning_rate: 1e-5
+    weight_decay: 0.01
+    num_train_epochs: 10
+
+task_name: wmdp_cyber_unlearning

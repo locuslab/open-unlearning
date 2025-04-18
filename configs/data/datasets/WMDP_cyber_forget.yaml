@@ -1,0 +1,11 @@
+WMDP_cyber_forget:
+  handler: QADataset
+  args:
+    hf_args:
+      path: "cais/wmdp"
+      name: "wmdp-cyber"
+      split: "test"
+    question_key: "question"
+    answer_key: "answer"
+    choices_key: "choices"
+    max_length: 512

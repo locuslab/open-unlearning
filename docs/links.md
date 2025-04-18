@@ -32,6 +32,7 @@ Links to research papers and resources corresponding to implemented features in 
 |-----------|----------|
 | TOFU      | Paper [📄](https://arxiv.org/abs/2401.06121) |
 | MUSE      | Paper [📄](https://arxiv.org/abs/2407.06460) |
+| WMDP      | Paper [📄](https://arxiv.org/abs/2403.03218), Code [🐙](https://github.com/centerforaisafety/wmdp), Website [🌐](https://www.wmdp.ai/) |
 
 ---
 
@@ -57,6 +58,7 @@ Links to research papers and resources corresponding to implemented features in 
 ### 🐙 Other GitHub Repositories
 - [TOFU Benchmark (original)](https://github.com/locuslab/tofu)
 - [MUSE Benchmark (original)](https://github.com/swj0419/muse_bench)
+- [WMDP Benchmark (original)](https://github.com/centerforaisafety/wmdp)
 - [Awesome LLM Unlearning](https://github.com/chrisliu298/awesome-llm-unlearning)
 - [Awesome Machine Unlearning](https://github.com/tamlhp/awesome-machine-unlearning)
 - [Awesome GenAI Unlearning](https://github.com/franciscoliu/Awesome-GenAI-Unlearning)

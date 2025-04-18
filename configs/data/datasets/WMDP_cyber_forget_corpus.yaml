@@ -1,0 +1,9 @@
+WMDP_cyber_forget_corpus:
+  handler: PretrainingDataset
+  args:
+    hf_args:
+      path: "cais/wmdp-corpora"
+      name: "cyber-forget-corpus"
+      split: "train"
+    text_key: "text"
+    max_length: 2048
