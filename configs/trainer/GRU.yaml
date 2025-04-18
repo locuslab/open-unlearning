@@ -1,0 +1,7 @@
+defaults:
+  - finetune
+
+handler: GRU
+method_args:
+  gamma_gru: 0.8
+  forget_loss_type: GradAscent 
