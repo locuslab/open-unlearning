@@ -91,7 +91,7 @@ for data_split in "${data_splits[@]}"; do
 
                 CUDA_VISIBLE_DEVICES=3,4 accelerate launch --config_file configs/accelerate/default_config.yaml --main_process_port $MASTER_PORT \
                 src/train.py --config-name=unlearn.yaml \
-                experiment=unlearn/muse/scalability_${cl}.yaml \
+                experiment=unlearn/muse/scalability.yaml \
                 trainer.cl=${cl} \
                 model=${model} \
                 data_split=${data_split} \
@@ -143,7 +143,7 @@ for data_split in "${data_splits[@]}"; do
                 
                 CUDA_VISIBLE_DEVICES=3,4 accelerate launch --config_file configs/accelerate/default_config.yaml --main_process_port $MASTER_PORT \
                 src/train.py --config-name=unlearn.yaml \
-                experiment=unlearn/muse/sustainabilty_${cl}.yaml \
+                experiment=unlearn/muse/sustainabilty.yaml \
                 trainer.cl=${cl} \
                 model=${model} \
                 model.model_args.pretrained_model_name_or_path=${model_path} \
