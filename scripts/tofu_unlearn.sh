@@ -16,7 +16,7 @@ trainers=(
     "SimNPO"
 )
 cls=(
-    "default"
+    # "default"
     "superloss"
 )
 splits=(
@@ -45,28 +45,28 @@ for split in "${splits[@]}"; do
         for trainer in "${trainers[@]}"; do
             for cl in "${cls[@]}"; do
             
-                task_name=tofu_${model}_${forget_split}_${trainer}
+                task_name=tofu_${model}_${forget_split}_${trainer}_${cl}
                 model_path=open-unlearning/tofu_${model}_full
-                echo ${task_name}: Unlearning ${model_path} using ${trainer}
 
                 if [ ! -f saves/unlearn/"${task_name}"/model.safetensors ] && [ ! -f saves/unlearn/"${task_name}"/model.safetensors.index.json ]; then
                     echo "${task_name}" "Model Not Found"
                     
                     # Unlearn
-                    # CUDA_VISIBLE_DEVICES=3,4 accelerate launch --config_file configs/accelerate/default_config.yaml --main_process_port $MASTER_PORT \
-                    # src/train.py --config-name=unlearn.yaml \
-                    # experiment=unlearn/tofu/${cl}.yaml \
-                    # trainer=${trainer} \
-                    # task_name=${task_name} \
-                    # model=${model} \
-                    # forget_split=${forget_split} \
-                    # retain_split=${retain_split} \
-                    # model.model_args.pretrained_model_name_or_path=${model_path} \
-                    # retain_logs_path=saves/eval/tofu_${model}_${retain_split}/TOFU_EVAL.json \
-                    # trainer.args.per_device_train_batch_size=$per_device_train_batch_size \
-                    # trainer.args.gradient_accumulation_steps=$gradient_accumulation_steps \
-                    # trainer.args.ddp_find_unused_parameters=true \
-                    # trainer.args.gradient_checkpointing=true
+                    CUDA_VISIBLE_DEVICES=3,4 accelerate launch --config_file configs/accelerate/default_config.yaml --main_process_port $MASTER_PORT \
+                    src/train.py --config-name=unlearn.yaml \
+                    experiment=unlearn/tofu/${cl}.yaml \
+                    trainer.cl=${cl} \
+                    trainer=${trainer} \
+                    task_name=${task_name} \
+                    model=${model} \
+                    forget_split=${forget_split} \
+                    retain_split=${retain_split} \
+                    model.model_args.pretrained_model_name_or_path=${model_path} \
+                    retain_logs_path=saves/eval/tofu_${model}_${retain_split}/TOFU_EVAL.json \
+                    trainer.args.per_device_train_batch_size=$per_device_train_batch_size \
+                    trainer.args.gradient_accumulation_steps=$gradient_accumulation_steps \
+                    trainer.args.ddp_find_unused_parameters=true \
+                    trainer.args.gradient_checkpointing=true
                 fi
 
                 if [ ! -f saves/unlearn/"${task_name}"/model.safetensors ] || [ ! -f saves/unlearn/"${task_name}"/model.safetensors.index.json ]; then
