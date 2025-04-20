@@ -34,7 +34,6 @@ else:
 if is_deepspeed_available():
     import deepspeed
 
-from superloss import SuperLoss
 
 
 class UnlearnTrainer(FinetuneTrainer):
@@ -42,10 +41,9 @@ class UnlearnTrainer(FinetuneTrainer):
         if self.cl is None or self.cl == 'none':
             return self.compute_loss_normal(model, inputs, return_outputs)
         elif self.cl == 'superloss':
-            # Initialize SuperLoss calculator for Curriculum Learning
-            self.super_loss = SuperLoss('sl', lam=10, mode='avg')
             return self.compute_loss_superloss(model, inputs, return_outputs)
-        # elif self.cl == ''
+        else:
+            raise ValueError(f"{self.cl} should be None or in ['none', 'superloss']")
 
     def calculate_superloss(self, per_sample_loss):
         conf, tau, tau_adjusted = self.super_loss(per_sample_loss, None, None)

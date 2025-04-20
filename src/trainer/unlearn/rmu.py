@@ -159,6 +159,9 @@ class RMU(GradDiff):
         forget_loss = self.compute_activation_loss(
             model_forget_activations, control_vec, mask
         )
+        bs = forget_inputs['input_ids'].shape[0]
+        forget_loss = forget_loss.view(bs, -1).sum(-1)
+        forget_loss = self.calculate_superloss(forget_loss).mean()
 
         retain_inputs = inputs["retain"]
         retain_inputs = {
@@ -167,6 +170,8 @@ class RMU(GradDiff):
             "labels": retain_inputs["labels"],
         }
         retain_loss = self.compute_retain_loss(model=model, retain_inputs=retain_inputs)
+        retain_loss = retain_loss.view(bs, -1).sum(-1)
+        retain_loss = self.calculate_superloss(retain_loss).mean()
 
         loss = self.gamma * forget_loss + self.alpha * retain_loss
 
@@ -205,6 +210,5 @@ class RMU(GradDiff):
         retain_loss = self.compute_retain_loss(model=model, retain_inputs=retain_inputs)
 
         loss = self.gamma * forget_loss + self.alpha * retain_loss
-        loss = self.calculate_superloss(loss).mean()
 
         return (loss, forget_outputs) if return_outputs else loss

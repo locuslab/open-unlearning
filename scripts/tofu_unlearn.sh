@@ -7,9 +7,9 @@ echo "Master Port: $MASTER_PORT"
 models=(
     "Llama-3.2-1B-Instruct"
     "Llama-3.2-3B-Instruct"
-    "Llama-3.1-8B-Instruct"
+    # "Llama-3.1-8B-Instruct"
 )
-trainers_experiments=(
+trainers=(
     "GradAscent"
     "GradDiff"
     "NPO"
@@ -44,7 +44,7 @@ for split in "${splits[@]}"; do
         for trainer in "${trainers[@]}"; do
             for cl in "${cls[@]}"; do
             
-                task_name=tofu_${model}_${forget_split}_${trainer} 
+                task_name=tofu_${model}_${forget_split}_${trainer}
                 model_path=open-unlearning/tofu_${model}_full
                 echo ${task_name}: Unlearning ${model_path} using ${trainer}
 
@@ -52,23 +52,23 @@ for split in "${splits[@]}"; do
                     echo "${task_name}" "Model Not Found"
                     
                     # Unlearn
-                    CUDA_VISIBLE_DEVICES=0,1 accelerate launch --config_file configs/accelerate/default_config.yaml --main_process_port $MASTER_PORT \
-                    src/train.py --config-name=unlearn.yaml \
-                    experiment=unlearn/tofu/${cl}.yaml \
-                    trainer=${trainer} \
-                    task_name=${task_name} \
-                    model=${model} \
-                    forget_split=${forget_split} \
-                    retain_split=${retain_split} \
-                    model.model_args.pretrained_model_name_or_path=${model_path} \
-                    retain_logs_path=saves/eval/tofu_${model}_${retain_split}/TOFU_EVAL.json \
-                    trainer.args.per_device_train_batch_size=$per_device_train_batch_size \
-                    trainer.args.gradient_accumulation_steps=$gradient_accumulation_steps \
-                    trainer.args.ddp_find_unused_parameters=true \
-                    trainer.args.gradient_checkpointing=true
+                    # CUDA_VISIBLE_DEVICES=3,4 accelerate launch --config_file configs/accelerate/default_config.yaml --main_process_port $MASTER_PORT \
+                    # src/train.py --config-name=unlearn.yaml \
+                    # experiment=unlearn/tofu/${cl}.yaml \
+                    # trainer=${trainer} \
+                    # task_name=${task_name} \
+                    # model=${model} \
+                    # forget_split=${forget_split} \
+                    # retain_split=${retain_split} \
+                    # model.model_args.pretrained_model_name_or_path=${model_path} \
+                    # retain_logs_path=saves/eval/tofu_${model}_${retain_split}/TOFU_EVAL.json \
+                    # trainer.args.per_device_train_batch_size=$per_device_train_batch_size \
+                    # trainer.args.gradient_accumulation_steps=$gradient_accumulation_steps \
+                    # trainer.args.ddp_find_unused_parameters=true \
+                    # trainer.args.gradient_checkpointing=true
                 fi
 
-                if [ ! -f saves/unlearn/"${task_name}"/evals/MUSE_SUMMARY.json ]; then
+                if [ ! -f saves/unlearn/"${task_name}"/evals/TOFU_SUMMARY.json ]; then
                     echo "${task_name}" "Eval Not Found"
                     # Eval
                     CUDA_VISIBLE_DEVICES=0 python src/eval.py \

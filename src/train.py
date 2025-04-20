@@ -1,3 +1,5 @@
+import sys
+sys.path.append('/home/public/jcheng2/open-unlearning')
 import hydra
 from omegaconf import DictConfig
 from data import get_data, get_collators
@@ -48,6 +50,11 @@ def main(cfg: DictConfig):
             tokenizer=tokenizer,
         )
 
+    if not hasattr(trainer_cfg, 'cl') or trainer_cfg.cl is None or trainer_cfg.cl == 'none':
+        cl = False
+    else:
+        cl = trainer_cfg.cl
+
     trainer, trainer_args = load_trainer(
         trainer_cfg=trainer_cfg,
         model=model,
@@ -57,6 +64,7 @@ def main(cfg: DictConfig):
         data_collator=collator,
         evaluator=evaluator,
         template_args=template_args,
+        cl=cl
     )
 
     if trainer_args.do_train:

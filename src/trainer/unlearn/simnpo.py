@@ -16,6 +16,11 @@ class SimNPO(GradDiff):
         forget_labels = forget_inputs["labels"]
         loss_mask = forget_labels != -100
         forget_loss, forget_outputs = compute_batch_nll(model, forget_inputs)
+
+        bs = forget_inputs['input_ids'].shape[0]
+        forget_loss = forget_loss.view(bs, -1).sum(-1)
+        forget_loss = self.calculate_superloss(forget_loss).mean()
+
         forget_loss = forget_loss / loss_mask.sum(-1) - self.delta
         forget_loss = -F.logsigmoid(self.beta * forget_loss).mean() * 2 / self.beta
 
@@ -26,9 +31,11 @@ class SimNPO(GradDiff):
             "labels": retain_inputs["labels"],
         }
         retain_loss = self.compute_retain_loss(model=model, retain_inputs=retain_inputs)
+        retain_loss = retain_loss.view(bs, -1).sum(-1)
+        retain_loss = self.calculate_superloss(retain_loss).mean()
 
         loss = self.gamma * forget_loss + self.alpha * retain_loss
-        loss = self.calculate_superloss(loss).mean()
+
         return (loss, forget_outputs) if return_outputs else loss
 
     def compute_loss_normal(self, model, inputs, return_outputs=False):

@@ -1,4 +1,5 @@
 import copy
+import torch
 from trainer.utils import compute_kl_divergence
 from trainer.unlearn.base import UnlearnTrainer
 
@@ -72,6 +73,10 @@ class GradDiff(UnlearnTrainer):
         forget_outputs = model(**forget_inputs)
         forget_loss = -forget_outputs.loss
 
+        bs = forget_inputs['input_ids'].shape[0]
+        forget_loss = forget_loss.view(bs, -1).sum(-1)
+        forget_loss = self.calculate_superloss(forget_loss).mean()
+
         retain_inputs = inputs["retain"]
         retain_inputs = {
             "input_ids": retain_inputs["input_ids"],
@@ -79,8 +84,9 @@ class GradDiff(UnlearnTrainer):
             "labels": retain_inputs["labels"],
         }
         retain_loss = self.compute_retain_loss(model=model, retain_inputs=retain_inputs)
+        retain_loss = retain_loss.view(bs, -1).sum(-1)
+        retain_loss = self.calculate_superloss(retain_loss).mean()
 
         loss = self.gamma * forget_loss + self.alpha * retain_loss
-        loss = self.calculate_superloss(loss).mean()
 
         return (loss, forget_outputs) if return_outputs else loss

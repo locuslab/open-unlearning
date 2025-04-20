@@ -44,6 +44,7 @@ def load_trainer(
     data_collator=None,
     evaluator=None,
     template_args=None,
+    cl=None
 ):
     trainer_args = trainer_cfg.args
     method_args = trainer_cfg.get("method_args", {})
@@ -65,6 +66,7 @@ def load_trainer(
         args=trainer_args,
         evaluator=evaluator,
         template_args=template_args,
+        cl=cl,
         **method_args,
     )
     return trainer, trainer_args

@@ -9,13 +9,19 @@ from torch.utils.data import Dataset
 from transformers.trainer_utils import PREFIX_CHECKPOINT_DIR
 from typing import Any
 
+from superloss import SuperLoss
+
 logger = logging.getLogger(__name__)
 
 
 class FinetuneTrainer(Trainer):
-    def __init__(self, evaluator=None, template_args=None, *args, **kwargs):
+    def __init__(self, evaluator=None, template_args=None, cl=None, *args, **kwargs):
         self.evaluator = evaluator
         self.template_args = template_args
+        self.cl = cl
+        if self.cl == 'superloss':
+            # Initialize SuperLoss calculator for Curriculum Learning
+            self.super_loss = SuperLoss('sl', lam=10, mode='avg')
         super().__init__(*args, **kwargs)
 
     def evaluate(
