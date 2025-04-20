@@ -140,7 +140,7 @@ eval:
                   index: index
             handler: minKpc_negative_logprob
             batch_size: 8
-            percentile_K: 40
+            k: 0.4
             access_key: forget
           holdout_minKpc_neg_logprob:
             datasets:
@@ -161,7 +161,7 @@ eval:
                   index: index
             handler: minKpc_negative_logprob
             batch_size: 8
-            percentile_K: 40
+            k: 0.4
             access_key: holdout
         reference_logs:
           retain_model_logs:
@@ -171,7 +171,7 @@ eval:
                 access_key: retain
               holdout_minKpc_neg_logprob:
                 access_key: holdout
-        handler: relative_auc
+        handler: privleak
         ref_value: 0.5
     handler: MUSEEvaluator
     device: cuda

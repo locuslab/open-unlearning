@@ -26,6 +26,7 @@ splits=(
 )
 
 
+
 per_device_train_batch_size=4 # on two gpus would make effective batch size 32
 gradient_accumulation_steps=4
 
@@ -68,6 +69,7 @@ for split in "${splits[@]}"; do
                     # trainer.args.gradient_checkpointing=true
                 fi
 
+<<<<<<< HEAD
                 if [ ! -f saves/unlearn/"${task_name}"/evals/TOFU_SUMMARY.json ]; then
                     echo "${task_name}" "Eval Not Found"
                     # Eval
@@ -82,6 +84,18 @@ for split in "${splits[@]}"; do
                     retain_logs_path=saves/eval/tofu_${model}_${retain_split}/TOFU_EVAL.json
                 fi
             done
+=======
+            # Eval
+            CUDA_VISIBLE_DEVICES=0 python src/eval.py \
+            experiment=eval/tofu/default.yaml \
+            forget_split=${forget_split} \
+            holdout_split=${holdout_split} \
+            model=${model} \
+            task_name=${task_name} \
+            model.model_args.pretrained_model_name_or_path=saves/unlearn/${task_name} \
+            paths.output_dir=saves/unlearn/${task_name}/evals \
+            retain_logs_path=saves/eval/tofu_${model}_${retain_split}/TOFU_EVAL.json
+>>>>>>> main
         done
     done
 done

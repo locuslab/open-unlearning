@@ -21,6 +21,7 @@ python src/eval.py --config-name=eval.yaml \
 - `--config-name=eval.yaml`- sets task to be [`configs/eval.yaml`](../configs/eval.yaml)
 - `experiment=eval/tofu/default`- set experiment to use [`configs/eval/tofu/default.yaml`](../configs/eval/tofu/default.yaml)
 - `model=Llama-3.2-3B-Instruct`- override the default (`Llama-3.2-1B-Instruct`) model config to use [`configs/model/Llama-3.2-3B-Instruct`](../configs/model/Phi-3.5-mini-instruct.yaml).
+- Output directory: constructed as `saves/eval/SAMPLE_EVAL`
 
 
 Run the MUSE-Books benchmark evaluation on a checkpoint of a Phi-3.5 model:
@@ -46,12 +47,12 @@ Other metrics like TOFU's Forget Quality (which is a single score computed over 
 ### Steps to create new metrics:
 
 #### 1. Implement a handler
-Metric handlers are implemented in [`src/evals/metrics`](../src/evals/metrics/), where we define handlers for `probability`, `rouge`, `forget_quality` etc.
+Metric handlers are implemented in [`src/evals/metrics`](../src/evals/metrics/), where we define handlers for `probability`, `rouge`, `privleak` etc.
 
 A metric handler is implemented as a function decorated with `@unlearning_metric`. This decorator wraps the function into an UnlearningMetric object. This provides functionality to automatically load and prepare datasets and collators for `probability` as specified in the eval config ([example](../configs/eval/tofu_metrics/forget_Q_A_Prob.yaml)), so they are readily available for use in the function.
 
 
-Example: implementing the `rouge` and `forget_quality` handlers
+Example: implementing the `rouge` and `privleak` handlers
 
 ```python
 # in src/evals/metrics/memorization.py
@@ -72,15 +73,18 @@ def rouge(model, **kwargs):
     }
 
 # in src/evals/metrics/privacy.py
-@unlearning_metric(name="forget_quality")
-def forget_quality(model, **kwargs): 
-  # the forget quality metric is aggregated from computed statistics of 
-  # other metrics like truth ratio, which is provided through kwargs
+@unlearning_metric(name="privleak")
+def privleak(model, **kwargs):
+  # the privleak quality metric is found from computed statistics of 
+  # other metrics like MIA attack scores, which is provided through kwargs
   ...
-  return {"agg_value": pvalue}
+  return {'agg_value': (score-ref)/(ref+1e-10)*100}
 
 ```
 - `@unlearning_metric(name="rouge")` - Defines a `rouge` handler.
+
+> [!NOTE]
+`kwargs` contains many important attributes that are useful while computing metrics. It will contain all the metric-specific parameters defined in the metric's yaml file, and also contain the created objects corresponding to the other attributes mentioned in the metric config: such as the `"tokenizer"`, `"data"` (the preprocessed torch dataset), `"batch_size"`, `"collator"`, `"generation_args"`, `"pre_compute"` (prior metrics the current metric depends on), and `"reference_logs"` (evals from a reference model the current metric can use).
 
 #### 2. Register the metric handler
 Register the handler to link the class to the configs via the class name in [`METRIC_REGISTRY`](../src/evals/metrics/__init__.py).
@@ -98,8 +102,7 @@ Metric configurations are in [`configs/eval/tofu_metrics`](../configs/eval/tofu_
 
 Example 1: Creating the config for MUSE's `forget_verbmem_ROUGE` ([`configs/eval/muse_metrics/forget_knowmem_ROUGE.yaml`](../configs/eval/muse_metrics/forget_knowmem_ROUGE.yaml)). 
 
-<!-- <details>
-<summary>Expand the config below</summary> -->
+
 
 ```yaml
 # @package eval.muse.metrics.forget_verbmem_ROUGE
@@ -128,12 +131,8 @@ collators:
 generation_args:
   max_new_tokens: 128
 ```
-<!-- </details> -->
 
 Example 2: Creating the config for TOFU's `forget_quality` ([`configs/eval/tofu_metrics/forget_quality.yaml`](../configs/eval/tofu_metrics/forget_quality.yaml)).
-
-<!-- <details>
-<summary>Expand the config below</summary> -->
 
 ```yaml
 # @package eval.tofu.metrics.forget_quality
@@ -155,9 +154,9 @@ pre_compute:
   forget_truth_ratio:
     access_key: forget
 
-handler: forget_quality
+handler: ks_test # the handler with logic that is registered in code 
 ```
-<!-- </details> -->
+
 
 ### Designing metrics that depend on other metrics
 

@@ -8,26 +8,21 @@ We encourage the community to develop new methods, optimize them for specific be
 
 To implement a new method, refer to our [contributing guide](../docs/contributing.md).  
 
-> **Note:** The [results.md](../docs/results.md) file is maintained for reproducibility purposes. However, we encourage contributors to update the leaderboard table instead of the reproducibility table. We will continue refining and tuning baseline methods to keep the leaderboard up to date.
+> [!NOTE]
+> The [results.md](../docs/results.md) file is maintained for reproducibility purposes. However, we encourage contributors to update the leaderboard table instead of the reproducibility table. We will continue refining and tuning baseline methods to keep the leaderboard up to date.
 
 
-### TOFU unlearning on the `Llama-3.2-1B-Instruct` architecture
+### TOFU unlearning on the `Llama-2-7b-hf-chat` architecture
 
 <div style="overflow-x: auto; max-width: 100%;">
 <table class="dataframe">
   <thead>
     <tr>
       <th>Method</th>
-      <th style="text-align: center;" colspan="2" halign="left">forget01</th>
-      <th style="text-align: center;" colspan="2" halign="left">forget05</th>
       <th style="text-align: center;" colspan="2" halign="left">forget10</th>
     </tr>
     <tr>
       <th></th>
-      <th>forget_quality</th>
-      <th>model_utility</th>
-      <th>forget_quality</th>
-      <th>model_utility</th>
       <th>forget_quality</th>
       <th>model_utility</th>
     </tr>
@@ -35,21 +30,13 @@ To implement a new method, refer to our [contributing guide](../docs/contributin
   <tbody>
     <tr>
       <th>Finetuned</th>
-      <td>0.01</td>
-      <td>0.60</td>
-      <td>2.96e-13</td>
-      <td>0.6</td>
-      <td>8.08e-22</td>
-      <td>0.6</td>
+      <td>4.35e-25</td>
+      <td>0.63</td>
     </tr>
     <tr>
       <th>Retain</th>
       <td>1.0</td>
-      <td>0.60</td>
-      <td>1.0</td>
-      <td>0.6</td>
-      <td>1.0</td>
-      <td>0.59</td>
+      <td>0.61</td>
     </tr>
     <tr>
       <td colspan="20"> </td>
@@ -70,16 +57,10 @@ To implement a new method, refer to our [contributing guide](../docs/contributin
   <thead>
     <tr>
       <th>Method</th>
-      <th style="text-align: center;" colspan="2" halign="left">forget01</th>
-      <th style="text-align: center;" colspan="2" halign="left">forget05</th>
       <th style="text-align: center;" colspan="2" halign="left">forget10</th>
     </tr>
     <tr>
       <th></th>
-      <th>forget_quality</th>
-      <th>model_utility</th>
-      <th>forget_quality</th>
-      <th>model_utility</th>
       <th>forget_quality</th>
       <th>model_utility</th>
     </tr>
@@ -87,19 +68,11 @@ To implement a new method, refer to our [contributing guide](../docs/contributin
   <tbody>
     <tr>
       <th>Finetuned</th>
-      <td>0.01</td>
-      <td>0.60</td>
-      <td>2.96e-13</td>
-      <td>0.6</td>
-      <td>8.08e-22</td>
+      <td>1.66e-21</td>
       <td>0.6</td>
     </tr>
     <tr>
       <th>Retain</th>
-      <td>1.0</td>
-      <td>0.60</td>
-      <td>1.0</td>
-      <td>0.6</td>
       <td>1.0</td>
       <td>0.59</td>
     </tr>
@@ -143,7 +116,7 @@ To implement a new method, refer to our [contributing guide](../docs/contributin
       <td>0.64</td>
       <td>0.58</td>
       <td>-99.81</td>
-      <td>0.55</td>
+      <td>0.56</td>
       <td>0.47</td>
       <td>1.0</td>
       <td>-57.26</td>
@@ -152,7 +125,7 @@ To implement a new method, refer to our [contributing guide](../docs/contributin
     <tr>
       <th>Retain</th>
       <td>0.33</td>
-      <td>0.21</td>
+      <td>0.20</td>
       <td>0</td>
       <td>0.56</td>
       <td>0.3</td>

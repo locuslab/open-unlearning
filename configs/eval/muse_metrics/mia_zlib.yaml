@@ -1,0 +1,17 @@
+# @package eval.muse.metrics.mia_zlib
+defaults:
+  - ../../data/datasets@datasets: MUSE_MIA
+  - ../../collator@collators: DataCollatorForSupervisedDatasetwithIndex
+datasets:
+  MUSE_MIA_holdout:
+    args:
+      hf_args:
+        path: muse-bench/MUSE-${eval.muse.data_split}
+  MUSE_MIA_forget:
+    access_key: forget
+    args:
+      hf_args:
+        path: muse-bench/MUSE-${eval.muse.data_split}
+
+batch_size: 8
+handler: mia_zlib
