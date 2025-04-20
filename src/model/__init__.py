@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 def get_dtype(model_args):
     with open_dict(model_args):
         torch_dtype = model_args.pop("torch_dtype", None)
-    if model_args["attn_implementation"] == "flash_attention_2":
+    if model_args.get("attn_implementation", None) == "flash_attention_2":
         # This check handles https://github.com/Dao-AILab/flash-attention/blob/7153673c1a3c7753c38e4c10ef2c98a02be5f778/flash_attn/flash_attn_triton.py#L820
         # If you want to run at other precisions consider running "training or inference using
         # Automatic Mixed-Precision via the `with torch.autocast(device_type='torch_device'):`
