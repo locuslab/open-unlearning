@@ -66,3 +66,26 @@ def compute_dpo_loss(model, ref_model, win_inputs=None, lose_inputs=None, beta=1
 
     loss = -2 / beta * F.logsigmoid(beta * (win_log_ratio - lose_log_ratio)).mean()
     return loss, (win_outputs, lose_outputs)
+
+
+def compute_dpo_loss_superloss(model, ref_model, win_inputs=None, lose_inputs=None, beta=1.0):
+    if win_inputs is None and lose_inputs is None:
+        raise ValueError("Both win_inputs and lose_inputs can't be None")
+
+    win_log_ratio, lose_log_ratio = 0.0, 0.0
+    win_outputs, lose_outputs = None, None
+
+    if win_inputs is not None:
+        win_loss, win_outputs = compute_batch_nll(model, win_inputs)
+        with torch.no_grad():
+            win_ref_loss, _ = compute_batch_nll(ref_model, win_inputs)
+        win_log_ratio = -(win_loss - win_ref_loss)
+
+    if lose_inputs is not None:
+        lose_loss, lose_outputs = compute_batch_nll(model, lose_inputs)
+        with torch.no_grad():
+            lose_ref_loss, _ = compute_batch_nll(ref_model, lose_inputs)
+        lose_log_ratio = -(lose_loss - lose_ref_loss)
+
+    loss = -2 / beta * F.logsigmoid(beta * (win_log_ratio - lose_log_ratio))
+    return loss, (win_outputs, lose_outputs)

@@ -1,4 +1,4 @@
-from trainer.utils import compute_dpo_loss
+from trainer.utils import compute_dpo_loss, compute_dpo_loss_superloss
 from trainer.unlearn.grad_diff import GradDiff
 
 
@@ -12,7 +12,7 @@ class NPO(GradDiff):
     def compute_loss_superloss(self, model, inputs, return_outputs=False):
         forget_inputs = inputs["forget"]
 
-        forget_loss, forget_outputs = compute_dpo_loss(
+        forget_loss, forget_outputs = compute_dpo_loss_superloss(
             model=model,
             ref_model=self.ref_model,
             win_inputs=None,

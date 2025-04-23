@@ -39,21 +39,21 @@ def main(cfg: DictConfig):
     # Get Evaluator
     evaluator = None
     eval_cfgs = cfg.get("eval", None)
-    if eval_cfgs:
-        assert len(eval_cfgs) <= 1, ValueError(
-            "Only one evaluation supported while training"
-        )
-        eval_name, eval_cfg = next(iter(eval_cfgs.items()))
-        evaluator = get_evaluator(
-            eval_name,
-            eval_cfg,
-            template_args=template_args,
-            model=model,
-            tokenizer=tokenizer,
-        )
+    # if eval_cfgs:
+    #     assert len(eval_cfgs) <= 1, ValueError(
+    #         "Only one evaluation supported while training"
+    #     )
+    #     eval_name, eval_cfg = next(iter(eval_cfgs.items()))
+    #     evaluator = get_evaluator(
+    #         eval_name,
+    #         eval_cfg,
+    #         template_args=template_args,
+    #         model=model,
+    #         tokenizer=tokenizer,
+    #     )
 
     if not hasattr(trainer_cfg, 'cl') or trainer_cfg.cl is None or trainer_cfg.cl == 'none':
-        cl = False
+        cl = 'none'
     else:
         cl = trainer_cfg.cl
 
