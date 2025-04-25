@@ -1,0 +1,20 @@
+# @package eval.wmdp
+# NOTE: the above line is not a comment, but sets the package for config. See https://hydra.cc/docs/upgrades/0.11_to_1.0/adding_a_package_directive/
+
+defaults: # include all defined metrics files
+  - tofu_metrics: # Reusing TOFU metrics for WMDP evaluation
+    - forget_quality
+    - forget_Q_A_Prob
+    - forget_Q_A_ROUGE
+    - model_utility
+    - privleak
+    - extraction_strength
+
+handler: WMDPEvaluator
+output_dir: ${paths.output_dir} # set to default eval directory
+metrics: {} # lists a mapping from each evaluation metric to its config 
+# populated through the first (@package) line in each metric config
+overwrite: false
+forget_split: test
+holdout_split: test
+retain_logs_path: null

@@ -36,6 +36,17 @@ python src/eval.py --config-name=eval.yaml \
 - `---config-name=eval.yaml`- this is set by default so can be omitted
 - `data_split=Books`- overrides the default MUSE data split (News). See [`configs/experiment/eval/muse/default.yaml`](../configs/experiment/eval/muse/default.yaml)
 
+Run the WMDP benchmark evaluation on a checkpoint of a LLaMA 3.2 model:
+```bash
+python src/eval.py --config-name=eval.yaml \
+  experiment=eval/wmdp/default \
+  model=Llama-3.2-1B-Instruct \
+  model.model_args.pretrained_model_name_or_path=<LOCAL_MODEL_PATH> \
+  task_name=WMDP_EVAL
+```
+- `experiment=eval/wmdp/default`- set experiment to use [`configs/eval/wmdp/default.yaml`](../configs/eval/wmdp/default.yaml)
+- The WMDP evaluation uses the cyber corpus by default and evaluates the model's performance on hazardous knowledge unlearning
+
 ## Metrics
 
 A metric takes a model and a dataset and computes statistics of the model over the datapoints (or) takes other metrics and computes an aggregated score over the dataset.
@@ -239,4 +250,24 @@ handler: TOFUEvaluator
 metrics: {} # lists a mapping from each evaluation metric listed above to its config 
 output_dir: ${paths.output_dir} # set to default eval directory
 forget_split: forget10
+```
+
+Example: WMDP evaluator config file ([`configs/eval/wmdp.yaml`](../configs/eval/wmdp.yaml))
+
+```yaml
+# @package eval.wmdp
+defaults: # include all the metrics that come under the WMDP evaluator
+  - tofu_metrics: # WMDP reuses many of the same metrics as TOFU
+    - forget_quality
+    - forget_Q_A_Prob
+    - forget_Q_A_ROUGE
+    - model_utility
+    - privleak
+    - extraction_strength
+
+handler: WMDPEvaluator
+metrics: {} # lists a mapping from each evaluation metric listed above to its config 
+output_dir: ${paths.output_dir} # set to default eval directory
+forget_split: test
+holdout_split: test
 ```

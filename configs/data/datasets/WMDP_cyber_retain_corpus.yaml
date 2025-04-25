@@ -1,0 +1,9 @@
+WMDP_cyber_retain_corpus:
+  handler: PretrainingDataset
+  args:
+    hf_args:
+      path: "cais/wmdp-corpora"
+      name: "cyber-retain-corpus"
+      split: "train"
+    text_key: "text"
+    max_length: 2048
