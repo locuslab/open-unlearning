@@ -12,3 +12,4 @@ template_args:
   user_end_tag: "<|eot_id|>"
   asst_start_tag: "<|start_header_id|>assistant<|end_header_id|>\n\n"
   asst_end_tag: "<|eot_id|>"
+  date_string: 10 Apr 2025

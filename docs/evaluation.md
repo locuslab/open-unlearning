@@ -27,7 +27,7 @@ python src/eval.py --config-name=eval.yaml \
 Run the MUSE-Books benchmark evaluation on a checkpoint of a Phi-3.5 model:
 ```bash
 python src/eval.py --config-name=eval.yaml \
-  experiment=eval/muse/llama2 \
+  experiment=eval/muse/default \
   data_split=Books
   model=Llama-2-7b-hf.yaml \
   model.model_args.pretrained_model_name_or_path=<LOCAL_MODEL_PATH> \
