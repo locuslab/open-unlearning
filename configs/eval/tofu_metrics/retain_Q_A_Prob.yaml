@@ -6,3 +6,8 @@ defaults:
 
 handler: probability
 batch_size: 32
+
+datasets:
+  TOFU_QA_retain_eval:
+    args:
+      question_key: ${eval.tofu.question_key}

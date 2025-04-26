@@ -1,22 +1,90 @@
 model:
   model_args:
-    device_map: auto
-    pretrained_model_name_or_path: locuslab/tofu_ft_llama2-7b
+    device_map: cuda
+    pretrained_model_name_or_path: open-unlearning/tofu_Llama-3.2-1B-Instruct_full
     attn_implementation: flash_attention_2
     torch_dtype: bfloat16
   tokenizer_args:
-    pretrained_model_name_or_path: locuslab/tofu_ft_llama2-7b
+    pretrained_model_name_or_path: meta-llama/Llama-3.2-1B-Instruct
   template_args:
-    apply_chat_template: false
-    user_start_tag: '[INST] '
-    user_end_tag: ' [/INST]'
-    asst_start_tag: ''
-    asst_end_tag: ''
+    apply_chat_template: true
+    system_prompt: You are a helpful assistant.
+    system_prompt_with_special_tokens: '<|begin_of_text|><|start_header_id|>system<|end_header_id|>
+
+
+      You are a helpful assistant.<|eot_id|>'
+    user_start_tag: '<|start_header_id|>user<|end_header_id|>
+
+
+      '
+    user_end_tag: <|eot_id|>
+    asst_start_tag: '<|start_header_id|>assistant<|end_header_id|>
+
+
+      '
+    asst_end_tag: <|eot_id|>
 mode: eval
-task_name: eval
+task_name: SAMPLE_EVAL
+seed: 0
 eval:
   tofu:
     metrics:
+      forget_quality:
+        pre_compute:
+          forget_truth_ratio:
+            pre_compute:
+              forget_Q_A_PARA_Prob:
+                datasets:
+                  TOFU_QA_forget_para:
+                    handler: QADataset
+                    args:
+                      hf_args:
+                        name: ${eval.tofu.forget_split}_perturbed
+                        split: train
+                        path: locuslab/TOFU
+                      question_key: question
+                      answer_key: paraphrased_answer
+                      max_length: 512
+                collators:
+                  DataCollatorForSupervisedDataset:
+                    handler: DataCollatorForSupervisedDataset
+                    args:
+                      padding_side: right
+                      index: index
+                handler: probability
+                batch_size: 32
+                access_key: correct
+              forget_Q_A_PERT_Prob:
+                datasets:
+                  TOFU_QA_forget_pert:
+                    handler: QADataset
+                    args:
+                      hf_args:
+                        name: ${eval.tofu.forget_split}_perturbed
+                        split: train
+                        path: locuslab/TOFU
+                      question_key: question
+                      answer_key: perturbed_answer
+                      max_length: 512
+                collators:
+                  DataCollatorForSupervisedDataset:
+                    handler: DataCollatorForSupervisedDataset
+                    args:
+                      padding_side: right
+                      index: index
+                handler: probability
+                batch_size: 32
+                access_key: wrong
+            handler: truth_ratio
+            aggregator: closer_to_1_better
+            access_key: forget
+        reference_logs:
+          retain_model_logs:
+            path: ${eval.tofu.retain_logs_path}
+            include:
+              forget_truth_ratio:
+                access_key: retain
+        handler: ks_test
       forget_Q_A_Prob:
         datasets:
           TOFU_QA_forget:
@@ -37,38 +105,11 @@ eval:
               index: index
         handler: probability
         batch_size: 32
-      forget_Q_A_ROUGE:
-        datasets:
-          TOFU_QA_forget:
-            handler: QADataset
-            args:
-              hf_args:
-                name: ${eval.tofu.forget_split}
-                split: train
-                path: locuslab/TOFU
-              question_key: question
-              answer_key: answer
-              max_length: 512
-              predict_with_generate: true
-        collators:
-          DataCollatorForSupervisedDataset:
-            handler: DataCollatorForSupervisedDataset
-            args:
-              padding_side: left
-              index: index
-        generation_args:
-          do_sample: false
-          top_p: null
-          temperature: null
-          max_new_tokens: 200
-          use_cache: true
-        handler: rouge
-        rouge_type: rougeL_recall
-        batch_size: 32
     handler: TOFUEvaluator
     output_dir: ${paths.output_dir}
     overwrite: false
     forget_split: ${forget_split}
+    holdout_split: ${holdout_split}
     retain_logs_path: ${retain_logs_path}
 paths:
   root_dir: .
@@ -77,4 +118,5 @@ paths:
   output_dir: ${paths.root_dir}/saves/${mode}/${task_name}
   work_dir: ${hydra:runtime.cwd}
 forget_split: forget10
-retain_logs_path: null
+holdout_split: holdout10
+retain_logs_path: saves/eval/tofu_Llama-3.2-1B-Instruct_retain90/TOFU_EVAL.json

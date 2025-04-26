@@ -12,6 +12,7 @@ batch_size: 32
 datasets: # override as needed
   TOFU_QA_retain_eval:
     args:
+      question_key: ${eval.tofu.question_key}
       predict_with_generate: True
 collators:
   DataCollatorForSupervisedDataset: 

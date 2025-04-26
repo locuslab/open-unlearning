@@ -1,6 +1,6 @@
-# @package eval.tofu.metrics.forget_Q_A_ROUGE
+# @package eval.tofu.metrics.retain_Q_A_PERT_ROUGE
 defaults:
-  - ../../data/datasets@datasets: TOFU_QA_forget
+  - ../../data/datasets@datasets: TOFU_QA_retain_pert
   - ../../collator@collators: DataCollatorForSupervisedDatasetwithIndex
   - ../../generation@generation_args: default
   
@@ -11,10 +11,8 @@ rouge_type: rougeL_recall
 batch_size: 32
 
 datasets: # override as needed
-  TOFU_QA_forget:
+  TOFU_QA_retain_pert:
     args:
-      hf_args:
-        name: ${eval.tofu.forget_split}_perturbed
       question_key: ${eval.tofu.question_key}
       predict_with_generate: True
 collators:

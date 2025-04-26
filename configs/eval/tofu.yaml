@@ -4,18 +4,33 @@
 defaults: # include all defined metrics files
   - tofu_metrics: # When you import a metric here, its configuration automatically populates the 
   # metric key below, enabled by the @package directive at the top of each configuration file.
-    - forget_quality
+    # - forget_quality
     - forget_Q_A_Prob
+    - forget_Q_A_PARA_Prob
+    - forget_Q_A_PERT_Prob
     - forget_Q_A_ROUGE
+    - forget_Q_A_PARA_ROUGE
+    - forget_Q_A_PERT_ROUGE
+    - forget_Truth_Ratio
+
+    - retain_Q_A_Prob
+    - retain_Q_A_PARA_Prob
+    - retain_Q_A_PERT_Prob
+    - retain_Q_A_ROUGE
+    - retain_Q_A_PARA_ROUGE
+    - retain_Q_A_PERT_ROUGE
+    - retain_Truth_Ratio
     - model_utility # populated in the metrics key as metrics.model_utility
-    - privleak
+    
+    # - privleak
     - extraction_strength
-    # - exact_memorization
-    # - mia_min_k_plus_plus
-    # - mia_min_k
-    # - mia_loss
-    # - mia_zlib
-    # - mia_gradnorm
+    - exact_memorization
+    
+    - mia_min_k_plus_plus
+    - mia_min_k
+    - mia_loss
+    - mia_zlib
+    - mia_gradnorm
     # - mia_reference # set reference model path appropriately
 
 handler: TOFUEvaluator
@@ -26,3 +41,4 @@ overwrite: false
 forget_split: forget10
 holdout_split: holdout10
 retain_logs_path: null
+question_key: "question"

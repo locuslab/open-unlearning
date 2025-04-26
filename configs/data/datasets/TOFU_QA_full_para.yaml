@@ -1,0 +1,21 @@
+# TOFU_QA_full_para:
+#   handler: QADataset
+#   args:
+#     hf_args:
+#       data_files: "./data/TOFU_QA_FULL_PARAPHRASED.jsonl"
+#       split: "train"
+#       path: "json"
+#     question_key: "paraphrased_question"
+#     answer_key: "paraphrased_answer"
+#     max_length: 512
+
+TOFU_QA_full_para:
+  handler: QADataset
+  args:
+    hf_args:
+      name: "full_paraphrased"
+      split: "train"
+      path: "Dornavineeth/TOFUEval"
+    question_key: "question"
+    answer_key: "paraphrased_answer"
+    max_length: 512

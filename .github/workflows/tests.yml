@@ -1,11 +1,11 @@
 name: tests
 
 on:
-  # push:
-  #   paths:
-  #     - "**.py"
-  #     - "requirements.txt"
-  #     - ".github/workflows/*.yml"
+  push:
+    paths:
+      - "**.py"
+      - "requirements.txt"
+      - ".github/workflows/*.yml"
   pull_request:
     paths:
       - "**.py"
