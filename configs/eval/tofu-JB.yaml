@@ -7,29 +7,29 @@ defaults: # include all defined metrics files
     # - forget_quality
     - forget_Q_A_Prob
     - forget_Q_A_PARA_Prob
-    - forget_Q_A_PERT_Prob
+    # - forget_Q_A_PERT_Prob
     - forget_Q_A_ROUGE
     - forget_Q_A_PARA_ROUGE
-    - forget_Q_A_PERT_ROUGE
+    # - forget_Q_A_PERT_ROUGE
     - forget_Truth_Ratio
 
-    - retain_Q_A_Prob
-    - retain_Q_A_PARA_Prob
-    - retain_Q_A_PERT_Prob
-    - retain_Q_A_ROUGE
-    - retain_Q_A_PARA_ROUGE
-    - retain_Q_A_PERT_ROUGE
-    - retain_Truth_Ratio
-    - model_utility # populated in the metrics key as metrics.model_utility
+    # - retain_Q_A_Prob
+    # - retain_Q_A_PARA_Prob
+    # - retain_Q_A_PERT_Prob
+    # - retain_Q_A_ROUGE
+    # - retain_Q_A_PARA_ROUGE
+    # - retain_Q_A_PERT_ROUGE
+    # - retain_Truth_Ratio
+    # - model_utility # populated in the metrics key as metrics.model_utility
     
     # - privleak
     - extraction_strength
     - exact_memorization
     
-    - mia_min_k_plus_plus
-    - mia_min_k
-    - mia_loss
-    - mia_zlib
+    # - mia_min_k_plus_plus
+    # - mia_min_k
+    # - mia_loss
+    # - mia_zlib
     # - mia_gradnorm
     # - mia_reference # set reference model path appropriately
 

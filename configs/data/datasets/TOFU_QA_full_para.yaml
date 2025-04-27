@@ -17,5 +17,5 @@ TOFU_QA_full_para:
       split: "train"
       path: "Dornavineeth/TOFUEval"
     question_key: "question"
-    answer_key: "paraphrased_answer"
+    answer_key: "answer"
     max_length: 512

@@ -5,4 +5,4 @@ defaults:
   # ^ get default dataset and generation config information
 
 handler: probability
-batch_size: 32
+batch_size: 64
