@@ -42,3 +42,4 @@ forget_split: forget10
 holdout_split: holdout10
 retain_logs_path: null
 question_key: "question"
+batch_size: 64 # set it in multiples of 2

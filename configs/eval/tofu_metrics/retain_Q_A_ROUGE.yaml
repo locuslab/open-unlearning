@@ -8,7 +8,7 @@ defaults:
 
 handler: rouge
 rouge_type: rougeL_recall
-batch_size: 64
+batch_size: ${eval.tofu.batch_size}
 datasets: # override as needed
   TOFU_QA_retain_eval:
     args:

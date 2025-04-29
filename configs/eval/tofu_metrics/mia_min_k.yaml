@@ -2,7 +2,7 @@
 defaults:
   - ../../data/datasets@datasets: TOFU_MIA
   - ../../collator@collators: DataCollatorForSupervisedDatasetwithIndex
-batch_size: 64
+batch_size: ${eval.tofu.batch_size}
 handler: mia_min_k
 k: 0.4
 
