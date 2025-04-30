@@ -55,9 +55,7 @@ def get_model(model_cfg: DictConfig):
             cache_dir=hf_home,
         )
     except Exception as e:
-        logger.warning(
-            f"Model {model_path} requested with {model_cfg.model_args}"
-        )
+        logger.warning(f"Model {model_path} requested with {model_cfg.model_args}")
         raise ValueError(
             f"Error {e} while fetching model using {model_handler}.from_pretrained()."
         )

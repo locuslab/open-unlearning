@@ -8,6 +8,7 @@ from copy import deepcopy
 
 logger = logging.getLogger("model")
 
+
 class ProbedLlamaForCausalLM(LlamaForCausalLM):
     @classmethod
     def from_pretrained(
@@ -27,5 +28,7 @@ class ProbedLlamaForCausalLM(LlamaForCausalLM):
         torch.cuda.empty_cache()
         for name, p in model.named_parameters():
             p.requires_grad = name.startswith("lm_head")
-        logger.info(f"Initialised a ProbedLlamaForCausalLM model with {n_layers} layers")
+        logger.info(
+            f"Initialised a ProbedLlamaForCausalLM model with {n_layers} layers"
+        )
         return model

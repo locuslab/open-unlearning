@@ -1,5 +1,5 @@
 do_sample: False
 top_p: null
 temperature: null
-max_new_tokens: 200
+max_new_tokens: 64
 use_cache: True
