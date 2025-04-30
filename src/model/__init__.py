@@ -1,13 +1,18 @@
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from omegaconf import DictConfig, open_dict
+from typing import Dict, Any
 import os
 import torch
 import logging
+from model.probing import ProbedLlamaForCausalLM
 
 hf_home = os.getenv("HF_HOME", default=None)
 
-
 logger = logging.getLogger(__name__)
+
+MODEL_HANDLER_REGISTRY: Dict[str, Any] = {}
+MODEL_HANDLER_REGISTRY["AutoModelForCausalLM"] = AutoModelForCausalLM
+MODEL_HANDLER_REGISTRY["ProbedLlamaForCausalLM"] = ProbedLlamaForCausalLM
 
 
 def get_dtype(model_args):
@@ -38,16 +43,23 @@ def get_model(model_cfg: DictConfig):
     model_args = model_cfg.model_args
     tokenizer_args = model_cfg.tokenizer_args
     torch_dtype = get_dtype(model_args)
+    model_handler = model_cfg.get("model_handler", "AutoModelForCausalLM")
+    model_cls = MODEL_HANDLER_REGISTRY[model_handler]
+    with open_dict(model_args):
+        model_path = model_args.pop("pretrained_model_name_or_path", None)
     try:
-        model = AutoModelForCausalLM.from_pretrained(
-            torch_dtype=torch_dtype, **model_args, cache_dir=hf_home
+        model = model_cls.from_pretrained(
+            pretrained_model_name_or_path=model_path,
+            torch_dtype=torch_dtype,
+            **model_args,
+            cache_dir=hf_home,
         )
     except Exception as e:
         logger.warning(
-            f"Model {model_args.pretrained_model_name_or_path} requested with {model_cfg.model_args}"
+            f"Model {model_path} requested with {model_cfg.model_args}"
         )
         raise ValueError(
-            f"Error {e} while fetching model using AutoModelForCausalLM.from_pretrained()."
+            f"Error {e} while fetching model using {model_handler}.from_pretrained()."
         )
     tokenizer = get_tokenizer(tokenizer_args)
     return model, tokenizer
