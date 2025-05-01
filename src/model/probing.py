@@ -20,7 +20,9 @@ class ProbedLlamaForCausalLM(LlamaForCausalLM):
         model: LlamaForCausalLM = super().from_pretrained(
             pretrained_model_name_or_path, config=config, **unused_kwargs
         )
-        retain_model: LlamaForCausalLM = AutoModelForCausalLM.from_pretrained('open-unlearning/tofu_Llama-3.2-1B-Instruct_retain90')
+        retain_model: LlamaForCausalLM = AutoModelForCausalLM.from_pretrained(
+            "open-unlearning/tofu_Llama-3.2-1B-Instruct_retain90"
+        )
         n_layers = min(n_layers, model.config.num_hidden_layers)
         model.config.num_hidden_layers = n_layers
         model.model.layers = nn.ModuleList(model.model.layers[:n_layers])
