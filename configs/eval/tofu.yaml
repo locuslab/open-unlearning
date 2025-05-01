@@ -10,7 +10,7 @@ defaults: # include all defined metrics files
     - forget_Q_A_PERT_Prob
     - forget_Q_A_ROUGE
     - forget_Q_A_PARA_ROUGE
-    - forget_Q_A_PERT_ROUGE
+    # - forget_Q_A_PERT_ROUGE
     - forget_Truth_Ratio
 
     - retain_Q_A_Prob
@@ -18,7 +18,7 @@ defaults: # include all defined metrics files
     - retain_Q_A_PERT_Prob
     - retain_Q_A_ROUGE
     - retain_Q_A_PARA_ROUGE
-    - retain_Q_A_PERT_ROUGE
+    # - retain_Q_A_PERT_ROUGE
     - retain_Truth_Ratio
     - model_utility # populated in the metrics key as metrics.model_utility
     
