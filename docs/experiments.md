@@ -63,7 +63,7 @@ paths.output_dir=saves/unlearn/NPO/evals
 
 
 > [!NOTE]
-The unlearning experiments support evaluation during the unlearning finetuning. But this is supported only on a single GPU When multiple GPUs are used to train, checkpoints must be stored and evaluated after training.
+The unlearning experiments support evaluation during the unlearning finetuning. But this is supported only when a single accelerator process is used, checkpoints must be stored and evaluated after training.
 
 ---
 
@@ -74,29 +74,6 @@ To understand the structure of an evaluation config and the kind of available pa
 To understand the structure of an unlearning config and the kind of available parameters for overriding, refer to: [`configs/experiment/examples/muse_unlearn.yaml`](../configs/experiment/examples/muse_unlearn.yaml).
 
 The following tables list the most commonly used arguments while running experiments.
-<!-- 
-<style>
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 20px;
-  }
-  th, td {
-    border: 1px solid #000;
-    padding: 4px;
-    word-wrap: break-word;
-    word-break: break-all;
-  }
-  th {
-    text-align: left;
-  }
-  col.argument {
-    width: 30%;
-  }
-  col.description {
-    width: 70%;
-  }
-</style> -->
 
 ### <h3>Model Settings</h3>
 <table>
@@ -234,11 +211,9 @@ python src/train.py --config-name=train.yaml experiment=finetune/tofu/default \
   trainer.args.learning_rate=5e-5 task_name=llama3.2-1B_finetune_example
 ```
 
-<!-- --- -->
-
 ## Distributed Training
 
-Distributed training configurations enable scaling experiments across multiple devices or nodes. In most cases, default distributed settings from [`configs/accelerate/default_config.yaml`](../configs/accelerate/default_config.yaml) are sufficient. You can run distributed training with a default command such as:
+Distributed training configurations enable scaling experiments across multiple devices or nodes. In most cases, default distributed settings from [`configs/accelerate/default_config.yaml`](../configs/accelerate/default_config.yaml) are sufficient. You can run distributed training with the below command that uses DeepSpeed for distributed training (which is our default setup):
 
 ```bash
 CUDA_VISIBLE_DEVICES=0,1 accelerate launch \
@@ -246,9 +221,12 @@ CUDA_VISIBLE_DEVICES=0,1 accelerate launch \
   src/train.py --config-name=unlearn.yaml experiment=unlearn/muse/default.yaml task_name=DISTRIBUTED_TRAIN
 ```
 
+You may also simply run `CUDA_VISIBLE_DEVICES=0,1,.. python ...` to leverage Accelerate's DDP or model parallel. For model parallel you can use `device_map="auto"` in the `model_args` while loading the model.
+
 > [!CAUTION]
-> Evaluation runs are designed to work only a single GPU (this includes running evaluation during training). To run an evaluation job, modify your command to make only one GPU visible (assuming one GPU is enough for inference), as shown below
+> Train runs using multiple accelerate processes will not be able to run evaluations during training. To achieve this, you may want to use DDP/model parallel (see #94) or use a single GPU to run the evaluation code directly on a saved model checkpoint like below
 
 ```bash
-CUDA_VISIBLE_DEVICES=0 python src/eval.py  experiment=eval/muse/default.yaml task_name=SAMPLE_EVAL
+CUDA_VISIBLE_DEVICES=0 python src/eval.py experiment=eval/muse/default.yaml task_name=SAMPLE_EVAL \
+model.model_args.pretrained_model_name_or_path=saves/unlearn/muse_unlearn_exp \
 ```

@@ -22,13 +22,15 @@ trainer:
     per_device_train_batch_size: 4
     per_device_eval_batch_size: 16
     gradient_accumulation_steps: 8
-    learning_rate: 1.0e-05
+    learning_rate: 3.0e-05
     bf16: true
     bf16_full_eval: true
     logging_steps: 5
     output_dir: ${paths.output_dir}
     logging_dir: ${trainer.args.output_dir}/logs
     report_to: tensorboard
+    ddp_find_unused_parameters: None
+    gradient_checkpointing: false
     optim: paged_adamw_32bit
     save_strategy: 'no'
     save_only_model: true
@@ -53,22 +55,20 @@ data:
       args:
         hf_args:
           path: muse-bench/MUSE-News
-          name: train
+          name: raw
           split: ${forget_split}
         text_key: text
-        max_length: 128
-        insert_space: true
+        max_length: 2048
   retain:
     MUSE_retain:
       handler: PretrainingDataset
       args:
         hf_args:
           path: muse-bench/MUSE-News
-          name: train
+          name: raw
           split: ${retain_split}
         text_key: text
-        max_length: 128
-        insert_space: true
+        max_length: 2048
   anchor: forget
 collator:
   DataCollatorForSupervisedDataset:
@@ -119,33 +119,83 @@ eval:
         handler: rouge
         rouge_type: rougeL_f1
         batch_size: 16
+      retain_knowmem_ROUGE:
+        datasets:
+          MUSE_retain_knowmem:
+            handler: QADataset
+            args:
+              hf_args:
+                path: muse-bench/MUSE-${eval.muse.data_split}
+                name: knowmem
+                split: retain_qa
+              few_shot_dataset_hf_args:
+                path: muse-bench/MUSE-${eval.muse.data_split}
+                name: knowmem
+                split: retain_qa_icl
+              question_key: question
+              answer_key: answer
+              max_length: 512
+              predict_with_generate: true
+        collators:
+          DataCollatorForSupervisedDataset:
+            handler: DataCollatorForSupervisedDataset
+            args:
+              padding_side: left
+              index: index
+        generation_args:
+          do_sample: false
+          top_p: null
+          temperature: null
+          max_new_tokens: 32
+          use_cache: true
+          stopwords:
+          - '
+
+
+            '
+          - '
+
+            Question'
+          - 'Question:'
+        handler: rouge
+        rouge_type: rougeL_f1
+        batch_size: 16
+      forget_verbmem_ROUGE:
+        datasets:
+          MUSE_forget_verbmem:
+            handler: CompletionDataset
+            args:
+              hf_args:
+                path: muse-bench/MUSE-${eval.muse.data_split}
+                name: verbmem
+                split: forget
+              prefix_key: prompt
+              text_key: gt
+              max_length: 2048
+              insert_space: true
+              predict_with_generate: true
+        collators:
+          DataCollatorForSupervisedDataset:
+            handler: DataCollatorForSupervisedDataset
+            args:
+              padding_side: left
+              index: index
+        generation_args:
+          do_sample: false
+          top_p: null
+          temperature: null
+          max_new_tokens: 128
+          use_cache: true
+        handler: rouge
+        rouge_type: rougeL_f1
+        batch_size: 8
       privleak:
         pre_compute:
-          forget_minKpc_neg_logprob:
+          mia_min_k:
             datasets:
-              MUSE_forget_privleak:
-                handler: PretrainingDataset
-                args:
-                  hf_args:
-                    path: muse-bench/MUSE-${eval.muse.data_split}
-                    name: privleak
-                    split: forget
-                  prefix_key: prompt
-                  text_key: text
-            collators:
-              DataCollatorForSupervisedDataset:
-                handler: DataCollatorForSupervisedDataset
-                args:
-                  padding_side: right
-                  index: index
-            handler: minKpc_negative_logprob
-            batch_size: 8
-            k: 0.4
-            access_key: forget
-          holdout_minKpc_neg_logprob:
-            datasets:
-              MUSE_holdout_privleak:
-                handler: PretrainingDataset
+              MUSE_MIA_holdout:
+                access_key: holdout
+                handler: CompletionDataset
                 args:
                   hf_args:
                     path: muse-bench/MUSE-${eval.muse.data_split}
@@ -153,30 +203,60 @@ eval:
                     split: holdout
                   prefix_key: prompt
                   text_key: text
+                  max_length: 2048
+              MUSE_MIA_forget:
+                access_key: forget
+                handler: CompletionDataset
+                args:
+                  hf_args:
+                    path: muse-bench/MUSE-${eval.muse.data_split}
+                    name: privleak
+                    split: forget
+                  prefix_key: prompt
+                  text_key: text
+                  max_length: 2048
             collators:
               DataCollatorForSupervisedDataset:
                 handler: DataCollatorForSupervisedDataset
                 args:
                   padding_side: right
                   index: index
-            handler: minKpc_negative_logprob
             batch_size: 8
+            handler: mia_min_k
             k: 0.4
-            access_key: holdout
+            access_key: forget
         reference_logs:
           retain_model_logs:
             path: ${eval.muse.retain_logs_path}
             include:
-              forget_minKpc_neg_logprob:
+              mia_min_k:
                 access_key: retain
-              holdout_minKpc_neg_logprob:
-                access_key: holdout
         handler: privleak
         ref_value: 0.5
+      extraction_strength:
+        datasets:
+          MUSE_forget_verbmem:
+            handler: CompletionDataset
+            args:
+              hf_args:
+                path: muse-bench/MUSE-${eval.muse.data_split}
+                name: verbmem
+                split: forget
+              prefix_key: prompt
+              text_key: gt
+              max_length: 2048
+              insert_space: true
+        collators:
+          DataCollatorForSupervisedDataset:
+            handler: DataCollatorForSupervisedDataset
+            args:
+              padding_side: right
+              index: index
+        handler: extraction_strength
+        batch_size: 8
     handler: MUSEEvaluator
-    device: cuda
     output_dir: ${paths.output_dir}
-    overwrite: false
+    overwrite: true
     data_split: ${data_split}
     retain_logs_path: ${retain_logs_path}
 paths:
@@ -188,6 +268,6 @@ paths:
 data_split: News
 forget_split: forget
 retain_split: retain1
-retain_logs_path: saves/eval/muse_news_retain/MUSE_EVAL.json
-task_name: llama2_news_NPO
+retain_logs_path: saves/eval/muse_Llama-2-7b-hf_News_retrain/MUSE_EVAL.json
+task_name: muse_npo_unlearn
 mode: unlearn

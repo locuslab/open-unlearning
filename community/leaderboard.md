@@ -68,7 +68,7 @@ To implement a new method, refer to our [contributing guide](../docs/contributin
   <tbody>
     <tr>
       <th>Finetuned</th>
-      <td>1.66e-21</td>
+      <td>3.91e-22</td>
       <td>0.6</td>
     </tr>
     <tr>
@@ -119,7 +119,7 @@ To implement a new method, refer to our [contributing guide](../docs/contributin
       <td>0.56</td>
       <td>0.47</td>
       <td>1.0</td>
-      <td>-57.26</td>
+      <td>-57.34</td>
       <td>0.69</td>
     </tr>
     <tr>
