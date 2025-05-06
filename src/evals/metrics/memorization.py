@@ -1,9 +1,7 @@
 import logging
 import torch
 import numpy as np
-import scipy as sc
 from torch.utils.data import DataLoader
-
 
 from evals.metrics.utils import (
     aggregate_to_1D,
@@ -162,12 +160,6 @@ def truth_ratio(model, **kwargs):
     truth_ratio_stats = np.array([evals["score"] for evals in value_by_index.values()])
     forget_tr_avg = aggregator(truth_ratio_stats)
     return {"agg_value": forget_tr_avg, "value_by_index": value_by_index}
-
-
-@unlearning_metric(name="hm_aggregate")
-def hm_aggregate(model, **kwargs):
-    values = [result["agg_value"] for _, result in kwargs["pre_compute"].items()]
-    return {"agg_value": sc.stats.hmean(values)}
 
 
 @unlearning_metric(name="exact_memorization")

@@ -4,6 +4,7 @@
 defaults: # include all defined metrics files
   - tofu_metrics: # When you import a metric here, its configuration automatically populates the 
   # metric key below, enabled by the @package directive at the top of each configuration file.
+    - forget_Q_A_gibberish
     # - forget_quality
     - forget_Q_A_Prob
     - forget_Q_A_PARA_Prob
