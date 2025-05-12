@@ -240,3 +240,33 @@ metrics: {} # lists a mapping from each evaluation metric listed above to its co
 output_dir: ${paths.output_dir} # set to default eval directory
 forget_split: forget10
 ```
+
+## lm-evaluation-harness
+
+To evaluate model capabilities after unlearning, we support running [lm-eval-harness](https://github.com/EleutherAI/lm-evaluation-harness/tree/main) using our custom evaluator: [LMEvalEvaluator](../src/evals/lm_eval.py).
+All evaluation tasks should be defined under the  `tasks` in [lm_eval.yaml](../configs/eval/lm_eval.yaml)
+
+```yaml
+# @package eval.lm_eval
+# NOTE: the above line is not a comment, but sets the package for config. See https://hydra.cc/docs/upgrades/0.11_to_1.0/adding_a_package_directive/
+
+handler: LMEvalEvaluator
+output_dir: ${paths.output_dir} # set to default eval directory
+overwrite: false
+
+# Define evaluation tasks here
+tasks:
+  - mmlu
+  - wmdp_cyber
+  - task: gsm8k
+    dataset_path: gsm8k
+    # define the entire task config. 
+    # ^ Example: https://github.com/EleutherAI/lm-evaluation-harness/blob/main/lm_eval/tasks/gsm8k/gsm8k.yaml
+    
+
+
+simple_evaluate_args:
+  batch_size: 16
+  system_instruction: null
+  apply_chat_template: false
+```

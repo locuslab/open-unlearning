@@ -109,4 +109,4 @@ class Evaluator:
             self.save_logs(logs, logs_file_path)
             self.save_logs(self.summarize(logs), summary_file_path)
 
-        return logs
+        return self.summarize(logs)

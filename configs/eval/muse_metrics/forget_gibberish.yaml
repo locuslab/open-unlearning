@@ -1,0 +1,20 @@
+# @package eval.muse.metrics.forget_gibberish
+defaults:
+  - .@pre_compute.forget_verbmem_ROUGE: forget_verbmem_ROUGE
+
+pre_compute:
+  forget_verbmem_ROUGE:
+    access_key: text
+
+handler: classifier_prob
+batch_size: 32
+max_length: 512
+class_id: 0
+text_key: generation
+device: cuda
+
+classifier_model_args:
+  pretrained_model_name_or_path: "madhurjindal/autonlp-Gibberish-Detector-492513457"
+
+classifier_tokenization_args:
+  pretrained_model_name_or_path: "madhurjindal/autonlp-Gibberish-Detector-492513457"

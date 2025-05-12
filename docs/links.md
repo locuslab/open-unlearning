@@ -5,12 +5,14 @@ Links to research papers and resources corresponding to implemented features in 
 ---
 
 ## 📌 Table of Contents
-- [Implemented Methods](#implemented-methods)
-- [Benchmarks](#benchmarks)
-- [Evaluation Metrics](#evaluation-metrics)
-- [Useful Links](#useful-links)
-  - [Survey Papers](#survey-papers)
-  - [Other GitHub Repositories](#other-github-repositories)
+- [🔗 Links and References](#-links-and-references)
+  - [📌 Table of Contents](#-table-of-contents)
+  - [📗 Implemented Methods](#-implemented-methods)
+  - [📘 Benchmarks](#-benchmarks)
+  - [📙 Evaluation Metrics](#-evaluation-metrics)
+  - [🌐 Useful Links](#-useful-links)
+    - [📚 Surveys](#-surveys)
+    - [🐙 Other GitHub Repositories](#-other-github-repositories)
 
 ---
 
@@ -32,6 +34,7 @@ Links to research papers and resources corresponding to implemented features in 
 |-----------|----------|
 | TOFU      | Paper [📄](https://arxiv.org/abs/2401.06121) |
 | MUSE      | Paper [📄](https://arxiv.org/abs/2407.06460) |
+| WMDP      | Paper [📄](https://arxiv.org/abs/2403.03218) |
 
 ---
 
@@ -45,6 +48,7 @@ Links to research papers and resources corresponding to implemented features in 
 | Forget Quality, Truth Ratio, Model Utility | TOFU ([📄](https://arxiv.org/abs/2401.06121)) |
 | Extraction Strength (ES) |  Carlini et al., 2021 ([📄](https://www.usenix.org/conference/usenixsecurity21/presentation/carlini-extracting)), used for unlearning in Wang et al., 2025 ([📄](https://openreview.net/pdf?id=wUtCieKuQU)) |
 | Exact Memorization (EM) |  Tirumala et al., 2022 ([📄](https://proceedings.neurips.cc/paper_files/paper/2022/hash/fa0509f4dab6807e2cb465715bf2d249-Abstract-Conference.html)), used for unlearning in Wang et al., 2025 ([📄](https://openreview.net/pdf?id=wUtCieKuQU)) |
+| lm-evaluation-harness |  [💻](https://github.com/EleutherAI/lm-evaluation-harness/tree/main) |
 
 ---
 
