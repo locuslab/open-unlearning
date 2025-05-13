@@ -52,11 +52,11 @@ def main():
 
     args = parser.parse_args()
 
-    if args.download_eval:
+    if args.eval_logs:
         download_eval_data()
-    if args.download_idk:
+    if args.idk:
         download_idk_data()
-    if args.download_wmdp:
+    if args.wmdp:
         download_wmdp()
 
 
