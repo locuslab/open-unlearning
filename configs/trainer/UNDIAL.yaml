@@ -1,0 +1,12 @@
+defaults:
+  - finetune
+
+handler: UNDIAL # corresponds to the class defined in src/trainer/unlearn/grad_diff.py
+args: # HuggingFace TrainingArguments
+  learning_rate: 1e-4
+  num_train_epochs: 10
+method_args: # Your own method-specific arguments
+  gamma: 1.0
+  alpha: 0.0
+  beta: 10.0 # the strength of penalty for memorized tokens
+  retain_loss_type: NLL 
