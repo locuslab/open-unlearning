@@ -5,15 +5,12 @@
 <h3><strong>An easily extensible framework unifying LLM unlearning evaluation benchmarks.</strong></h3>
 
   <div style="display: flex; gap: 10px; justify-content: center; align-items: center;">
-      <a href="https://github.com/locuslab/open-unlearning/actions">
-          <img src="https://github.com/locuslab/open-unlearning/actions/workflows/tests.yml/badge.svg" alt="Build Status">
-      </a>
-      <a href="https://huggingface.co/open-unlearning">
-        <img src="https://img.shields.io/badge/Hugging%20Face-white?logo=huggingface" alt="Hugging Face">
-      </a>
-      <a href="https://github.com/locuslab/open-unlearning">
-        <img src="https://img.shields.io/github/stars/locuslab/open-unlearning?style=social" alt="GitHub Repo stars">
-      </a>
+    <a href="https://github.com/locuslab/open-unlearning"><img src="https://img.shields.io/github/stars/locuslab/open-unlearning?style=social" alt="GitHub Repo stars"/></a>
+    <a href="https://github.com/locuslab/open-unlearning/actions"><img src="https://github.com/locuslab/open-unlearning/actions/workflows/tests.yml/badge.svg" alt="Build Status"/></a>
+    <a href="https://huggingface.co/open-unlearning"><img src="https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Model-blue" alt="HuggingFace 🤗"/></a>
+    <a href="https://github.com/locuslab/open-unlearning"><img src="https://img.shields.io/github/repo-size/locuslab/open-unlearning" alt="GitHub repo size"/></a>
+    <a href="https://github.com/locuslab/open-unlearning"><img src="https://img.shields.io/github/languages/top/locuslab/open-unlearning" alt="GitHub top language"/></a>
+    <a href="https://github.com/locuslab/open-unlearning/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue" alt="License: MIT"/></a>
   </div>
 </div>
 
@@ -29,15 +26,20 @@ We invite the LLM unlearning community to collaborate by adding new benchmarks, 
 
 ### 📢 Updates
 
+#### [May 12, 2025]
+
+- **Another benchmark!** We now support running the [`WMDP`](https://wmdp.ai/) benchmark with its `Zephyr` task model.
+- **More evaluations!**  The [`lm-evaluation-harness`](https://github.com/EleutherAI/lm-evaluation-harness) toolkit has been integrated into OpenUnlearning, enabling WMDP evaluations and support for popular general LLM benchmarks, including MMLU, GSM8K, and others.
+
+<details>
+<summary><b>Older Updates</b></summary>
+
 #### [Apr 6, 2025]
-⚠️⚠️ **IMPORTANT:** Be sure to run `python setup_data.py` immediately after merging the latest version. This is required to refresh the downloaded eval log files and ensure they're compatible with the latest evaluation metrics.
 - **More Metrics!** Added 6 Membership Inference Attacks (MIA) (LOSS, ZLib, Reference, GradNorm, MinK, and MinK++), along with Extraction Strength (ES) and  Exact Memorization (EM) as additional evaluation metrics.
 - **More TOFU Evaluations!** Now includes a holdout set and supports MIA attack-based evaluation. You can now compute MUSE's privleak on TOFU.
 - **More Documentation!** [`docs/links.md`](docs/links.md) contains resources for each of the implemented features and other useful LLM unlearning resources.
 
-
-<details>
-<summary><b>Older Updates</b></summary>
+Be sure to run `python setup_data.py` immediately after merging the latest version. This is required to refresh the downloaded eval log files and ensure they're compatible with the latest evaluation metrics.
 
 #### [Mar 27, 2025]
 - **More Documentation: easy contributions and the leaderboard functionality**: We've updated the documentation to make contributing new unlearning methods and benchmarks much easier. Users can document additions better and also update a leaderboard with their results. See [this section](#-how-to-contribute) for details.
@@ -59,11 +61,11 @@ We provide several variants for each of the components in the unlearning pipelin
 
 | **Component**          | **Available Options** |
 |------------------------|----------------------|
-| **Benchmarks**        | [TOFU](https://arxiv.org/abs/2401.06121), [MUSE](https://muse-bench.github.io/) |
+| **Benchmarks**        | [TOFU](https://arxiv.org/abs/2401.06121), [MUSE](https://muse-bench.github.io/), [WMDP](https://www.wmdp.ai/) |
 | **Unlearning Methods** | GradAscent, GradDiff, NPO, SimNPO, DPO, RMU |
-| **Evaluation Metrics** | Verbatim Probability, Verbatim ROUGE, Knowledge QA-ROUGE, Model Utility, Forget Quality, TruthRatio, Extraction Strength, Exact Memorization, 6 MIA attacks |
+| **Evaluation Metrics** | Verbatim Probability, Verbatim ROUGE, Knowledge QA-ROUGE, Model Utility, Forget Quality, TruthRatio, Extraction Strength, Exact Memorization, 6 MIA attacks, [lm-evaluation-harness](https://github.com/EleutherAI/lm-evaluation-harness) |
 | **Datasets**          | MUSE-News (BBC), MUSE-Books (Harry Potter), TOFU (different splits) |
-| **Model Families**    | TOFU: LLaMA-3.2, LLaMA-3.1, LLaMA-2; MUSE: LLaMA-2; Additional: Phi-3.5, Phi-1.5, Gemma |
+| **Model Families**    | TOFU: LLaMA-3.2, LLaMA-3.1, LLaMA-2; MUSE: LLaMA-2; Additional: Phi-3.5, Phi-1.5, Gemma, Zephyr |
 
 ---
 
@@ -89,16 +91,18 @@ We provide several variants for each of the components in the unlearning pipelin
 ## ⚡ Quickstart
 
 ```bash
-# environment setup
+# Environment setup
 conda create -n unlearning python=3.11
 conda activate unlearning
-pip install .
+pip install .[lm_eval]
 pip install --no-build-isolation flash-attn==2.6.3
 
-# data setup
-python setup_data.py  # saves/eval now contains evaluation results of the uploaded models
-# Downloads log files with metric eval results (incl retain model logs) from the models 
-# used in the supported benchmarks.
+# Data setup
+python setup_data.py --eval # saves/eval now contains evaluation results of the uploaded models
+# This downloads log files with evaluation results (including retain model logs)
+# into `saves/eval`, used for evaluating unlearning across supported benchmarks.
+# Additional datasets (e.g., WMDP) are supported — run below for options:
+# python setup_data.py --help
 ```
 
 ---
@@ -175,7 +179,7 @@ For more in-depth information on specific aspects of the framework, refer to the
 | [`docs/contributing.md`](docs/contributing.md)       | Instructions on how to add new methods, benchmarks, components such as trainers, benchmarks, metrics, models, datasets, etc.              |
 | [`docs/evaluation.md`](docs/evaluation.md)       | Detailed instructions on creating and running evaluation metrics and benchmarks.                                     |
 | [`docs/experiments.md`](docs/experiments.md)     | Guide on running experiments in various configurations and settings, including distributed training, fine-tuning, and overriding arguments. |
-| [`docs/hydra.md`](docs/hydra.md)                 | Explanation of the Hydra features used in configuration management for experiments.                                  |
+| [`docs/hydra.md`](docs/hydra.md)                 | A short tutorial on Hydra features, Hydra is the configuration management package we use extensively.                                  |
 | [`community/leaderboard.md`](community/leaderboard.md)             | Reference results from various unlearning methods run using this framework on TOFU and MUSE benchmarks.              |
 | [`docs/links.md`](docs/links.md)             | List of all links to the research papers or other sources the implemented features are sourced from.              |
 | [`docs/repro.md`](docs/repro.md)            | Results are provided solely for reproducibility purposes, without any parameter tuning.             |
@@ -193,26 +197,25 @@ If you use OpenUnlearning in your research, please cite OpenUnlearning and the b
 
 ```bibtex
 @misc{openunlearning2025,
-  title={OpenUnlearning: A Unified Framework for LLM Unlearning Benchmarks},
+  title={{OpenUnlearning}: A Unified Framework for LLM Unlearning Benchmarks},
   author={Dorna, Vineeth and Mekala, Anmol and Zhao, Wenlong and McCallum, Andrew and Kolter, J Zico and Maini, Pratyush},
   year={2025},
   howpublished={\url{https://github.com/locuslab/open-unlearning}},
   note={Accessed: February 27, 2025}
 }
 @inproceedings{maini2024tofu,
-  title={TOFU: A Task of Fictitious Unlearning for LLMs},
+  title={{TOFU}: A Task of Fictitious Unlearning for LLMs},
   author={Maini, Pratyush and Feng, Zhili and Schwarzschild, Avi and Lipton, Zachary Chase and Kolter, J Zico},
   booktitle={First Conference on Language Modeling},
   year={2024}
 }
-@article{shi2024muse,
-  title={MUSE: Machine Unlearning Six-Way Evaluation for Language Models},
+@inproceedings{
+  shi2025muse,
+  title={{MUSE}: Machine Unlearning Six-Way Evaluation for Language Models},
   author={Weijia Shi and Jaechan Lee and Yangsibo Huang and Sadhika Malladi and Jieyu Zhao and Ari Holtzman and Daogao Liu and Luke Zettlemoyer and Noah A. Smith and Chiyuan Zhang},
-  year={2024},
-  eprint={2407.06460},
-  archivePrefix={arXiv},
-  primaryClass={cs.CL},
-  url={https://arxiv.org/abs/2407.06460},
+  booktitle={The Thirteenth International Conference on Learning Representations},
+  year={2025},
+  url={https://openreview.net/forum?id=TArmA033BU}
 }
 ```
 </details>
@@ -230,7 +233,5 @@ If you use OpenUnlearning in your research, please cite OpenUnlearning and the b
 This project is licensed under the MIT License. See the [`LICENSE`](LICENSE) file for details.
 
 ---
-
-### Star History
 
 [![Star History Chart](https://api.star-history.com/svg?repos=locuslab/open-unlearning&type=Date)](https://www.star-history.com/#locuslab/open-unlearning&Date)

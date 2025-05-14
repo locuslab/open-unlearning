@@ -6,7 +6,6 @@ from evals.metrics.memorization import (
     probability_w_options,
     rouge,
     truth_ratio,
-    hm_aggregate,
     extraction_strength,
     exact_memorization,
 )
@@ -18,6 +17,10 @@ from evals.metrics.mia import (
     mia_gradnorm,
     mia_zlib,
     mia_reference,
+)
+from evals.metrics.utility import (
+    hm_aggregate,
+    classifier_prob,
 )
 
 METRICS_REGISTRY: Dict[str, UnlearningMetric] = {}
@@ -67,3 +70,6 @@ _register_metric(mia_min_k_plus_plus)
 _register_metric(mia_gradnorm)
 _register_metric(mia_zlib)
 _register_metric(mia_reference)
+
+# Register Utility metrics
+_register_metric(classifier_prob)
