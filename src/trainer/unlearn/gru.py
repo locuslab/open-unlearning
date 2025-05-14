@@ -17,7 +17,6 @@ class GRU(GradDiff,UnlearnTrainer):
         self.gradient_accumulation_steps = kwargs["args"].gradient_accumulation_steps
         if self.ref_model is None and self.forget_loss_type == "NPO":
             self.ref_model = self._prepare_ref_model(self.model)
-            #self.ref_model = self.model.to(self.args.device)
 
         # Initialization of internal variables to store gradients and computational states
         self.dotp_retain = 0.0
@@ -129,9 +128,6 @@ class GRU(GradDiff,UnlearnTrainer):
         flattened_grads1 = flattened_grads1.to('cuda')
         flattened_grads2 = flattened_grads2.to('cuda')
 
-        # for ((name1, shape1), (name2, shape2)) in zip(structure_map1, structure_map2):
-        #     assert name1 == name2 and shape1 == shape2, f"Gradient mismatch: {name1} vs {name2} or {shape1} vs {shape2}"
-
         for ((name1, shape1), (name2, shape2)) in zip(structure_map, structure_map):
             assert shape1 == shape2, f"Gradient mismatch: {name1} vs {name2} or {shape1} vs {shape2}"
 
@@ -179,7 +175,6 @@ class GRU(GradDiff,UnlearnTrainer):
        
     def pipeline(self):
         if self.dotp_retain < 0:
-            #print("dotp_retain:",self.dotp_retain)
             self.flattened_gradient = self.orthogonal_component(self.flattened_gradient, self.flattened_retain)
             torch.cuda.empty_cache()
 

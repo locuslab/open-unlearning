@@ -1,34 +1,26 @@
-# TITLE
+# GRU
 
 - **Paper Title**: GRU: Mitigating the Trade-off Between Unlearning and Retention for Large Language Models
 - **Authors**: Yue Wang, Qizhou Wang, Feng Liu, Wei Huang, Yali Du, Xiaojiang Du, Bo Han
 - **Links**: [arXiv:2503.09117](https://arxiv.org/abs/2503.09117)
 
 
-Provide a concise summary of your method details and its contributions. Please avoid using images to keep the repository size manageable.
+This work proposes **Gradient Rectified Unlearning (GRU)**, a general framework for improving unlearning performance without sacrificing retention in large language models. GRU modifies the gradient update rule to remove the component of the unlearning gradient that conflicts with the retention gradient.
 
 # Setup
 
-Please include the experimental setup such as
-
-- [ ] **Hyperparameters & Search Space:** Specify key hyperparameters, their search ranges, number of trials etc.
-- [ ] **Computational Setup:** Mention the type and number of GPUs used.
-- [ ] **DeepSpeed Configuration:** If any modifications were made to the default DeepSpeed config, specify them here. (You may include the config as a code block.)
-- [ ] **Other Details:** Any additional setup details crucial for reproducing your method.
+- **Hyperparameters & Search Space**:
+  - Gradient EMA smoothing factor \(\gamma \in \{0.8, 0.9, 0.95, \text{N/A}\}\)
 
 
-## Computational Setup
+- **GPU Type**: NVIDIA A100 80GB  
+- **GPU Usage**: Current code supports **single GPU execution only**. Multi-GPU support is not yet implemented.
 
-
-- **GPU Details**: NVIDIA A100 80GB
-- **GPU Count**: The code for our method currently supports single GPU execution. We plan to enhance the codebase in the future to support multi-GPU configurations.
-
+- **DeepSpeed Configuration**:  
+  GRU currently **does not support DeepSpeed** due to its reliance on fine-grained gradient manipulation. Please ensure DeepSpeed is disabled for all GRU experiments.
 
 # Results
 
-To replicate your results, provide a `run.sh` script that contains all necessary commands to reproduce the final results. Ensure the script is well-documented.
-
-It would be appreciated if you can upload the final unlearned model(s) along with their `evals` folders to HuggingFace and provide the link(s) here. As the evaluations are updated, this would help us re-evaluate your model(s).
 
 # Citation
 
