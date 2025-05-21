@@ -1,6 +1,7 @@
 import torch
 import numpy as np
 import scipy as sc
+from tqdm import tqdm
 import torch.nn.functional as F
 from torch.utils.data import DataLoader
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
@@ -15,8 +16,8 @@ def hm_aggregate(model, **kwargs):
     return {"agg_value": sc.stats.hmean(values)}
 
 
-@unlearning_metric(name="classification_prob")
-def classification_prob(model, **kwargs):
+@unlearning_metric(name="classifier_prob")
+def classifier_prob(model, **kwargs):
     batch_size = kwargs.get("batch_size", 32)
     max_length = kwargs.get("max_length", 512)
     class_id = kwargs.get("class_id", 0)
@@ -39,7 +40,7 @@ def classification_prob(model, **kwargs):
     dataloader = DataLoader(data_list, batch_size=batch_size, shuffle=False)
 
     scores_by_index = {}
-    for batch in dataloader:
+    for batch in tqdm(dataloader):
         batch_texts = batch["text"]
         batch_indices = batch["index"].tolist()
 

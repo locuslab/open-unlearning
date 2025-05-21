@@ -20,7 +20,7 @@ from evals.metrics.mia import (
 )
 from evals.metrics.utility import (
     hm_aggregate,
-    classification_prob,
+    classifier_prob,
 )
 
 METRICS_REGISTRY: Dict[str, UnlearningMetric] = {}
@@ -72,4 +72,4 @@ _register_metric(mia_zlib)
 _register_metric(mia_reference)
 
 # Register Utility metrics
-_register_metric(classification_prob)
+_register_metric(classifier_prob)

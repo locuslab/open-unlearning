@@ -23,11 +23,13 @@ data:
     MUSE_forget_scal: 
       args:
         hf_args:
+          path: muse-bench/MUSE-${data_split}
           split: ${forget_split}
   retain:
     MUSE_retain:
       args:
         hf_args:
+          path: muse-bench/MUSE-${data_split}
           split: ${retain_split}
 
 eval:

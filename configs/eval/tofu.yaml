@@ -33,6 +33,7 @@ defaults: # include all defined metrics files
     - mia_zlib
     # - mia_gradnorm
     # - mia_reference # set reference model path appropriately
+    # - forget_Q_A_gibberish
 
 handler: TOFUEvaluator
 output_dir: ${paths.output_dir} # set to default eval directory
