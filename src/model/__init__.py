@@ -4,16 +4,16 @@ from typing import Dict, Any
 import os
 import torch
 import logging
-from model.probing import ProbedLlamaForCausalLM
+from model.probe import ProbedLlamaForCausalLM
 
 hf_home = os.getenv("HF_HOME", default=None)
 
 logger = logging.getLogger(__name__)
 
-MODEL_HANDLER_REGISTRY: Dict[str, Any] = {}
-MODEL_HANDLER_REGISTRY["AutoModelForCausalLM"] = AutoModelForCausalLM
-MODEL_HANDLER_REGISTRY["ProbedLlamaForCausalLM"] = ProbedLlamaForCausalLM
+MODEL_REGISTRY: Dict[str, Any] = {}
 
+def _register_model(model_class):
+    MODEL_REGISTRY[model_class.__name__] = model_class
 
 def get_dtype(model_args):
     with open_dict(model_args):
@@ -44,7 +44,7 @@ def get_model(model_cfg: DictConfig):
     tokenizer_args = model_cfg.tokenizer_args
     torch_dtype = get_dtype(model_args)
     model_handler = model_cfg.get("model_handler", "AutoModelForCausalLM")
-    model_cls = MODEL_HANDLER_REGISTRY[model_handler]
+    model_cls = MODEL_REGISTRY[model_handler]
     with open_dict(model_args):
         model_path = model_args.pop("pretrained_model_name_or_path", None)
     try:
@@ -98,3 +98,8 @@ def get_tokenizer(tokenizer_cfg: DictConfig):
         logger.info("Setting pad_token as eos token: {}".format(tokenizer.pad_token))
 
     return tokenizer
+
+
+# register models
+_register_model(AutoModelForCausalLM)
+_register_model(ProbedLlamaForCausalLM)
