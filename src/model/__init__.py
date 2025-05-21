@@ -12,8 +12,10 @@ logger = logging.getLogger(__name__)
 
 MODEL_REGISTRY: Dict[str, Any] = {}
 
+
 def _register_model(model_class):
     MODEL_REGISTRY[model_class.__name__] = model_class
+
 
 def get_dtype(model_args):
     with open_dict(model_args):
