@@ -31,7 +31,9 @@ def classification_prob(model, **kwargs):
     ).to(device)
 
     data = kwargs["pre_compute"]["text"]["value_by_index"]
-    data_list = [{"text": entry[text_key], "index": int(key)} for key, entry in data.items()]
+    data_list = [
+        {"text": entry[text_key], "index": int(key)} for key, entry in data.items()
+    ]
 
     # Create DataLoader
     dataloader = DataLoader(data_list, batch_size=batch_size, shuffle=False)
