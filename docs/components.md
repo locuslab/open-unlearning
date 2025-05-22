@@ -145,8 +145,32 @@ A benchmark, aggregates various evaluation metrics into a suite, e.g. TOFU, MUSE
 
 To add a new model architecture:
 
-### Implement and register a handler
-For all the models currently supported, HuggingFace's `AutoModelForCausalLM` and `AutoTokenizer` are used, and therefore the user doesn't need to create or register any handler.
+### Implement a handler
+
+Most tokenizers can be loaded directly using `AutoTokenizer`, so there's no need to register them explicitly.
+
+We support Hugging Face's `AutoModelForCausalLM`, which is commonly used to load and serve a wide range of language models. For custom extension—such as[`ProbedLlamaForCausalLM`](../src/model/probe.py), implement a class extending `AutoModelForCausalLM` in [`src/model`](../src/model).
+
+```python
+class ProbedLlamaForCausalLM(LlamaForCausalLM):
+  @classmethod
+  def from_pretrained(
+      cls,
+      pretrained_model_name_or_path: str,
+      head_pretrained_model_name_or_path: str = None,
+      n_layers: int = 100,
+      **kwargs,
+  ):
+    ...
+```
+
+### Register a handler
+Register your new model handler in the [`MODEL_REGISTRY`](../src/model/__init__.py).
+
+```python
+from model.probe import ProbedLlamaForCausalLM
+_register_model(ProbedLlamaForCausalLM)
+```
 
 > [!NOTE]
 Currently, we do not support loading models modified with LoRA and related variants. If you wish use such features, please create define and register model handlers for this logic in [`src/model`](../src/model) and provide the config info as discussed next.
@@ -157,6 +181,7 @@ Model configurations contain details required to load the model+tokenizer such a
 Example: LLaMA-3.1 model config in [`configs/model/Llama-3.1-8B-Instruct.yaml`](../configs/model/Llama-3.1-8B-Instruct.yaml).
 
 ```yaml
+model_handler: AutoModelForCausalLM
 model_args:
   pretrained_model_name_or_path: "meta-llama/Llama-3.1-8B-Instruct"
   attn_implementation: 'flash_attention_2'
