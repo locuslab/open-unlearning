@@ -25,6 +25,7 @@ Links to research papers and resources corresponding to implemented features in 
 | SimNPO             |  Paper [📄](https://arxiv.org/abs/2410.07163), Code [🐙](https://github.com/OPTML-Group/Unlearn-Simple) |
 | IdkDPO             | TOFU ([📄](https://arxiv.org/abs/2401.06121)) |
 | RMU             | WMDP paper ([🐙](https://github.com/centerforaisafety/wmdp/tree/main/rmu), [🌐](https://www.wmdp.ai/)), later used in G-effect ([🐙](https://github.com/tmlr-group/G-effect/blob/main/dataloader.py)) |
+| UNDIAL             | Paper [📄](https://arxiv.org/pdf/2402.10052), Code [🐙](https://github.com/dong-river/LLM_unlearning/tree/main) |
 
 ---
 
