@@ -18,7 +18,7 @@
 
 ## 📖 Overview
 
-We provide efficient and streamlined implementations of the TOFU, MUSE unlearning benchmarks while supporting 6 unlearning methods, 3+ datasets, 9+ evaluation metrics, and 6+ LLM architectures. Each of these can be easily extended to incorporate more variants.
+We provide efficient and streamlined implementations of the TOFU, MUSE and WMDP unlearning benchmarks while supporting 6 unlearning methods, 3+ datasets, 9+ evaluation metrics, and 6+ LLM architectures. Each of these can be easily extended to incorporate more variants.
 
 We invite the LLM unlearning community to collaborate by adding new benchmarks, unlearning methods, datasets and evaluation metrics here to expand OpenUnlearning's features, gain feedback from wider usage and drive progress in the field.
 
