@@ -209,13 +209,14 @@ If you use OpenUnlearning in your research, please cite OpenUnlearning and the b
   booktitle={First Conference on Language Modeling},
   year={2024}
 }
-@inproceedings{
-  shi2025muse,
-  title={{MUSE}: Machine Unlearning Six-Way Evaluation for Language Models},
+@article{shi2024muse,
+  title={MUSE: Machine Unlearning Six-Way Evaluation for Language Models},
   author={Weijia Shi and Jaechan Lee and Yangsibo Huang and Sadhika Malladi and Jieyu Zhao and Ari Holtzman and Daogao Liu and Luke Zettlemoyer and Noah A. Smith and Chiyuan Zhang},
-  booktitle={The Thirteenth International Conference on Learning Representations},
-  year={2025},
-  url={https://openreview.net/forum?id=TArmA033BU}
+  year={2024},
+  eprint={2407.06460},
+  archivePrefix={arXiv},
+  primaryClass={cs.CL},
+  url={https://arxiv.org/abs/2407.06460},
 }
 ```
 </details>
