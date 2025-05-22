@@ -2,14 +2,15 @@
 defaults:
   - ../../data/datasets@datasets: TOFU_MIA
   - ../../collator@collators: DataCollatorForSupervisedDatasetwithIndex
-batch_size: 32
+batch_size: ${eval.tofu.batch_size}
 handler: mia_zlib
 
 datasets:
   TOFU_QA_forget:
     args:
       hf_args:
-        name: ${eval.tofu.forget_split}
+        name: ${eval.tofu.forget_split}_perturbed
+      question_key: ${eval.tofu.question_key}
   TOFU_QA_holdout:
     args:
       hf_args:

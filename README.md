@@ -18,7 +18,7 @@
 
 ## 📖 Overview
 
-We provide efficient and streamlined implementations of the TOFU, MUSE unlearning benchmarks while supporting 6 unlearning methods, 3+ datasets, 9+ evaluation metrics, and 6+ LLM architectures. Each of these can be easily extended to incorporate more variants.
+We provide efficient and streamlined implementations of the TOFU, MUSE and WMDP unlearning benchmarks while supporting 6 unlearning methods, 5+ datasets, 10+ evaluation metrics, and 7+ LLM architectures. Each of these can be easily extended to incorporate more variants.
 
 We invite the LLM unlearning community to collaborate by adding new benchmarks, unlearning methods, datasets and evaluation metrics here to expand OpenUnlearning's features, gain feedback from wider usage and drive progress in the field.
 
@@ -64,7 +64,7 @@ We provide several variants for each of the components in the unlearning pipelin
 | **Benchmarks**        | [TOFU](https://arxiv.org/abs/2401.06121), [MUSE](https://muse-bench.github.io/), [WMDP](https://www.wmdp.ai/) |
 | **Unlearning Methods** | GradAscent, GradDiff, NPO, SimNPO, DPO, RMU |
 | **Evaluation Metrics** | Verbatim Probability, Verbatim ROUGE, Knowledge QA-ROUGE, Model Utility, Forget Quality, TruthRatio, Extraction Strength, Exact Memorization, 6 MIA attacks, [lm-evaluation-harness](https://github.com/EleutherAI/lm-evaluation-harness) |
-| **Datasets**          | MUSE-News (BBC), MUSE-Books (Harry Potter), TOFU (different splits) |
+| **Datasets**          | MUSE-News (BBC), MUSE-Books (Harry Potter), TOFU (different splits), WMDP-Bio, WMDP-Cyber |
 | **Model Families**    | TOFU: LLaMA-3.2, LLaMA-3.1, LLaMA-2; MUSE: LLaMA-2; Additional: Phi-3.5, Phi-1.5, Gemma, Zephyr |
 
 ---
@@ -209,13 +209,14 @@ If you use OpenUnlearning in your research, please cite OpenUnlearning and the b
   booktitle={First Conference on Language Modeling},
   year={2024}
 }
-@inproceedings{
-  shi2025muse,
-  title={{MUSE}: Machine Unlearning Six-Way Evaluation for Language Models},
+@article{shi2024muse,
+  title={MUSE: Machine Unlearning Six-Way Evaluation for Language Models},
   author={Weijia Shi and Jaechan Lee and Yangsibo Huang and Sadhika Malladi and Jieyu Zhao and Ari Holtzman and Daogao Liu and Luke Zettlemoyer and Noah A. Smith and Chiyuan Zhang},
-  booktitle={The Thirteenth International Conference on Learning Representations},
-  year={2025},
-  url={https://openreview.net/forum?id=TArmA033BU}
+  year={2024},
+  eprint={2407.06460},
+  archivePrefix={arXiv},
+  primaryClass={cs.CL},
+  url={https://arxiv.org/abs/2407.06460},
 }
 ```
 </details>
