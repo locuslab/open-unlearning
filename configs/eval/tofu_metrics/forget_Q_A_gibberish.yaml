@@ -1,0 +1,20 @@
+# @package eval.tofu.metrics.forget_Q_A_gibberish
+defaults:
+  - .@pre_compute.forget_Q_A_ROUGE: forget_Q_A_ROUGE
+
+pre_compute:
+  forget_Q_A_ROUGE:
+    access_key: text
+
+handler: classifier_prob
+batch_size: 32
+max_length: 32
+class_id: 0
+text_key: generation
+device: cuda
+
+classifier_model_args:
+  pretrained_model_name_or_path: "madhurjindal/autonlp-Gibberish-Detector-492513457"
+
+classifier_tokenization_args:
+  pretrained_model_name_or_path: "madhurjindal/autonlp-Gibberish-Detector-492513457"
