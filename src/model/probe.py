@@ -26,6 +26,7 @@ class ProbedLlamaForCausalLM(LlamaForCausalLM):
         pretrained_model_name_or_path: str,
         head_pretrained_model_name_or_path: str = None,
         n_layers: int = 100,
+        freeze_base_model: bool = True,
         **kwargs,
     ):
         config, unused_kwargs = AutoConfig.from_pretrained(
@@ -44,7 +45,6 @@ class ProbedLlamaForCausalLM(LlamaForCausalLM):
         # Reinitialize lm_head
         ref_params = list(model.model.layers[-1].parameters())[0]
         device = ref_params.device
-        dtype = ref_params.dtype
         if head_pretrained_model_name_or_path is not None:
             logger.info(
                 f"Initialising lm_head from {head_pretrained_model_name_or_path}"
@@ -53,23 +53,18 @@ class ProbedLlamaForCausalLM(LlamaForCausalLM):
                 head_pretrained_model_name_or_path, config=config, **unused_kwargs
             )
             lm_head = deepcopy(head_model.lm_head).to(device)
+            model.set_output_embeddings(lm_head)
         else:
             logger.info("Initialising new lm_head")
-            # Get input and output dimensions for lm_head
-            input_dim = model.lm_head.in_features
-            output_dim = model.lm_head.out_features
-            lm_head = nn.Linear(input_dim, output_dim, bias=False).to(
-                device, dtype=dtype
-            )
-        model.set_output_embeddings(lm_head)
+            model._init_weights(model.lm_head)
 
         # Cleanup
         gc.collect()
         torch.cuda.empty_cache()
 
-        # Freeze everything except lm_head
+        # Set trainable params
         for name, p in model.named_parameters():
-            p.requires_grad = name.startswith("lm_head")
+            p.requires_grad = not freeze_base_model or name.startswith("lm_head")
         logger.info(
             f"Initialised a ProbedLlamaForCausalLM model with {n_layers} layers"
         )
