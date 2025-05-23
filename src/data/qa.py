@@ -104,3 +104,31 @@ class QAwithIdkDataset(QADataset):
                 return_item["alternate"] = idk_item
                 # return_item.append([sample_item, idk_item])
         return return_item if self.return_original else return_item["alternate"]
+
+
+class QAwithAlternateDataset(QADataset):
+    def __init__(self, alternate_key, return_original=True, *args, **kwargs):
+        self.alternate_key = alternate_key
+        self.return_original = return_original
+        super().__init__(*args, **kwargs)
+
+    def __getitem__(self, idx):
+        item = super().__getitem__(idx)
+        question = self.data[idx][self.question_key]
+        if isinstance(item, dict):
+            return_item = {"original": item}
+            alt_item = self._process_sample(
+                question=question, answer=self.data[idx][self.alternate_key]
+            )
+            return_item["alternate"] = alt_item
+            # return_item = [item, idk_item]
+        elif isinstance(item, list) or isinstance(item, tuple):
+            return_item = []
+            for sample_item in item:
+                return_item = {"original": sample_item}
+                alt_item = self._process_sample(
+                    question=question, answer=self.data[idx][self.alternate_key]
+                )
+                return_item["alternate"] = alt_item
+                # return_item.append([sample_item, idk_item])
+        return return_item if self.return_original else return_item["alternate"]
