@@ -5,7 +5,7 @@ from omegaconf import DictConfig
 from data import get_data, get_collators
 from model import get_model
 from trainer import load_trainer
-from evals import get_evaluator
+from evals import get_evaluators
 from trainer.utils import seed_everything
 
 
@@ -36,21 +36,16 @@ def main(cfg: DictConfig):
     trainer_cfg = cfg.trainer
     assert trainer_cfg is not None, ValueError("Please set trainer")
 
-    # Get Evaluator
-    evaluator = None
+    # Get Evaluators
+    evaluators = None
     eval_cfgs = cfg.get("eval", None)
-    # if eval_cfgs:
-    #     assert len(eval_cfgs) <= 1, ValueError(
-    #         "Only one evaluation supported while training"
-    #     )
-    #     eval_name, eval_cfg = next(iter(eval_cfgs.items()))
-    #     evaluator = get_evaluator(
-    #         eval_name,
-    #         eval_cfg,
-    #         template_args=template_args,
-    #         model=model,
-    #         tokenizer=tokenizer,
-    #     )
+    if eval_cfgs:
+        evaluators = get_evaluators(
+            eval_cfgs=eval_cfgs,
+            template_args=template_args,
+            model=model,
+            tokenizer=tokenizer,
+        )
 
     if not hasattr(trainer_cfg, 'cl') or trainer_cfg.cl is None or trainer_cfg.cl == 'none':
         cl = 'none'
@@ -64,7 +59,7 @@ def main(cfg: DictConfig):
         eval_dataset=data.get("eval", None),
         tokenizer=tokenizer,
         data_collator=collator,
-        evaluator=evaluator,
+        evaluators=evaluators,
         template_args=template_args,
         cl=cl
     )

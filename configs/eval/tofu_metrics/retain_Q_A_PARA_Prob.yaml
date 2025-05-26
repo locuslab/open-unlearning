@@ -5,4 +5,9 @@ defaults:
   # ^ get default dataset and generation config information
 
 handler: probability
-batch_size: 32
+batch_size: ${eval.tofu.batch_size}
+
+datasets:
+  TOFU_QA_retain_para:
+    args:
+      question_key: ${eval.tofu.question_key}

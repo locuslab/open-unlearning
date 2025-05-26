@@ -17,6 +17,7 @@ defaults: # include all defined metrics files
     # - mia_zlib
     # - mia_gradnorm
     # - mia_reference # set reference model path appropriately
+    # - forget_Q_A_gibberish
 
 handler: TOFUEvaluator
 output_dir: ${paths.output_dir} # set to default eval directory
@@ -26,3 +27,5 @@ overwrite: false
 forget_split: forget10
 holdout_split: holdout10
 retain_logs_path: null
+question_key: "question" # Specifies which key to use during forget and retain evaluations (e.g., "question" or "paraphrased_question")
+batch_size: 32

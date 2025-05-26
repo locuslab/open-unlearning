@@ -10,6 +10,7 @@ from trainer.unlearn.npo import NPO
 from trainer.unlearn.dpo import DPO
 from trainer.unlearn.simnpo import SimNPO
 from trainer.unlearn.rmu import RMU
+from trainer.unlearn.undial import UNDIAL
 
 import logging
 
@@ -46,7 +47,7 @@ def load_trainer(
     eval_dataset=None,
     tokenizer=None,
     data_collator=None,
-    evaluator=None,
+    evaluators=None,
     template_args=None,
     cl=None
 ):
@@ -68,7 +69,7 @@ def load_trainer(
         tokenizer=tokenizer,
         data_collator=data_collator,
         args=trainer_args,
-        evaluator=evaluator,
+        evaluators=evaluators,
         template_args=template_args,
         cl=cl,
         **method_args,
@@ -90,3 +91,4 @@ _register_trainer(NPO)
 _register_trainer(DPO)
 _register_trainer(SimNPO)
 _register_trainer(RMU)
+_register_trainer(UNDIAL)

@@ -1,0 +1,15 @@
+# @package _global_
+
+defaults:
+  - override /model: zephyr-7b-beta
+  - override /eval: lm_eval
+
+data_split: cyber
+
+eval:
+  lm_eval:
+    tasks:
+      - wmdp_${data_split}
+      - mmlu
+
+task_name: ???
