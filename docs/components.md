@@ -34,8 +34,8 @@ We extend HuggingFace's [`Trainer`](https://github.com/huggingface/transformers/
 Example: defining a gradient-difference based unlearning trainer.
 
 ```python
-class GradDiff(UnlearnTrainer):
-    def __init__(self, gamma, alpha, ...):
+class GradDiff(MultiLossTrainer):
+    def __init__(self, retain_loss_type="NLL", ...):
         ...
       
     def compute_loss(self, model, inputs, return_outputs=False):
@@ -68,8 +68,7 @@ args: # HuggingFace TrainingArguments
   learning_rate: 1e-5
   num_train_epochs: 10
 method_args: # Your own method-specific arguments
-  gamma: 1.0
-  alpha: 1.0
+  preferences: [1.0, 1.0]
   retain_loss_type: NLL
 ```
 

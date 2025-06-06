@@ -1,13 +1,11 @@
 import copy
 from trainer.utils import compute_kl_divergence
-from trainer.unlearn.base import UnlearnTrainer
+from trainer.unlearn.multi_loss_base import MultiLossTrainer
 
 
-class GradDiff(UnlearnTrainer):
-    def __init__(self, gamma=1.0, alpha=1.0, retain_loss_type="NLL", *args, **kwargs):
+class GradDiff(MultiLossTrainer):
+    def __init__(self, retain_loss_type="NLL", *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.gamma = gamma
-        self.alpha = alpha
         self.retain_loss_type = retain_loss_type
         self.ref_model = None
         if retain_loss_type == "KL":
@@ -57,6 +55,6 @@ class GradDiff(UnlearnTrainer):
         }
         retain_loss = self.compute_retain_loss(model=model, retain_inputs=retain_inputs)
 
-        loss = self.gamma * forget_loss + self.alpha * retain_loss
+        loss = self.final_loss_value([forget_loss, retain_loss])
 
         return (loss, forget_outputs) if return_outputs else loss

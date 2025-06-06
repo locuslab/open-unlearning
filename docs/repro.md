@@ -19,11 +19,11 @@ bash scripts/muse_unlearn.sh
 
 For all the experiments below, we used the following setup
 
-| **Category**            | **Details** |
-|-------------------------|------------|
-| **Hardware**           | 2 × L40s GPUs (48GB each) |
-| **Distributed Computing** | [DeepSpeed ZeRO Stage 3 (Accelerate)](https://huggingface.co/docs/accelerate/en/usage_guides/deepspeed) |
-| **Hyperparameters**    | Learning Rate (lr) = 1e-5 <br> α = 1, γ = 1, β = 0.1 (where applicable) <br> Batch size 32 effectively: 8 per device, 4 grad accum steps <br> Number of Epochs = 10 <br> Optimizer: [paged_adamw_32bit](https://huggingface.co/docs/bitsandbytes/main/en/reference/optim/adamw#bitsandbytes.optim.PagedAdamW) |
+| **Category**            | **Details**                                                                                                                                                                                                                                                                                                             |
+|-------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Hardware**           | 2 × L40s GPUs (48GB each)                                                                                                                                                                                                                                                                                               |
+| **Distributed Computing** | [DeepSpeed ZeRO Stage 3 (Accelerate)](https://huggingface.co/docs/accelerate/en/usage_guides/deepspeed)                                                                                                                                                                                                                 |
+| **Hyperparameters**    | Learning Rate (lr) = 1e-5 <br> preferences=[1.0, 1.0], β = 0.1 (where applicable) <br> Batch size 32 effectively: 8 per device, 4 grad accum steps <br> Number of Epochs = 10 <br> Optimizer: [paged_adamw_32bit](https://huggingface.co/docs/bitsandbytes/main/en/reference/optim/adamw#bitsandbytes.optim.PagedAdamW) |
 
 
 > [!NOTE] 

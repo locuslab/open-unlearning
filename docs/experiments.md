@@ -123,7 +123,7 @@ The following tables list the most commonly used arguments while running experim
     </td>
   </tr>
     <td><code>trainer.method_args</code></td>
-    <td>Method-specific parameters for unlearning trainers. Example: <code>retain_loss_type</code>, NPO hyperparams like <code>gamma, alpha, beta</code> etc.</td>
+    <td>Method-specific parameters for unlearning trainers. Example: <code>retain_loss_type</code>, NPO hyperparams like <code>preferences, beta</code> etc.</td>
   </tr>
 </table>
 
