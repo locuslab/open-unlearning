@@ -1,0 +1,23 @@
+defaults:
+  - finetune
+
+handler: MultiLossTrainer
+method_args:
+  # List of preferences used for linear scalarization.
+  # The first one will always be used for the forget_loss and the second one for the retain_loss.
+  # If you have more than 2 losses, appropriately increase the length of this list.
+  # The number of preferences should match the number of losses.
+  preferences: [1.0, 1.0]
+  # whether to use primal-dual optimization to update the retain loss preference.
+  primal_dual: False
+  # Epsilon value for the retain loss used as the constraint threshold for the retain loss.
+  # A value of 0 will not affect your training if primal_dual is False.
+  retain_loss_eps: 0.0
+  # The learning rate for the dual parameter
+  dual_step_size: 1.0
+  # The update frequency for the dual parameter.
+  dual_update_upon: "step"  # options: "step", "epoch"
+  # The number of epochs that primal optimization will be performed before dual optimization starts.
+  dual_warmup_epochs: 0
+  # The names of the losses, for logging purposes, given as a list.
+  loss_names: ["forget_loss", "retain_loss"]

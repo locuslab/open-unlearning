@@ -270,3 +270,92 @@ simple_evaluate_args:
   system_instruction: null
   apply_chat_template: false
 ```
+
+## LLM-Judge
+
+To evaluate models unlearning quality by an LLM, we support prompting OpenAI API with samples from the evaluation log of the 
+unlearned model and asking the LLM to judge the quality of forgetting or retention.
+For this, we use our custom evaluator: [LLMJudgeEvaluator](../src/evals/llm_judge.py).
+The settings for the evaluation experiment are defined in [llm_judge.yaml](../configs/eval/llm_judge.yaml).
+
+```yaml
+# @package eval.llm_judge
+# NOTE: the above line is not a comment, but sets the package for config. See https://hydra.cc/docs/upgrades/0.11_to_1.0/adding_a_package_directive/
+handler: LLMJudgeEvaluator
+
+output_dir: ${paths.output_dir} # set to default eval directory
+
+llm_judge_prompt_settings:
+  prompt_template_file: "metrics/default_prompt_generator.py"
+  sample_size: null
+  eval_json_file_path: ???
+
+evaluation_metrics:
+  forget: ["KNOWLEDGE_REMOVAL", "VERBATIM_REMOVAL", "FLUENCY"]
+  retain: ["RETENTION_SCORE", "ACCURACY", "RELEVANCE", "FLUENCY"]
+
+judge:
+  vendor: openai
+  model: "gpt-4.1-mini-2025-04-14"
+  api_key_file: ??? # path to your OpenAI API key file
+  max_tokens: 512  # maximum number of tokens in the response
+  temperature: 0.3
+  backoff_factor: 2
+  max_retries: 5
+  batch_call: false
+  single_batch: true  # set this to true if you want to submit a single batch request. Easier to handle.
+  overwrite: false  # set this to true if you had previously submitted a batch request and would now like to submit a new one for any reason.
+  resubmit_for_expired: false  # set this to true if you want to resubmit the batch request for expired requests.
+```
+Running this evaluator will require an OpenAI API key.
+We support batch requests to the OpenAI API, which is more cost-effective. Note that all OpenAI API calls 
+are subject to token limits. You can view the limits and the different tiers on the OpenAI platform. 
+Importantly, batch requests can quickly fill the daily queued token limit. Be wary of this limitation on new OpenAI accounts.
+
+To run the LLM-Judge evaluator, you need to already have run the normal TOFU/MUSE evaluation and have the 
+TOFU/MUSE_EVAL.json file generated. This file is required as the `llm_judge_prompt_settings.eval_json_file_path` setting.
+
+The evaluator further needs a corresponding python file provided in `llm_judge_prompt_settings.prompt_template_file`
+that will be used to generate the prompts for evaluation for the LLM. This file will need to implement a
+`create_prompt(context_type, input_text, ground_truth, generation)` function that returns a prompt string.
+Moreover, the `evaluation_metrics` in the above yaml are also tied to this prompt creation function and are used
+for retrieving the evaluation metrics from the LLM response.
+
+Note that in our extensive experiments with over 175K requests to `gpt-4.1-mini-2025-04-14` , we found that
+it followed the desired json template requested in the `metrics/default_prompt_generator.py` file. As such, our code 
+does not handle cases in which the LLM does not return the expected json format and the code always assumes that the
+response will be in the desired format.
+
+
+To run the LLM-Judge evaluator, you can use the following command for the TOFU benchmark:
+```bash
+python src/eval.py experiment=eval/tofu/llm_judge.yaml eval=llm_judge task_name=<tofu_llm_evaluation>\
+ eval.llm_judge.judge.api_key_file=<path/to/your/api_key.txt>\
+  eval.llm_judge.llm_judge_prompt_settings.eval_json_file_path=<path/to/TOFU_EVAL.json>
+```
+and the following for the MUSE benchmark:
+```bash
+python src/eval.py experiment=eval/muse/llm_judge.yaml eval=llm_judge task_name=<muse_llm_evaluation>\
+ eval.llm_judge.judge.api_key_file=<path/to/your/api_key.txt>\
+  eval.llm_judge.llm_judge_prompt_settings.eval_json_file_path=<path/to/MUSE_EVAL.json>
+```
+As evident, each benchmark has its own `llm_judge.yaml` file, which contains the name of the evaluation metrics with
+text completions in the <dataset>_EVAL.json file.
+
+To perform batch calls, you must also provide the argument `eval.llm_judge.judge.batch_call=true`.
+Note that batch calls will submit all the requests in a single batch and will then exit the program. 
+It is then your task to later check on the task and retrieve the results or resubmit if needed.
+To retrieve the results, run the *EXACT* same command again. If the batch is completed, the code will
+download the results and process them and provide summaries in the output directory.
+If the batch is still `in_progress`, you will need to wait for the batch to complete and then run the same command again.
+Note that batch calls currently have a 24h expiration. If your batch isn't completed in this window, it will
+expire. You can then resubmit the batch by setting `eval.llm_judge.judge.resubmit_for_expired=true`.
+
+Moreover, if there are any issues with a previously submitted batch, you can request a new submission 
+by setting 'eval.llm_judge.judge.overwrite=true'. Note that this will only work if you have used the same `task_name` only.
+
+Submitting a batch creates a `batch_request_info.json` file in the output directory. Note that if this file
+exists in a directory, the code will assume that a batch request has been submitted. Note that the code 
+does not perform any form of checks to see if the batch was for the current `eval_json_file_path` or not.
+
+

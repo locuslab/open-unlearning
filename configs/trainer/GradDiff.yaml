@@ -1,8 +1,7 @@
 defaults:
-  - finetune
+  - MultiLoss
 
 handler: GradDiff
 method_args:
-  gamma: 1.0
-  alpha: 1.0
+  preferences: [1.0, 1.0]
   retain_loss_type: NLL

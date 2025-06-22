@@ -4,10 +4,9 @@ defaults:
 handler: RMU
 method_args:
   # The params here are more dependent on model and dataset. Tune them carefully to work
-  gamma: 1.0
+  preferences: [1.0, 1.0]
   steering_coeff: 2
   retain_loss_type: EMBED_DIFF
-  alpha: 1 
   module_regex: model\.layers\.7
   trainable_params_regex: 
     - .* # update all parameters (as done in https://github.com/tmlr-group/G-effect/blob/ef368eea3b2c6dba1e090b9ebb021ac9f047e0ae/dataloader.py#L271)

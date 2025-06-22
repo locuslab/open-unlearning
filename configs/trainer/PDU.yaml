@@ -1,0 +1,11 @@
+defaults:
+  - GradDiff
+
+handler: PDU
+method_args:
+  retain_loss_eps: ???
+  primal_dual: True
+  dual_step_size: 1.0
+  dual_update_upon: "step" # "step" or "epoch"
+  dual_warmup_epochs: 5
+

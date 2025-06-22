@@ -20,5 +20,6 @@ args:
   do_eval: True
   eval_on_start: True
   eval_strategy: epoch
+  eval_steps: 1  # number of steps between evaluation. Ignored if eval_strategy is set to 'epoch'.
   num_train_epochs: 10
   seed: 0

@@ -59,7 +59,7 @@ for split in "${forget_retain_splits[@]}"; do
                         trainer.args.eval_on_start=False \
                         trainer.args.learning_rate=$lr \
                         trainer.method_args.beta=$beta \
-                        trainer.method_args.alpha=$alpha
+                        trainer.method_args.preferences=[1.0,$alpha]
 
                         # Eval
                         CUDA_VISIBLE_DEVICES=0 python src/eval.py \

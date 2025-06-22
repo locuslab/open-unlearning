@@ -47,10 +47,9 @@ trainer:
 
   method_args:
     # The params here are more dependent on model and dataset. Tune them carefully to work
-    gamma: 1.0
+    preferences: [1.0, 1.0]
     steering_coeff: 2
     retain_loss_type: EMBED_DIFF
-    alpha: 1 
     module_regex: model\.layers\.7
     trainable_params_regex: 
       - model\.layers\.(5|6|7)\.mlp\.down_proj\.weight # If you want to update only these weights (as done in https://github.com/centerforaisafety/wmdp/blob/bc5e1ba0367ea826caeeeaa50656336a1e87acfb/rmu/unlearn.py#L26)

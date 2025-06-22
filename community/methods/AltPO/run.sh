@@ -61,7 +61,7 @@ for split in "${forget_retain_splits[@]}"; do
                         trainer.args.num_train_epochs=2 \
                         trainer.args.learning_rate=$lr \
                         trainer.method_args.beta=$beta \
-                        trainer.method_args.alpha=$alpha \
+                        trainer.method_args.preferences=[1.0,$alpha] \
                         data.forget.TOFU_QA_forget.handler=QAwithAlternateDataset \
                         ~data.forget.TOFU_QA_forget.args.hf_args.name  \
                         data.forget.TOFU_QA_forget.args.hf_args.path=json \
