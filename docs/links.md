@@ -2,6 +2,11 @@
 
 Links to research papers and resources corresponding to implemented features in this repository. Please feel free to fill in any missing references!
 
+[`OpenUnlearning: Accelerating LLM Unlearning via Unified Benchmarking of Methods and Metrics`](https://arxiv.org/abs/2506.12618) introduces
+- The technical report on OpenUnlearning, its design, features and other details.
+- A meta-evaluation framework to benchmark unlearning evaluations on a set of 450+ open sourced models.
+- Results benchmarking 8 diverse unlearning methods in one place using 10 evaluation metrics on TOFU.
+
 ---
 
 ## 📌 Table of Contents
