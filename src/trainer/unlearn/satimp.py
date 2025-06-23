@@ -3,10 +3,12 @@ from torch import nn
 from trainer.utils import compute_kl_divergence
 
 class SatImp(UnlearnTrainer):
-    def __init__(self, beta1=5.0, beta2=1.0, *args, **kwargs):    #attention, satimp requires two beta!!!!
+    def __init__(self, beta1=5.0, beta2=1.0, gamma=1.0,alpha=0.1,*args, **kwargs):    #attention, satimp requires two beta!!!!
         super().__init__(*args, **kwargs)
         self.beta1 = beta1
         self.beta2 = beta2
+        self.gamma = gamma
+        self.alpha = alpha
         if self.ref_model is None:
             self.ref_model = self._prepare_ref_model(self.model)
 
@@ -60,5 +62,5 @@ class SatImp(UnlearnTrainer):
         }
         retain_loss = self.compute_retain_loss(model=model, retain_inputs=retain_inputs)
 
-        loss = self.gamma * forget_loss + self.alpha * retain_loss #default gamma=1.0 alpha=0.1
+        loss = self.gamma * forget_loss + self.alpha * retain_loss
         return (loss, forget_outputs) if return_outputs else loss

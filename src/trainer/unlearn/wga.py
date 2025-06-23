@@ -3,8 +3,10 @@ from torch import nn
 from trainer.utils import compute_kl_divergence
 
 class WGA(UnlearnTrainer):
-    def __init__(self, beta=1.0, *args, **kwargs):
+    def __init__(self, beta=1.0, gamma=1.0,alpha=1.0,*args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.gamma = gamma
+        self.alpha = alpha
         self.beta = beta
         if self.ref_model is None:
             self.ref_model = self._prepare_ref_model(self.model)
