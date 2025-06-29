@@ -1,9 +1,8 @@
-from trainer.unlearn.base import UnlearnTrainer
-from torch import nn
-from trainer.utils import compute_kl_divergence
+from trainer.unlearn.grad_diff import GradDiff
+from trainer.utils import compute_wga_loss
 
 
-class WGA(UnlearnTrainer):
+class WGA(GradDiff):
     def __init__(self, beta=1.0, gamma=1.0, alpha=1.0, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.gamma = gamma
@@ -12,48 +11,16 @@ class WGA(UnlearnTrainer):
         if self.ref_model is None:
             self.ref_model = self._prepare_ref_model(self.model)
 
-    def compute_wga_loss(self, model, forget_inputs):
-        input_ids = forget_inputs["input_ids"]
-        labels = forget_inputs["labels"]
-        attention_mask = forget_inputs["attention_mask"]
-
-        outputs = model(input_ids, labels=labels, attention_mask=attention_mask)
-        labels = labels.to(outputs.logits.device)
-        shift_logits = outputs.logits[..., :-1, :].contiguous()
-        shift_labels = labels[..., 1:].contiguous()
-        lm_loss = nn.CrossEntropyLoss(ignore_index=-100, reduction="none")(
-            shift_logits.view(-1, shift_logits.size(-1)), shift_labels.view(-1)
-        )
-        weight_ce = ((-lm_loss).exp().detach()) ** self.beta
-        forget_loss = -(weight_ce * lm_loss)[shift_labels.view(-1) != -100].mean()
-        return forget_loss
-
-    def compute_retain_loss(self, model, retain_inputs):
-        retain_outputs = model(**retain_inputs)
-        retain_loss = 0.0
-        if self.retain_loss_type == "NLL":
-            retain_loss += retain_outputs.loss
-        elif self.retain_loss_type == "KL":
-            kl_loss, retain_outputs = compute_kl_divergence(
-                self.model, self.ref_model, retain_inputs
-            )
-            retain_loss += kl_loss
-        else:
-            raise NotImplementedError(
-                f"{self.retain_loss_type} not implemented for retain set"
-            )
-        return retain_loss
-
     def compute_loss(self, model, inputs, return_outputs=False):
         forget_inputs = inputs["forget"]
-        forget_loss = self.compute_wga_loss(model=model, forget_inputs=forget_inputs)
-
         forget_inputs = {
             "input_ids": forget_inputs["input_ids"],
             "attention_mask": forget_inputs["attention_mask"],
             "labels": forget_inputs["labels"],
         }
-        forget_outputs = model(**forget_inputs)
+        forget_loss, forget_outputs = compute_wga_loss(
+            model=model, inputs=forget_inputs, beta=self.beta
+        )
 
         retain_inputs = inputs["retain"]
         retain_inputs = {
