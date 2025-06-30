@@ -1,0 +1,14 @@
+defaults:
+  - GradDiff
+
+handler: WGA
+
+args: # HuggingFace TrainingArguments
+  learning_rate: 1e-5
+  num_train_epochs: 5
+
+method_args:
+  beta: 1.0
+  alpha: 1.0
+  gamma: 1.0
+  retain_loss_type: NLL
