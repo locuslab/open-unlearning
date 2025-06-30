@@ -215,7 +215,8 @@ If you use OpenUnlearning in your research, please make sure to cite our OpenUnl
   title={{OpenUnlearning}: Accelerating {LLM} Unlearning via Unified Benchmarking of Methods and Metrics},
   author={Dorna, Vineeth and Mekala, Anmol and Zhao, Wenlong and McCallum, Andrew and Lipton, Zachary C and Kolter, J Zico and Maini, Pratyush},
   journal={arXiv preprint arXiv:2506.12618},
-  year={2025},,
+  year={2025},
+  url={https://arxiv.org/abs/2506.12618}
 }
 @inproceedings{maini2024tofu,
   title={{TOFU}: A Task of Fictitious Unlearning for {LLMs}},
@@ -230,7 +231,7 @@ If you use OpenUnlearning in your research, please make sure to cite our OpenUnl
   eprint={2407.06460},
   archivePrefix={arXiv},
   primaryClass={cs.CL},
-  url={https://arxiv.org/abs/2407.06460},
+  url={https://arxiv.org/abs/2407.06460}
 }
 ```
 </details>
