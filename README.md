@@ -5,6 +5,7 @@
 <h3><strong>An easily extensible framework unifying LLM unlearning evaluation benchmarks.</strong></h3>
 
   <div style="display: flex; gap: 10px; justify-content: center; align-items: center;">
+    <a href="https://arxiv.org/abs/2506.12618"><img src="https://img.shields.io/badge/arXiv-Report-b31b1b?logo=arxiv&logoColor=white" alt="arXiv Paper"/></a>
     <a href="https://github.com/locuslab/open-unlearning"><img src="https://img.shields.io/github/stars/locuslab/open-unlearning?style=social" alt="GitHub Repo stars"/></a>
     <a href="https://github.com/locuslab/open-unlearning/actions"><img src="https://github.com/locuslab/open-unlearning/actions/workflows/tests.yml/badge.svg" alt="Build Status"/></a>
     <a href="https://huggingface.co/open-unlearning"><img src="https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Model-blue" alt="HuggingFace 🤗"/></a>
@@ -18,7 +19,8 @@
 
 ## 📖 Overview
 
-We provide efficient and streamlined implementations of the TOFU, MUSE and WMDP unlearning benchmarks while supporting 9+ unlearning methods, 5+ datasets, 10+ evaluation metrics, and 7+ LLM architectures. Each of these can be easily extended to incorporate more variants.
+We provide efficient and streamlined implementations of the TOFU, MUSE and WMDP unlearning benchmarks while supporting 12+ unlearning methods, 5+ datasets, 10+ evaluation metrics, and 7+ LLM architectures. Each of these can be easily extended to incorporate more variants.
+
 
 We invite the LLM unlearning community to collaborate by adding new benchmarks, unlearning methods, datasets and evaluation metrics here to expand OpenUnlearning's features, gain feedback from wider usage and drive progress in the field.
 
@@ -26,13 +28,27 @@ We invite the LLM unlearning community to collaborate by adding new benchmarks, 
 
 ### 📢 Updates
 
+### [June 20, 2025]
+
+🚨 Our paper `OpenUnlearning: Accelerating LLM Unlearning via Unified Benchmarking of Methods and Metrics` is now out on [arXiv](https://arxiv.org/abs/2506.12618).
+
+🌟 **Highlights:**
+- A detailed technical report on OpenUnlearning covering the design, features, and implementation.
+- A meta-evaluation framework for benchmarking unlearning evaluations across 450+ models, open-sourced on HuggingFace 🤗: [TOFU Models w & w/o Knowledge](https://huggingface.co/collections/open-unlearning/tofu-models-w-and-w-o-knowledge-6861e4d935eb99ba162e55cd), [TOFU Unlearned Models](https://huggingface.co/collections/open-unlearning/tofu-unlearned-models-6860f6cf3fe35d0223d92e88).
+- Results benchmarking 8 diverse unlearning methods in one place using 10 evaluation metrics on TOFU.
+
+<details>
+<summary><b>Older Updates</b></summary>
+
+
+#### [May 19, 2025]
+
+- **More Methods!** Added support for unlearning methods [UNDIAL](https://aclanthology.org/2025.naacl-long.444/) and [AltPO](https://aclanthology.org/2025.coling-main.252/).
+
 #### [May 12, 2025]
 
 - **Another benchmark!** We now support running the [`WMDP`](https://wmdp.ai/) benchmark with its `Zephyr` task model.
 - **More evaluations!**  The [`lm-evaluation-harness`](https://github.com/EleutherAI/lm-evaluation-harness) toolkit has been integrated into OpenUnlearning, enabling WMDP evaluations and support for popular general LLM benchmarks, including MMLU, GSM8K, and others.
-
-<details>
-<summary><b>Older Updates</b></summary>
 
 #### [Apr 6, 2025]
 - **More Metrics!** Added 6 Membership Inference Attacks (MIA) (LOSS, ZLib, Reference, GradNorm, MinK, and MinK++), along with Extraction Strength (ES) and  Exact Memorization (EM) as additional evaluation metrics.
@@ -62,10 +78,10 @@ We provide several variants for each of the components in the unlearning pipelin
 | **Component**          | **Available Options** |
 |------------------------|----------------------|
 | **Benchmarks**        | [TOFU](https://arxiv.org/abs/2401.06121), [MUSE](https://muse-bench.github.io/), [WMDP](https://www.wmdp.ai/) |
-| **Unlearning Methods** | GradAscent, GradDiff, NPO, SimNPO, DPO, RMU, UNDIAL, AltPO, PDU |
+| **Unlearning Methods** | GradAscent, GradDiff, NPO, SimNPO, DPO, RMU, UNDIAL, AltPO, SatImp, WGA, CE-U, PDU |
 | **Evaluation Metrics** | Verbatim Probability, Verbatim ROUGE, Knowledge QA-ROUGE, Model Utility, Forget Quality, TruthRatio, Extraction Strength, Exact Memorization, 6 MIA attacks, [lm-evaluation-harness](https://github.com/EleutherAI/lm-evaluation-harness) |
 | **Datasets**          | MUSE-News (BBC), MUSE-Books (Harry Potter), TOFU (different splits), WMDP-Bio, WMDP-Cyber |
-| **Model Families**    | TOFU: LLaMA-3.2, LLaMA-3.1, LLaMA-2; MUSE: LLaMA-2; Additional: Phi-3.5, Phi-1.5, Gemma, Zephyr |
+| **Model Families**    | TOFU: Llama-3.2, Llama-3.1, Llama-2; MUSE: Llama-2; Additional: Phi-3.5, Phi-1.5, Gemma, Zephyr |
 
 ---
 
@@ -109,7 +125,7 @@ python setup_data.py --eval # saves/eval now contains evaluation results of the 
 
 ### 🔄 Updated TOFU benchmark
 
-We've updated Open-Unlearning's TOFU benchmark target models to use a wider variety of newer architectures with sizes varying from 1B to 8B. These include LLaMA 3.2 1B, LLaMA 3.2 3B, LLaMA 3.1 8B, and the original LLaMA-2 7B (re-created) target models from [the old version of TOFU](github.com/locuslab/tofu). 
+We've updated Open-Unlearning's TOFU benchmark target models to use a wider variety of newer architectures with sizes varying from 1B to 8B. These include Llama 3.2 1B, Llama 3.2 3B, Llama 3.1 8B, and the original Llama-2 7B (re-created) target models from [the old version of TOFU](github.com/locuslab/tofu). 
 
 For each architecture, we have finetuned with four different splits of the TOFU datasets: `full`, `retain90`, `retain95`, `retain99`, for a total of 16 finetuned models. The first serves as the target (base model for unlearning) and the rest are retain models used to measure performance against for each forget split. These models are on [HuggingFace](`https://huggingface.co/collections/open-unlearning/tofu-new-models-67bcf636334ea81727573a9f0`) and the paths to these models can be set in the experimental configs or in command-line overrides.
 
@@ -193,24 +209,23 @@ If you encounter any issues or have questions, feel free to raise an issue in th
 
 ## 📝 Citing this work
 
-If you use OpenUnlearning in your research, please cite OpenUnlearning and the benchmarks from the below:
+If you use OpenUnlearning in your research, please make sure to cite our OpenUnlearning technical report, the TOFU and MUSE benchmarks.
 
 ```bibtex
-@misc{openunlearning2025,
-  title={{OpenUnlearning}: A Unified Framework for LLM Unlearning Benchmarks},
-  author={Dorna, Vineeth and Mekala, Anmol and Zhao, Wenlong and McCallum, Andrew and Kolter, J Zico and Maini, Pratyush},
-  year={2025},
-  howpublished={\url{https://github.com/locuslab/open-unlearning}},
-  note={Accessed: February 27, 2025}
+@article{openunlearning2025,
+  title={{OpenUnlearning}: Accelerating {LLM} Unlearning via Unified Benchmarking of Methods and Metrics},
+  author={Dorna, Vineeth and Mekala, Anmol and Zhao, Wenlong and McCallum, Andrew and Lipton, Zachary C and Kolter, J Zico and Maini, Pratyush},
+  journal={arXiv preprint arXiv:2506.12618},
+  year={2025},,
 }
 @inproceedings{maini2024tofu,
-  title={{TOFU}: A Task of Fictitious Unlearning for LLMs},
+  title={{TOFU}: A Task of Fictitious Unlearning for {LLMs}},
   author={Maini, Pratyush and Feng, Zhili and Schwarzschild, Avi and Lipton, Zachary Chase and Kolter, J Zico},
   booktitle={First Conference on Language Modeling},
   year={2024}
 }
 @article{shi2024muse,
-  title={MUSE: Machine Unlearning Six-Way Evaluation for Language Models},
+  title={{MUSE}: Machine Unlearning Six-Way Evaluation for Language Models},
   author={Weijia Shi and Jaechan Lee and Yangsibo Huang and Sadhika Malladi and Jieyu Zhao and Ari Holtzman and Daogao Liu and Luke Zettlemoyer and Noah A. Smith and Chiyuan Zhang},
   year={2024},
   eprint={2407.06460},
