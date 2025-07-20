@@ -26,6 +26,10 @@ We invite the LLM unlearning community to collaborate by adding new benchmarks, 
 
 ---
 
+> 📝 If you've found this repository or the models we've provided in [HuggingFace](https://huggingface.co/open-unlearning) useful, please cite our [technical report](https://arxiv.org/abs/2506.12618) (bibtex at [*Citing this work*](#-citing-this-work)).
+
+---
+
 ### 📢 Updates
 
 ### [June 20, 2025]
@@ -68,7 +72,6 @@ Be sure to run `python setup_data.py` immediately after merging the latest versi
 
 </details>
 
-
 ---
 
 ## 🗃️ Available Components
@@ -84,6 +87,7 @@ We provide several variants for each of the components in the unlearning pipelin
 | **Model Families**    | TOFU: Llama-3.2, Llama-3.1, Llama-2; MUSE: Llama-2; Additional: Phi-3.5, Phi-1.5, Gemma, Zephyr |
 
 ---
+
 
 ## 📌 Table of Contents
 - 📖 [Overview](#-overview)
@@ -101,6 +105,20 @@ We provide several variants for each of the components in the unlearning pipelin
 - 📝 [Citing this work](#-citing-this-work)
 - 🤝 [Acknowledgements](#-acknowledgements)
 - 📄 [License](#-license)
+
+---
+
+## 🗃️ Available Components
+
+We provide several variants for each of the components in the unlearning pipeline.
+
+| **Component**          | **Available Options** |
+|------------------------|----------------------|
+| **Benchmarks**        | [TOFU](https://arxiv.org/abs/2401.06121), [MUSE](https://muse-bench.github.io/), [WMDP](https://www.wmdp.ai/) |
+| **Unlearning Methods** | GradAscent, GradDiff, NPO, SimNPO, DPO, RMU, UNDIAL, AltPO, SatImp, WGA, CE-U |
+| **Evaluation Metrics** | Verbatim Probability, Verbatim ROUGE, Knowledge QA-ROUGE, Model Utility, Forget Quality, TruthRatio, Extraction Strength, Exact Memorization, 6 MIA attacks, [lm-evaluation-harness](https://github.com/EleutherAI/lm-evaluation-harness) |
+| **Datasets**          | MUSE-News (BBC), MUSE-Books (Harry Potter), TOFU (different splits), WMDP-Bio, WMDP-Cyber |
+| **Model Families**    | TOFU: Llama-3.2, Llama-3.1, Llama-2; MUSE: Llama-2; Additional: Phi-3.5, Phi-1.5, Gemma, Zephyr |
 
 ---
 
