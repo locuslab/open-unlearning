@@ -143,3 +143,4 @@ class DualOptimizationCallback(TrainerCallback):
             self.trainer.enable_updates()
             if self.dual_update_upon == "epoch":
                 self.trainer.post_epoch_dual_param_update()
+                
