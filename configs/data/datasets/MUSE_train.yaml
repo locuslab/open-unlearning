@@ -1,0 +1,8 @@
+MUSE_train:
+  handler: PretrainingDataset
+  args:
+    hf_args:
+      path: "tamarsonha/MUSE-News-Train"
+      split: "full"
+    text_key: "text"
+    max_length: 2048

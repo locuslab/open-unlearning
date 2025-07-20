@@ -19,7 +19,8 @@
 
 ## 📖 Overview
 
-We provide efficient and streamlined implementations of the TOFU, MUSE and WMDP unlearning benchmarks while supporting 11+ unlearning methods, 5+ datasets, 10+ evaluation metrics, and 7+ LLM architectures. Each of these can be easily extended to incorporate more variants.
+We provide efficient and streamlined implementations of the TOFU, MUSE and WMDP unlearning benchmarks while supporting 12+ unlearning methods, 5+ datasets, 10+ evaluation metrics, and 7+ LLM architectures. Each of these can be easily extended to incorporate more variants.
+
 
 We invite the LLM unlearning community to collaborate by adding new benchmarks, unlearning methods, datasets and evaluation metrics here to expand OpenUnlearning's features, gain feedback from wider usage and drive progress in the field.
 
@@ -77,7 +78,7 @@ We provide several variants for each of the components in the unlearning pipelin
 | **Component**          | **Available Options** |
 |------------------------|----------------------|
 | **Benchmarks**        | [TOFU](https://arxiv.org/abs/2401.06121), [MUSE](https://muse-bench.github.io/), [WMDP](https://www.wmdp.ai/) |
-| **Unlearning Methods** | GradAscent, GradDiff, NPO, SimNPO, DPO, RMU, UNDIAL, AltPO, SatImp, WGA, CE-U |
+| **Unlearning Methods** | GradAscent, GradDiff, NPO, SimNPO, DPO, RMU, UNDIAL, AltPO, SatImp, WGA, CE-U, PDU |
 | **Evaluation Metrics** | Verbatim Probability, Verbatim ROUGE, Knowledge QA-ROUGE, Model Utility, Forget Quality, TruthRatio, Extraction Strength, Exact Memorization, 6 MIA attacks, [lm-evaluation-harness](https://github.com/EleutherAI/lm-evaluation-harness) |
 | **Datasets**          | MUSE-News (BBC), MUSE-Books (Harry Potter), TOFU (different splits), WMDP-Bio, WMDP-Cyber |
 | **Model Families**    | TOFU: Llama-3.2, Llama-3.1, Llama-2; MUSE: Llama-2; Additional: Phi-3.5, Phi-1.5, Gemma, Zephyr |

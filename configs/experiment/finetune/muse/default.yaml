@@ -1,0 +1,30 @@
+# @package _global_
+
+defaults:
+  - override /model: Llama-2-13b-hf
+  - override /trainer: finetune
+  - override /data/datasets@data.train: MUSE_train
+  - override /eval: muse
+  - override /data: finetune
+
+mode: finetune
+data_split: News
+data_sub_set: full   # full or retain
+
+data:
+  train:
+    MUSE_train:
+      args:
+        hf_args:
+          path: tamarsonha/MUSE-${data_split}-Train
+          split: ${data_sub_set}
+# you can find fine-tuned models on https://huggingface.co/tamarsonha
+
+trainer:
+  args:
+    learning_rate: 1e-5
+    weight_decay: 0.01
+    warmup_epochs: 1.0 # custom parameter
+    num_train_epochs: 10
+
+task_name: muse_news_full

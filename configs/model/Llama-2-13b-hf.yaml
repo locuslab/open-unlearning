@@ -1,0 +1,12 @@
+model_args:
+  pretrained_model_name_or_path: "meta-llama/Llama-2-13b-hf"
+  attn_implementation: 'flash_attention_2'
+  torch_dtype: bfloat16
+tokenizer_args:
+  pretrained_model_name_or_path: "meta-llama/Llama-2-13b-hf"
+template_args:  # Used in creating prompts for the dataset. See src/data/utils.py#preprocess_chat_instance.
+  apply_chat_template: False
+  user_start_tag: "Question: "
+  user_end_tag: "\n"
+  asst_start_tag: "Answer: "
+  asst_end_tag: "\n\n"
