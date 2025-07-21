@@ -1,0 +1,30 @@
+# @package eval.llm_judge
+# NOTE: the above line is not a comment, but sets the package for config. See https://hydra.cc/docs/upgrades/0.11_to_1.0/adding_a_package_directive/
+handler: LLMJudgeEvaluator
+
+output_dir: ${paths.output_dir} # set to default eval directory
+
+llm_judge_prompt_settings:
+  prompt_template_file: "metrics/default_prompt_generator.py"
+  sample_size: null
+  eval_json_file_path: ???
+
+evaluation_metrics:
+  forget: ["KNOWLEDGE_REMOVAL", "VERBATIM_REMOVAL", "FLUENCY"]
+  retain: ["RETENTION_SCORE", "ACCURACY", "RELEVANCE", "FLUENCY"]
+
+judge:
+  vendor: openai
+  model: "gpt-4.1-mini-2025-04-14"
+  api_key_file: ??? # path to your OpenAI API key file
+  max_tokens: 512  # maximum number of tokens in the response
+  temperature: 0.3
+  backoff_factor: 2
+  max_retries: 5
+  batch_call: false
+  single_batch: true  # set this to true if you want to submit a single batch request. Easier to handle.
+  overwrite: false  # set this to true if you had previously submitted a batch request and would now like to submit a new one for any reason.
+  resubmit_for_expired: false  # set this to true if you want to resubmit the batch request for expired requests.
+
+
+

@@ -1,0 +1,16 @@
+# @package _global_
+
+defaults:
+  - override /eval: llm_judge
+
+
+eval:
+  llm_judge:
+    llm_judge_prompt_settings:
+      context_names: ["forget_Q_A_ROUGE",
+                      "ra_Q_A_ROUGE",
+                      "retain_Q_A_ROUGE",
+                      "wf_Q_A_ROUGE"]
+
+
+task_name: ???
