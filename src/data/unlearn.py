@@ -33,14 +33,18 @@ class ForgetRetainDataset(Dataset):
 
     def __getitem__(self, idx):
         item = {}
+        g = torch.Generator()
+        rank = torch.distributed.get_rank() if torch.distributed.is_initialized() else 0
+        seed = int(torch.empty((), dtype=torch.int64).random_().item() + rank)
+        g.manual_seed(seed)
         if self.anchor == "forget":
             item["forget"] = self.forget[idx]
             if self.retain:
-                retain_idx = torch.randint(0, len(self.retain), (1,)).item()
+                retain_idx = torch.randint(0, len(self.retain), (1,), generator=g).item()
                 item["retain"] = self.retain[retain_idx]
         elif self.anchor == "retain":
             item["retain"] = self.retain[idx]
             if self.forget:
-                forget_idx = torch.randint(0, len(self.forget), (1,)).item()
+                forget_idx = torch.randint(0, len(self.forget), (1,), generator=g).item()
                 item["forget"] = self.forget[forget_idx]
         return item
