@@ -204,6 +204,8 @@ For more in-depth information on specific aspects of the framework, refer to the
 | [`docs/links.md`](docs/links.md)             | List of all links to the research papers or other sources the implemented features are sourced from.              |
 | [`docs/repro.md`](docs/repro.md)            | Results are provided solely for reproducibility purposes, without any parameter tuning.             |
 ---
+## 🧩 Related Tools
+If you are new to unlearning or want to prototype on small-scale vision tasks first, try **[Unlearning Comparator](https://github.com/gnueaj/Machine-Unlearning-Comparator)** — an interactive system to visualize and compare unlearning methods. Insights gained here can be used to robustly scale up to the LLM-focused benchmarks in this repo.
 
 ## 🔗 Support & Contributors
 
