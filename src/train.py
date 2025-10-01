@@ -23,7 +23,7 @@ def main(cfg: DictConfig):
     # Load Dataset
     data_cfg = cfg.data
     data = get_data(
-        data_cfg, mode=mode, tokenizer=tokenizer, template_args=template_args
+        data_cfg, mode=mode, tokenizer=tokenizer, template_args=template_args, seed=cfg.trainer.args.seed
     )
 
     # Load collator
