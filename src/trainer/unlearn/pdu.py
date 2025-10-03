@@ -118,7 +118,7 @@ class PDU(GradDiff):
         averageLogits = logits.mean(dim=-1)
 
         forget_loss = (maxLogits - averageLogits) ** 2
-        mask = (forget_inputs['labels'] != -100).reshape(-1)
+        mask = (forget_inputs["labels"] != -100).reshape(-1)
         forget_loss = (forget_loss * mask).sum() / mask.sum()
 
         retain_inputs = inputs["retain"]
