@@ -42,11 +42,15 @@ class ForgetRetainDataset(Dataset):
         if self.anchor == "forget":
             item["forget"] = self.forget[idx]
             if self.retain:
-                retain_idx = torch.randint(0, len(self.retain), (1,), generator=g).item()
+                retain_idx = torch.randint(
+                    0, len(self.retain), (1,), generator=g
+                ).item()
                 item["retain"] = self.retain[retain_idx]
         elif self.anchor == "retain":
             item["retain"] = self.retain[idx]
             if self.forget:
-                forget_idx = torch.randint(0, len(self.forget), (1,), generator=g).item()
+                forget_idx = torch.randint(
+                    0, len(self.forget), (1,), generator=g
+                ).item()
                 item["forget"] = self.forget[forget_idx]
         return item
