@@ -37,7 +37,7 @@ class ForgetRetainDataset(Dataset):
         item = {}
         g = torch.Generator()
         rank = torch.distributed.get_rank() if torch.distributed.is_initialized() else 0
-        rank_seed = self.seed + rank
+        rank_seed = self.seed + rank + idx
         g.manual_seed(rank_seed)
         if self.anchor == "forget":
             item["forget"] = self.forget[idx]
