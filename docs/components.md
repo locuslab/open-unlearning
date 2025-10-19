@@ -173,7 +173,9 @@ _register_model(ProbedLlamaForCausalLM)
 ```
 
 > [!NOTE]
-Currently, we do not support loading models modified with LoRA and related variants. If you wish use such features, please create define and register model handlers for this logic in [`src/model`](../src/model) and provide the config info as discussed next.
+~~Currently, we do not support loading models modified with LoRA and related variants. If you wish use such features, please create define and register model handlers for this logic in [`src/model`](../src/model) and provide the config info as discussed next.~~
+
+**LoRA Support Added**: We now support LoRA (Low-Rank Adaptation) for efficient fine-tuning and unlearning. See [`src/model/lora.py`](../src/model/lora.py) for the implementation and [`community/methods/LoRA/`](../community/methods/LoRA/) for usage examples.
 
 ### Add to configs
 Model configurations contain details required to load the model+tokenizer such as paths, chat templating arguments, LoRA parameters etc. in [`configs/models`](../configs/models/).
@@ -191,6 +193,29 @@ tokenizer_args:
 template_args:
   apply_chat_template: True
   system_prompt: You are a helpful assistant.
+```
+
+Example: LoRA model config in [`configs/model/Qwen2.5-3B-Instruct-lora.yaml`](../configs/model/Qwen2.5-3B-Instruct-lora.yaml).
+
+```yaml
+use_lora: true
+model_args:
+  pretrained_model_name_or_path: "Qwen/Qwen2.5-3B-Instruct"
+  attn_implementation: 'eager'
+  torch_dtype: bfloat16
+  device_map: "auto"
+tokenizer_args:
+  pretrained_model_name_or_path: "Qwen/Qwen2.5-3B-Instruct"
+lora_config:
+  target_modules: ["q_proj", "v_proj", "k_proj", "o_proj", "gate_proj", "down_proj", "up_proj", "lm_head"]
+  lora_alpha: 128
+  lora_dropout: 0.05
+  r: 128
+  bias: "none"
+  task_type: "CAUSAL_LM"
+template_args:
+  apply_chat_template: true
+  system_prompt: "You are a helpful assistant."
 ```
 
 ---
