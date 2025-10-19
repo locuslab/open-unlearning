@@ -1,0 +1,23 @@
+use_lora: true
+model_args:
+  pretrained_model_name_or_path: "Qwen/Qwen2.5-3B-Instruct"
+  attn_implementation: 'eager'
+  torch_dtype: bfloat16
+  device_map: "auto"
+tokenizer_args:
+  pretrained_model_name_or_path: "Qwen/Qwen2.5-3B-Instruct"
+lora_config:
+  target_modules: ["q_proj", "v_proj", "k_proj", "o_proj", "gate_proj", "down_proj", "up_proj", "lm_head"]
+  lora_alpha: 128
+  lora_dropout: 0.05
+  r: 128
+  bias: "none"
+  task_type: "CAUSAL_LM"
+template_args:
+  apply_chat_template: true
+  system_prompt: "You are a helpful assistant."
+  system_prompt_with_special_tokens: "<|im_start|>system\nYou are a helpful assistant.<|im_end|>\n"
+  user_start_tag: "<|im_start|>user\n"
+  user_end_tag: "<|im_end|>\n"
+  asst_start_tag: "<|im_start|>assistant\n"
+  asst_end_tag: "<|im_end|>\n"
