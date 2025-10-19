@@ -6,10 +6,13 @@ import torch.nn.functional as F
 
 
 def seed_everything(seed=42):
-    random.seed(seed)
-    np.random.seed(seed)
-    torch.manual_seed(seed)
-    torch.cuda.manual_seed_all(seed)
+    # Each process gets a different seed to ensure different samples of unanchored data
+    rank = torch.distributed.get_rank() if torch.distributed.is_initialized() else 0
+    rank_seed = seed + rank
+    random.seed(rank_seed)
+    np.random.seed(rank_seed)
+    torch.manual_seed(rank_seed)
+    torch.cuda.manual_seed_all(rank_seed)
     torch.backends.cudnn.deterministic = True
     torch.backends.cudnn.benchmark = False
 

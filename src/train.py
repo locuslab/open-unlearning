@@ -59,6 +59,7 @@ def main(cfg: DictConfig):
         evaluators=evaluators,
         template_args=template_args,
     )
+    seed_everything(trainer_args.seed)
 
     if trainer_args.do_train:
         trainer.train()
