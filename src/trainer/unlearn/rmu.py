@@ -136,7 +136,7 @@ class RMU(GradDiff):
             retain_loss = super().compute_retain_loss(model, retain_inputs)
         return retain_loss
 
-    def compute_loss(self, model, inputs, return_outputs=False):
+    def compute_loss(self, model, inputs, return_outputs=False, **kwargs):
         forget_inputs = inputs["forget"]
         forget_inputs = {
             "input_ids": forget_inputs["input_ids"],

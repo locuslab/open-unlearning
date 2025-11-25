@@ -14,7 +14,7 @@ class SatImp(GradDiff):
         if self.ref_model is None:
             self.ref_model = self._prepare_ref_model(self.model)
 
-    def compute_loss(self, model, inputs, return_outputs=False):
+    def compute_loss(self, model, inputs, return_outputs=False, **kwargs):
         forget_inputs = inputs["forget"]
         forget_inputs = {
             "input_ids": forget_inputs["input_ids"],
