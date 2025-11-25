@@ -10,7 +10,7 @@ class SimNPO(GradDiff):
         self.delta = delta
         self.beta = beta
 
-    def compute_loss(self, model, inputs, return_outputs=False):
+    def compute_loss(self, model, inputs, return_outputs=False, **kwargs):
         forget_inputs = inputs["forget"]
 
         forget_labels = forget_inputs["labels"]
