@@ -19,7 +19,6 @@ def compute_kl_divergence(model, target_model, inputs):
         ref_outputs = target_model(**inputs)
 
     ref_probs = F.log_softmax(ref_outputs.logits, dim=-1)
-    ref_probs = F.log_softmax(ref_outputs.logits, dim=-1)
     ref_probs = ref_probs.view(-1, ref_outputs.logits.shape[-1])
 
     outputs = model(**inputs)
