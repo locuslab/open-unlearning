@@ -1,0 +1,15 @@
+# @package _global_
+
+defaults:
+  - override /eval: llm_judge
+
+
+eval:
+  llm_judge:
+    llm_judge_prompt_settings:
+      context_names: ['forget_knowmem_ROUGE',
+                      'forget_verbmem_ROUGE',
+                      'retain_knowmem_ROUGE']
+
+
+task_name: ???
