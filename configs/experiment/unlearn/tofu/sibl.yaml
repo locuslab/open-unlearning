@@ -1,0 +1,61 @@
+# @package _global_
+
+defaults:
+  - override /model: Llama-3.2-1B-Instruct
+  - override /trainer: SIBL
+  - override /data: unlearn
+  - override /data/datasets@data.forget: TOFU_QA_forget
+  - override /data/datasets@data.retain: TOFU_QA_retain
+  - override /eval: tofu
+
+model:
+  model_args:
+    pretrained_model_name_or_path: open-unlearning/tofu_Llama-3.2-1B-Instruct_full
+
+forget_split: forget10
+retain_split: retain90
+holdout_split: holdout10
+retain_logs_path: null
+question_key: "question"
+
+eval:
+  tofu:
+    forget_split: ${forget_split}
+    holdout_split: ${holdout_split}
+    retain_logs_path: ${retain_logs_path}
+    overwrite: true
+    question_key: ${question_key}
+
+data:
+  anchor: forget
+  forget:
+    TOFU_QA_forget:
+      args:
+        hf_args:
+          name: ${forget_split}
+  retain:
+    TOFU_QA_retain:
+      args:
+        hf_args:
+          name: ${retain_split}
+
+trainer:
+  method_args:
+    # Sparsity configuration
+    use_sparsity: true
+    sparsity: 0.9
+    sparsity_method: layerwise_magnitude
+
+    # S-BiAL parameters
+    epsilon: 0.1  # Retain loss budget
+    T: 20  # Outer iterations
+    K: 10  # Inner iterations
+    eta_theta: 1e-4  # Outer LR
+    eta_in: 1e-4  # Inner LR
+    rho: 1.0  # AL penalty
+    gamma: 1e-4  # L1 regularization
+    use_implicit: true
+    cg_iters: 10
+    cg_tol: 1e-3
+
+task_name: ???

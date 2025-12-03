@@ -1,0 +1,47 @@
+defaults:
+  - finetune
+
+handler: SIBL
+method_args:
+  # Sparsity configuration
+  use_sparsity: true
+  sparsity: 0.9  # 90% sparsity
+  sparsity_method: layerwise_magnitude  # Options: layerwise_magnitude, random, structured, gradual, movement, magnitude_sampling
+
+  # S-BiAL optimization parameters
+  epsilon: 0.1  # Retain loss budget (constraint threshold)
+  T: 20  # Number of outer iterations
+  K: 10  # Number of inner iterations per outer iteration
+  eta_theta: 1e-4  # Outer loop learning rate
+  eta_in: 1e-4  # Inner loop learning rate
+  rho: 1.0  # Penalty parameter for Augmented Lagrangian
+  gamma: 1e-4  # L1 sparsity regularization coefficient
+
+  # Implicit differentiation settings
+  use_implicit: true  # Use implicit differentiation (recommended)
+  cg_iters: 10  # Conjugate gradient max iterations
+  cg_tol: 1e-3  # Conjugate gradient tolerance
+
+# Override trainer args for SIBL
+# Note: SIBL uses custom training loop, so some standard args may not apply
+args:
+  per_device_train_batch_size: 2
+  per_device_eval_batch_size: 16
+  gradient_accumulation_steps: 1
+  bf16: True
+  bf16_full_eval: True
+  logging_steps: 2
+  output_dir: ${paths.output_dir}
+  logging_dir: ${trainer.args.output_dir}/logs
+  report_to: tensorboard
+  ddp_find_unused_parameters: None
+  gradient_checkpointing: False
+  save_strategy: 'epoch'
+  save_only_model: True
+  save_steps: 5
+  eval_strategy: 'epoch'
+  eval_steps: 5
+  do_train: True
+  do_eval: True
+  eval_on_start: True
+  seed: 0
