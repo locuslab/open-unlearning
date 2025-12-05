@@ -153,7 +153,7 @@ Follow the steps below to start contributing:
 4. Set up the environment in dev mode after following steps in [Quick Start](../README.md#-quickstart). This installs other packages such as `ruff`, `precommit` etc.
 
    ```bash
-   pip install .[dev]
+   pip install ".[dev]"
    ```
 
 5. Develop the features in your fork/branch.
