@@ -17,7 +17,7 @@ class MinKProbAttack(Attack):
 
     def compute_score(self, sample_stats):
         """Score single sample using min-k negative log probs scores attack."""
-        lp = sample_stats.cpu().numpy()
+        lp = sample_stats.float().cpu().numpy()
         if lp.size == 0:
             return 0
 
