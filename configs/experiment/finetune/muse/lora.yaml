@@ -1,0 +1,43 @@
+# @package _global_
+
+defaults:
+  - override /model: Qwen2.5-3B-Instruct-lora
+  - override /trainer: finetune
+  - override /data/datasets@data.train: MUSE_train
+  - override /eval: muse
+  - override /data: finetune
+
+mode: finetune
+data_split: News
+data_sub_set: full   # full or retain
+
+data:
+  train:
+    MUSE_train:
+      args:
+        hf_args:
+          path: tamarsonha/MUSE-${data_split}-Train
+          split: ${data_sub_set}
+# you can find fine-tuned models on https://huggingface.co/tamarsonha
+
+trainer:
+  args:
+    learning_rate: 2e-4  # Higher learning rate for LoRA
+    weight_decay: 0.01
+    warmup_epochs: 0.1  # Shorter warmup for LoRA
+    num_train_epochs: 3  # Fewer epochs for LoRA
+    per_device_train_batch_size: 4
+    per_device_eval_batch_size: 4
+    gradient_accumulation_steps: 4
+    logging_steps: 10
+    save_steps: 500
+    eval_steps: 500
+    evaluation_strategy: steps
+    save_strategy: steps
+    load_best_model_at_end: false  # Disable to avoid metric issues
+    save_total_limit: 2
+    remove_unused_columns: false
+    dataloader_pin_memory: false
+    seed: 42
+
+task_name: muse_news_full_lora

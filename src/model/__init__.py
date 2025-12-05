@@ -5,6 +5,7 @@ import os
 import torch
 import logging
 from model.probe import ProbedLlamaForCausalLM
+from model.lora import LoRAModelForCausalLM, get_lora_model
 
 hf_home = os.getenv("HF_HOME", default=None)
 
@@ -42,6 +43,13 @@ def get_model(model_cfg: DictConfig):
     assert model_cfg is not None and model_cfg.model_args is not None, ValueError(
         "Model config not found or model_args absent in configs/model."
     )
+
+    # Check if LoRA is enabled
+    use_lora = model_cfg.get("use_lora", False)
+    if use_lora:
+        return get_lora_model(model_cfg)
+
+    # Original model loading logic
     model_args = model_cfg.model_args
     tokenizer_args = model_cfg.tokenizer_args
     torch_dtype = get_dtype(model_args)
@@ -53,6 +61,7 @@ def get_model(model_cfg: DictConfig):
         model = model_cls.from_pretrained(
             pretrained_model_name_or_path=model_path,
             torch_dtype=torch_dtype,
+            device_map="auto",
             **model_args,
             cache_dir=hf_home,
         )
@@ -105,3 +114,4 @@ def get_tokenizer(tokenizer_cfg: DictConfig):
 # register models
 _register_model(AutoModelForCausalLM)
 _register_model(ProbedLlamaForCausalLM)
+_register_model(LoRAModelForCausalLM)
