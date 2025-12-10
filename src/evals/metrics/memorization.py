@@ -118,11 +118,21 @@ def truth_ratio(model, **kwargs):
     # 1-tr is higher.
     def true_better(arr):
         return np.mean(np.maximum(0, 1 - arr))
+   
+   # NEW: Use correctness probability: correct / (correct + wrong), higher is better
+    def prob_mean(arr):
+        # arr here will be the new truth_ratios = correct / (correct + wrong)
+        return np.mean(arr)
 
     if kwargs["aggregator"] == "closer_to_1_better":
+        use_original_ratio = True
         aggregator = closer_to_1_better
     elif kwargs["aggregator"] == "true_better":
+        use_original_ratio = True
         aggregator = true_better
+    elif kwargs["aggregator"] == "prob_mean":
+        aggregator = prob_mean
+        use_original_ratio = False
     else:
         raise ValueError(f"Invalid truth ratio aggregator: {kwargs['aggregator']}")
 
@@ -152,8 +162,14 @@ def truth_ratio(model, **kwargs):
 
     correct_prob = np.exp(-correct_avg_losses)
     wrong_prob = np.exp(-wrong_avg_losses)
-
-    truth_ratios = wrong_prob / (correct_prob + 1e-10)
+    
+    if use_original_ratio:
+        # Original definition: wrong / correct
+        truth_ratios = wrong_prob / (correct_prob + 1e-10)
+    else:
+        # New definition: correct / (correct + wrong)
+        truth_ratios = correct_prob / (correct_prob + wrong_prob + 1e-10)
+        
     value_by_index = dict(
         zip(correct_indices, [{"score": val} for val in truth_ratios])
     )
