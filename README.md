@@ -136,6 +136,12 @@ python -m venv .venv
 **Install dependencies:**
 ```bash
 pip install .[lm_eval]
+```
+
+**Optional: Install flash-attention (for faster training, not required)**
+```bash
+# Flash-attention can speed up training but is not required
+# All model configs use 'eager' attention by default
 pip install --no-build-isolation flash-attn==2.6.3
 ```
 
