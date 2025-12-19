@@ -1,0 +1,62 @@
+# @package _global_
+
+defaults:
+  - override /model: Qwen2.5-3B-Instruct-lora
+  - override /trainer: GradAscent
+  - override /data: unlearn
+  - override /data/datasets@data.forget: TOFU_QA_forget
+  - override /data/datasets@data.retain: TOFU_QA_retain
+  - override /eval: tofu
+
+model:
+  model_args:
+    pretrained_model_name_or_path: Qwen/Qwen2.5-3B-Instruct
+
+forget_split: forget10
+retain_split: retain90
+holdout_split: holdout10
+retain_logs_path: null
+question_key: "question"
+
+eval:
+  tofu:
+    forget_split: ${forget_split}
+    holdout_split: ${holdout_split}
+    retain_logs_path: ${retain_logs_path}
+    overwrite: true
+    question_key: ${question_key}
+    
+data:
+  anchor: forget
+  forget:
+    TOFU_QA_forget: 
+      args:
+        hf_args:
+          name: ${forget_split}
+  retain:
+    TOFU_QA_retain:
+      args:
+        hf_args:
+          name: ${retain_split}
+
+trainer:
+  args:
+    warmup_epochs: 0.1
+    learning_rate: 1e-4  # Higher learning rate for LoRA
+    weight_decay: 0.01
+    num_train_epochs: 5
+    per_device_train_batch_size: 4
+    per_device_eval_batch_size: 4
+    gradient_accumulation_steps: 4
+    logging_steps: 10
+    save_steps: 500
+    eval_steps: 500
+    evaluation_strategy: steps
+    save_strategy: steps
+    load_best_model_at_end: false  # Disable to avoid metric issues
+    save_total_limit: 2
+    remove_unused_columns: false
+    dataloader_pin_memory: false
+    seed: 42
+
+task_name: unlearn_tofu_lora
