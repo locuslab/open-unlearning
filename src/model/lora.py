@@ -5,10 +5,25 @@ from typing import Optional
 import torch
 import logging
 import os
+from pathlib import Path
+from dotenv import load_dotenv
+
+# Load .env file from project root
+env_path = Path(__file__).parent.parent.parent / ".env"
+load_dotenv(env_path)
 
 hf_home = os.getenv("HF_HOME", default=None)
 
 logger = logging.getLogger(__name__)
+
+
+def get_hf_token() -> Optional[str]:
+    """
+    Get HuggingFace token from environment variables or .env file.
+    Reads HF_TOKEN variable.
+    """
+    token = os.getenv("HF_TOKEN", default=None)
+    return token
 
 
 class LoRAModelForCausalLM:
@@ -107,6 +122,11 @@ class LoRAModelForCausalLM:
 
         # Load the base model
         logger.info(f"Loading base model from {pretrained_model_name_or_path}")
+        # Get HuggingFace token from .env or environment variables
+        hf_token = get_hf_token()
+        if hf_token and "token" not in kwargs:
+            kwargs["token"] = hf_token
+        
         base_model = AutoModelForCausalLM.from_pretrained(
             pretrained_model_name_or_path, **kwargs
         )
@@ -154,6 +174,11 @@ def get_lora_model(model_cfg: DictConfig):
 
     with open_dict(model_args):
         model_path = model_args.pop("pretrained_model_name_or_path", None)
+    
+    # Get HuggingFace token from .env or environment variables
+    hf_token = get_hf_token()
+    if hf_token and "token" not in model_args:
+        model_args["token"] = hf_token
 
     try:
         # Load model with LoRA
@@ -196,8 +221,14 @@ def get_dtype(model_args):
 
 def get_tokenizer(tokenizer_args):
     """Load tokenizer from tokenizer arguments."""
+    # Get HuggingFace token from .env or environment variables
+    hf_token = get_hf_token()
+    tokenizer_kwargs = dict(tokenizer_args)
+    if hf_token and "token" not in tokenizer_kwargs:
+        tokenizer_kwargs["token"] = hf_token
+    
     try:
-        tokenizer = AutoTokenizer.from_pretrained(**tokenizer_args, cache_dir=hf_home)
+        tokenizer = AutoTokenizer.from_pretrained(**tokenizer_kwargs, cache_dir=hf_home)
     except Exception as e:
         error_message = (
             f"{'--' * 40}\n"

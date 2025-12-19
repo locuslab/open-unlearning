@@ -19,6 +19,7 @@ Experiment output directories are constructed based on the task mode (`train` / 
 - [Overview](#overview)
 - [Table of Contents](#table-of-contents)
 - [Example Commands](#example-commands)
+  - [LoRA Examples](#lora-examples)
 - [Commonly Overridden Arguments](#commonly-overridden-arguments)
   - [Model Settings](#model-settings)
   - [Trainer Settings](#trainer-settings)
@@ -60,6 +61,69 @@ forget_split=forget05 retain_split=retain95 \
 retain_logs_path=saves/eval/tofu_retain95/TOFU_EVAL.json \
 paths.output_dir=saves/unlearn/NPO/evals
 ```
+
+### LoRA Examples
+
+LoRA (Low-Rank Adaptation) enables memory-efficient training by only updating a small subset of model parameters. This is particularly useful when working with limited GPU resources.
+
+**Fine-tuning with LoRA:**
+```bash
+# Fine-tuning on TOFU with LoRA
+python src/train.py --config-name=train @experiment=finetune/tofu/lora task_name=tofu_lora_finetune
+
+# Fine-tuning on MUSE with LoRA
+python src/train.py --config-name=train @experiment=finetune/muse/lora task_name=muse_lora_finetune
+
+# Using a different LoRA model
+python src/train.py --config-name=train @experiment=finetune/tofu/lora \
+  model=Llama-2-7b-hf-lora task_name=llama2_lora_finetune
+```
+
+**Unlearning with LoRA:**
+```bash
+# Unlearning on TOFU with LoRA
+python src/train.py --config-name=unlearn @experiment=unlearn/tofu/lora \
+  forget_split=forget10 retain_split=retain90 task_name=tofu_lora_unlearn
+
+# Unlearning on MUSE with LoRA
+python src/train.py --config-name=unlearn @experiment=unlearn/muse/lora \
+  data_split=News task_name=muse_lora_unlearn
+
+# Unlearning on WMDP with LoRA
+python src/train.py --config-name=unlearn @experiment=unlearn/wmdp/lora \
+  data_split=cyber task_name=wmdp_lora_unlearn
+```
+
+**Using the LoRA helper script:**
+```bash
+# Navigate to LoRA methods directory
+cd community/methods/LoRA
+
+# Fine-tuning (default: TOFU dataset, Qwen2.5-3B-Instruct-lora model)
+./run.sh
+
+# Unlearning on TOFU
+./run.sh --type unlearn
+
+# Unlearning on MUSE
+./run.sh --dataset muse --type unlearn
+
+# Unlearning on WMDP
+./run.sh --dataset wmdp --type unlearn
+
+# Using a different model
+./run.sh --model Llama-2-7b-hf-lora --type unlearn
+
+# Show help
+./run.sh --help
+```
+
+**Available LoRA models:**
+- `Qwen2.5-3B-Instruct-lora` (default)
+- `Llama-2-7b-hf-lora`
+- `Llama-2-7b-chat-hf-lora`
+
+For detailed information about LoRA configuration and parameters, see [`community/methods/LoRA/README.md`](../community/methods/LoRA/README.md).
 
 
 > [!NOTE]

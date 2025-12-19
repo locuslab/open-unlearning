@@ -1,11 +1,17 @@
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from omegaconf import DictConfig, open_dict
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 import os
 import torch
 import logging
+from pathlib import Path
+from dotenv import load_dotenv
 from model.probe import ProbedLlamaForCausalLM
 from model.lora import LoRAModelForCausalLM, get_lora_model
+
+# Load .env file from project root
+env_path = Path(__file__).parent.parent.parent / ".env"
+load_dotenv(env_path)
 
 hf_home = os.getenv("HF_HOME", default=None)
 
@@ -16,6 +22,15 @@ MODEL_REGISTRY: Dict[str, Any] = {}
 
 def _register_model(model_class):
     MODEL_REGISTRY[model_class.__name__] = model_class
+
+
+def get_hf_token() -> Optional[str]:
+    """
+    Get HuggingFace token from environment variables or .env file.
+    Reads HF_TOKEN variable.
+    """
+    token = os.getenv("HF_TOKEN", default=None)
+    return token
 
 
 def get_dtype(model_args):
@@ -57,6 +72,14 @@ def get_model(model_cfg: DictConfig):
     model_cls = MODEL_REGISTRY[model_handler]
     with open_dict(model_args):
         model_path = model_args.pop("pretrained_model_name_or_path", None)
+    
+    # Get HuggingFace token from .env or environment variables
+    hf_token = get_hf_token()
+    if hf_token:
+        # Add token to model_args if not already present
+        if "token" not in model_args:
+            model_args["token"] = hf_token
+    
     try:
         model = model_cls.from_pretrained(
             pretrained_model_name_or_path=model_path,
@@ -88,8 +111,14 @@ def _add_or_replace_eos_token(tokenizer, eos_token: str) -> None:
 
 
 def get_tokenizer(tokenizer_cfg: DictConfig):
+    # Get HuggingFace token from .env or environment variables
+    hf_token = get_hf_token()
+    tokenizer_kwargs = dict(tokenizer_cfg)
+    if hf_token and "token" not in tokenizer_kwargs:
+        tokenizer_kwargs["token"] = hf_token
+    
     try:
-        tokenizer = AutoTokenizer.from_pretrained(**tokenizer_cfg, cache_dir=hf_home)
+        tokenizer = AutoTokenizer.from_pretrained(**tokenizer_kwargs, cache_dir=hf_home)
     except Exception as e:
         error_message = (
             f"{'--' * 40}\n"

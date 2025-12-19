@@ -99,6 +99,7 @@ We provide several variants for each of the components in the unlearning pipelin
   - 🚀 [Perform Unlearning](#-perform-unlearning)
   - 📊 [Perform an Evaluation](#-perform-an-evaluation)
   - 📜 [Running Baseline Experiments](#-running-baseline-experiments)
+  - 🎯 [Running Experiments with LoRA](#-running-experiments-with-lora)
 - ➕ [How to Contribute](#-how-to-contribute)
 - 📚 [Further Documentation](#-further-documentation)
 - 🔗 [Support & Contributors](#-support--contributors)
@@ -110,13 +111,85 @@ We provide several variants for each of the components in the unlearning pipelin
 
 ## ⚡ Quickstart
 
+### Environment Setup
+
+Choose one of the following methods to set up your environment:
+
+**Option 1: Using Conda**
 ```bash
-# Environment setup
 conda create -n unlearning python=3.11
 conda activate unlearning
+```
+
+**Option 2: Using venv on Ubuntu/Linux**
+```bash
+python3.11 -m venv venv
+source venv/bin/activate
+```
+
+**Option 3: Using venv on Windows**
+```cmd
+python -m venv .venv
+.venv\Scripts\activate
+```
+
+**Install dependencies:**
+```bash
 pip install .[lm_eval]
 pip install --no-build-isolation flash-attn==2.6.3
+```
 
+### HuggingFace Authentication
+
+Some models (e.g., Llama models from Meta) require authentication. You can set your HuggingFace token in one of two ways:
+
+**Option 1: Using `.env` file (recommended)**
+
+1. Create a `.env` file in the project root directory (same level as `setup.py`)
+2. Add your HuggingFace token to the file:
+   ```
+   HF_TOKEN=your_huggingface_token_here
+   ```
+3. The token will be automatically loaded when loading models
+
+**On Ubuntu/Linux:**
+```bash
+# Create .env file
+echo "HF_TOKEN=your_huggingface_token_here" > .env
+
+# Or use a text editor
+nano .env
+# Add: HF_TOKEN=your_huggingface_token_here
+```
+
+**On Windows:**
+```cmd
+# Create .env file using PowerShell
+echo HF_TOKEN=your_huggingface_token_here > .env
+
+# Or create it manually in a text editor and save as .env
+```
+
+**Option 2: Using environment variable**
+
+**On Ubuntu/Linux:**
+```bash
+export HF_TOKEN="your_huggingface_token_here"
+```
+
+**On Windows (PowerShell):**
+```powershell
+$env:HF_TOKEN="your_huggingface_token_here"
+```
+
+**On Windows (Command Prompt):**
+```cmd
+set HF_TOKEN=your_huggingface_token_here
+```
+
+> **Note**: You can get your HuggingFace token from [https://huggingface.co/settings/tokens](https://huggingface.co/settings/tokens). The token is automatically used when loading models and tokenizers via the `transformers` library.
+
+```bash
 # Data setup
 python setup_data.py --eval # saves/eval now contains evaluation results of the uploaded models
 # This downloads log files with evaluation results (including retain model logs)
@@ -182,6 +255,59 @@ bash scripts/muse_unlearn.sh
 ```
 
 The above scripts are not tuned and uses default hyper parameter settings. We encourage you to tune your methods and add your final results in [`community/leaderboard.md`](community/leaderboard.md).
+
+### 🎯 Running Experiments with LoRA
+
+LoRA (Low-Rank Adaptation) provides memory-efficient fine-tuning and unlearning by training only a small fraction of model parameters. This is especially useful when working with limited GPU memory.
+
+**Fine-tuning with LoRA:**
+```bash
+# TOFU dataset
+python src/train.py --config-name=train @experiment=finetune/tofu/lora
+
+# MUSE dataset
+python src/train.py --config-name=train @experiment=finetune/muse/lora
+
+# Using a different LoRA model
+python src/train.py --config-name=train @experiment=finetune/tofu/lora model=Llama-2-7b-hf-lora
+```
+
+**Unlearning with LoRA:**
+```bash
+# TOFU dataset
+python src/train.py --config-name=unlearn @experiment=unlearn/tofu/lora
+
+# MUSE dataset
+python src/train.py --config-name=unlearn @experiment=unlearn/muse/lora
+
+# WMDP dataset
+python src/train.py --config-name=unlearn @experiment=unlearn/wmdp/lora
+```
+
+**Using the LoRA helper script:**
+```bash
+# Navigate to LoRA directory
+cd community/methods/LoRA
+
+# Fine-tuning on TOFU (default)
+./run.sh
+
+# Unlearning on TOFU
+./run.sh --type unlearn
+
+# Unlearning on MUSE
+./run.sh --dataset muse --type unlearn
+
+# With a different model
+./run.sh --model Llama-2-7b-hf-lora --type unlearn
+```
+
+**Available LoRA models:**
+- `Qwen2.5-3B-Instruct-lora` (default)
+- `Llama-2-7b-hf-lora`
+- `Llama-2-7b-chat-hf-lora`
+
+For more details about LoRA integration, see [`community/methods/LoRA/README.md`](community/methods/LoRA/README.md).
 
 ---
 

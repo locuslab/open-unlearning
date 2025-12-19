@@ -1,9 +1,5 @@
 from setuptools import setup, find_packages
 
-# Read dependencies from requirements.txt
-with open("requirements.txt") as f:
-    requirements = f.read().splitlines()
-
 setup(
     name="open-unlearning",
     version="0.1.0",
@@ -15,7 +11,24 @@ setup(
     url="https://github.com/locuslab/open-unlearning",
     license="MIT",
     packages=find_packages(),
-    install_requires=requirements,  # Uses requirements.txt
+    install_requires=[
+        "huggingface-hub==0.29.1",
+        "transformers==4.45.1",
+        "numpy==2.2.3",
+        "hydra-core==1.3",
+        "hydra_colorlog==1.2.0",
+        "torch==2.4.1",
+        "datasets==3.0.1",
+        "accelerate==0.34.2",
+        "bitsandbytes==0.44.1",
+        "rouge-score==0.1.2",
+        "scipy==1.14.1",
+        "tensorboard==2.18.0",
+        "scikit-learn==1.5.2",
+        "deepspeed==0.15.4",
+        "peft==0.17.1",
+        "python-dotenv==1.2.1",
+    ],
     extras_require={
         "lm-eval": [
             "lm-eval==0.4.8",
