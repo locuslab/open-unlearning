@@ -256,6 +256,14 @@ bash scripts/muse_unlearn.sh
 
 The above scripts are not tuned and uses default hyper parameter settings. We encourage you to tune your methods and add your final results in [`community/leaderboard.md`](community/leaderboard.md).
 
+**Complete Pipeline Example**: For a full workflow example (fine-tuning → retain model → evaluation → unlearning → evaluation) using Qwen2.5-3B-Instruct, see [`scripts/qwen3b_full_pipeline.sh`](scripts/qwen3b_full_pipeline.sh):
+
+```bash
+bash scripts/qwen3b_full_pipeline.sh
+```
+
+This script demonstrates the complete cycle of training, unlearning, and evaluation on the TOFU benchmark.
+
 ### 🎯 Running Experiments with LoRA
 
 LoRA (Low-Rank Adaptation) provides memory-efficient fine-tuning and unlearning by training only a small fraction of model parameters. This is especially useful when working with limited GPU memory.
