@@ -186,7 +186,6 @@ def get_lora_model(model_cfg: DictConfig):
             pretrained_model_name_or_path=model_path,
             lora_config=lora_config,
             torch_dtype=torch_dtype,
-            device_map="auto",
             cache_dir=hf_home,
             **model_args,
         )
