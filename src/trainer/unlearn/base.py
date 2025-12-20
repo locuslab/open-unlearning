@@ -15,9 +15,6 @@ from transformers.utils import (
     is_sagemaker_mp_enabled,
 )
 
-from accelerate.utils import (
-    is_deepspeed_available,
-)
 
 if is_sagemaker_mp_enabled():
     from smdistributed.modelparallel import __version__ as SMP_VERSION
@@ -31,14 +28,33 @@ if is_sagemaker_mp_enabled():
 else:
     IS_SAGEMAKER_MP_POST_1_10 = False
 
-if is_deepspeed_available():
+# Try to import deepspeed, but don't fail if CUDA_HOME is not set
+# DeepSpeed will only be used if explicitly enabled in the training config
+deepspeed = None
+try:
     import deepspeed
+except Exception as e:
+    # If deepspeed import fails (e.g., due to missing CUDA_HOME),
+    # we'll handle it gracefully when deepspeed is actually needed
+    import warnings
+    warnings.warn(
+        f"Failed to import deepspeed: {e}. "
+        "DeepSpeed features will be unavailable. "
+        "If you need DeepSpeed, ensure CUDA_HOME is set correctly.",
+        UserWarning
+    )
+    deepspeed = None
 
 
 class UnlearnTrainer(FinetuneTrainer):
     # Adapted from Huggingface DPO Trainer: https://github.com/huggingface/accelerate/blob/739b135f8367becb67ffaada12fe76e3aa60fefd/src/accelerate/accelerator.py#L1473
     def _prepare_deepspeed(self, model):
         # Adapted from accelerate: https://github.com/huggingface/accelerate/blob/739b135f8367becb67ffaada12fe76e3aa60fefd/src/accelerate/accelerator.py#L1473
+        if deepspeed is None:
+            raise RuntimeError(
+                "DeepSpeed is required but not available. "
+                "Please ensure DeepSpeed is properly installed and CUDA_HOME is set correctly."
+            )
         deepspeed_plugin = self.accelerator.state.deepspeed_plugin
         config_kwargs = deepcopy(deepspeed_plugin.deepspeed_config)
 
