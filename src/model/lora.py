@@ -172,13 +172,13 @@ def get_lora_model(model_cfg: DictConfig):
     # Get torch dtype using the same logic as the main module
     torch_dtype = get_dtype(model_args)
 
-    with open_dict(model_args):
-        model_path = model_args.pop("pretrained_model_name_or_path", None)
-    
     # Get HuggingFace token from .env or environment variables
     hf_token = get_hf_token()
-    if hf_token and "token" not in model_args:
-        model_args["token"] = hf_token
+    
+    with open_dict(model_args):
+        model_path = model_args.pop("pretrained_model_name_or_path", None)
+        if hf_token and "token" not in model_args:
+            model_args["token"] = hf_token
 
     try:
         # Load model with LoRA

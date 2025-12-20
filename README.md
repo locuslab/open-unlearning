@@ -277,25 +277,25 @@ LoRA (Low-Rank Adaptation) provides memory-efficient fine-tuning and unlearning 
 **Fine-tuning with LoRA:**
 ```bash
 # TOFU dataset
-python src/train.py --config-name=train @experiment=finetune/tofu/lora
+python src/train.py --config-name=train experiment=finetune/tofu/lora
 
 # MUSE dataset
-python src/train.py --config-name=train @experiment=finetune/muse/lora
+python src/train.py --config-name=train experiment=finetune/muse/lora
 
 # Using a different LoRA model
-python src/train.py --config-name=train @experiment=finetune/tofu/lora model=Llama-2-7b-hf-lora
+python src/train.py --config-name=train experiment=finetune/tofu/lora model=Llama-2-7b-hf-lora
 ```
 
 **Unlearning with LoRA:**
 ```bash
 # TOFU dataset
-python src/train.py --config-name=unlearn @experiment=unlearn/tofu/lora
+python src/train.py --config-name=unlearn experiment=unlearn/tofu/lora
 
 # MUSE dataset
-python src/train.py --config-name=unlearn @experiment=unlearn/muse/lora
+python src/train.py --config-name=unlearn experiment=unlearn/muse/lora
 
 # WMDP dataset
-python src/train.py --config-name=unlearn @experiment=unlearn/wmdp/lora
+python src/train.py --config-name=unlearn experiment=unlearn/wmdp/lora
 ```
 
 **Using the LoRA helper script:**
