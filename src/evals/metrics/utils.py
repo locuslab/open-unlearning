@@ -291,6 +291,12 @@ def eval_text_similarity(model, tokenizer, batch, generation_args):
             tokenizer, stopwords, input_ids.shape[1], input_ids.shape[0]
         )
         generation_args["stopping_criteria"] = sc
+    
+    # Remove sampling-related parameters if do_sample is False to avoid warnings
+    if not generation_args.get("do_sample", False):
+        for key in ["top_k", "top_p", "temperature"]:
+            generation_args.pop(key, None)
+    
     output = model.generate(
         input_ids,
         attention_mask=attention_mask,

@@ -7,6 +7,7 @@ from typing import List
 from torch.utils.data import DataLoader
 from datasets import load_dataset
 from transformers import AutoModelForCausalLM, AutoTokenizer, set_seed
+from omegaconf import OmegaConf
 
 # Llama2
 INST_QAS_INSTR = "Now write another version of the answer with some alternate plausible facts that change answer details.\n"
@@ -238,7 +239,21 @@ def main(config):
     # self consistency
     repeats = config.get('repeats', 1)
     # Get all the different parameters used in model.generate() function
-    generation_kwargs = config.get('generation_kwargs')
+    generation_kwargs = config.get('generation_kwargs', {})
+    # Convert to dict if it's a DictConfig
+    try:
+        if isinstance(generation_kwargs, OmegaConf):
+            generation_kwargs = OmegaConf.to_container(generation_kwargs, resolve=True)
+    except:
+        logger.warning("generation_kwargs is not a DictConfig, converting to dict")
+    if not isinstance(generation_kwargs, dict):
+        generation_kwargs = {}
+    
+    # Remove sampling-related parameters if do_sample is False to avoid warnings
+    if not generation_kwargs.get("do_sample", False):
+        for key in ["top_k", "top_p", "temperature"]:
+            generation_kwargs.pop(key, None)
+    
     # These are the list of tokens that stops further generation when encountered 
     until = config.get('until', [])
     device = config.get('device')

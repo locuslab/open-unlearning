@@ -134,6 +134,13 @@ python -m venv .venv
 ```
 
 **Install dependencies:**
+
+Install the core package with all required dependencies:
+```bash
+pip install .
+```
+
+For evaluation with `lm-evaluation-harness` (required for WMDP and other general LLM benchmarks):
 ```bash
 pip install .[lm_eval]
 ```
@@ -145,6 +152,18 @@ pip install .[lm_eval]
 pip install --no-build-isolation flash-attn==2.6.3
 ```
 
+**Optional: Install development dependencies**
+```bash
+# For development and contributing (includes pre-commit, ruff)
+pip install .[dev]
+```
+
+**Verify installation:**
+```bash
+# Check if main dependencies are available
+python -c "import torch; import transformers; import hydra; print('Installation successful!')"
+```
+
 ### HuggingFace Authentication
 
 Some models (e.g., Llama models from Meta) require authentication. You can set your HuggingFace token in one of two ways:
@@ -152,28 +171,35 @@ Some models (e.g., Llama models from Meta) require authentication. You can set y
 **Option 1: Using `.env` file (recommended)**
 
 1. Create a `.env` file in the project root directory (same level as `setup.py`)
-2. Add your HuggingFace token to the file:
+2. You can copy the example file: `cp .env.example .env`
+3. Add your HuggingFace token and optionally configure the cache directory:
    ```
    HF_TOKEN=your_huggingface_token_here
+   HF_HOME=~/.cache/huggingface  # Optional: custom cache directory for models and datasets
    ```
-3. The token will be automatically loaded when loading models
+4. The token and cache directory will be automatically loaded when loading models
 
 **On Ubuntu/Linux:**
 ```bash
-# Create .env file
-echo "HF_TOKEN=your_huggingface_token_here" > .env
-
-# Or use a text editor
+# Copy example file and edit it
+cp .env.example .env
 nano .env
-# Add: HF_TOKEN=your_huggingface_token_here
+# Update HF_TOKEN and optionally HF_HOME
+
+# Or create manually
+echo "HF_TOKEN=your_huggingface_token_here" > .env
+echo "HF_HOME=~/.cache/huggingface" >> .env  # Optional
 ```
 
 **On Windows:**
 ```cmd
-# Create .env file using PowerShell
-echo HF_TOKEN=your_huggingface_token_here > .env
+# Copy example file and edit it
+copy .env.example .env
+# Then edit .env in a text editor to update HF_TOKEN and optionally HF_HOME
 
-# Or create it manually in a text editor and save as .env
+# Or create manually using PowerShell
+echo HF_TOKEN=your_huggingface_token_here > .env
+echo HF_HOME=~/.cache/huggingface >> .env  # Optional
 ```
 
 **Option 2: Using environment variable**
@@ -181,19 +207,24 @@ echo HF_TOKEN=your_huggingface_token_here > .env
 **On Ubuntu/Linux:**
 ```bash
 export HF_TOKEN="your_huggingface_token_here"
+export HF_HOME="~/.cache/huggingface"  # Optional
 ```
 
 **On Windows (PowerShell):**
 ```powershell
 $env:HF_TOKEN="your_huggingface_token_here"
+$env:HF_HOME="~/.cache/huggingface"  # Optional
 ```
 
 **On Windows (Command Prompt):**
 ```cmd
 set HF_TOKEN=your_huggingface_token_here
+set HF_HOME=~/.cache/huggingface  # Optional
 ```
 
-> **Note**: You can get your HuggingFace token from [https://huggingface.co/settings/tokens](https://huggingface.co/settings/tokens). The token is automatically used when loading models and tokenizers via the `transformers` library.
+> **Note**: 
+> - You can get your HuggingFace token from [https://huggingface.co/settings/tokens](https://huggingface.co/settings/tokens). The token is automatically used when loading models and tokenizers via the `transformers` library.
+> - `HF_HOME` is optional and specifies the cache directory for HuggingFace models and datasets. If not set, it defaults to `~/.cache/huggingface`.
 
 ```bash
 # Data setup
