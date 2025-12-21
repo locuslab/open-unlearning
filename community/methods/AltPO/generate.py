@@ -1,66 +1,63 @@
 import os
 import json
+import logging
+from typing import List
+
 import hydra
 import transformers
-from tqdm import tqdm
-from typing import List
-from torch.utils.data import DataLoader
 from datasets import load_dataset
-from transformers import AutoModelForCausalLM, AutoTokenizer, set_seed
+from hydra.core.global_hydra import GlobalHydra
 from omegaconf import OmegaConf
+from torch.utils.data import DataLoader
+from tqdm import tqdm
+from transformers import AutoModelForCausalLM, AutoTokenizer, set_seed
 
-# Llama2
-INST_QAS_INSTR = "Now write another version of the answer with some alternate plausible facts that change answer details.\n"
-INST_QAS_TEMPLATE= """[INST] Question: {question}\nAnswer: {answer}\n"""+INST_QAS_INSTR + """ [/INST]"""+""" Alternate Answer :{sub_answer}"""
-INST_QAS_TEMPLATE_QUERY = """[INST] Question: {question}\nAnswer:{answer}\n"""+INST_QAS_INSTR + """ [/INST]""" + """ Alternate Answer :"""
+from log_config import setup_logging_config
+from prompts import (
+    INST_QAS_INSTR,
+    INST_QAS_TEMPLATE,
+    INST_QAS_TEMPLATE_QUERY,
+    INST_QAS_LLAMA3_INSTR,
+    INST_QAS_LLAMA3_TEMPLATE,
+    INST_QAS_LLAMA3_TEMPLATE_QUERY,
+)
 
-# Llama3.2
-INST_QAS_LLAMA3_INSTR = "Now pretend you are making things up. Write another answer to the question that is of a different template than the given answer and changes all facts from what are introduced in the given answer (changed answers must be plausible while being inconsistent with given answer). Ensure that your alternate answer is a plausible response to the question and doesn't change any details mentioned in question and only introduces changes to all the facts introduced answer."
-INST_QAS_LLAMA3_TEMPLATE = """<|begin_of_text|><|start_header_id|>system<|end_header_id|>
-
-You are a helpful AI assistant<|eot_id|>
-<|start_header_id|>user<|end_header_id|>
-
-Question: {question}\nAnswer: {answer}\n"""+INST_QAS_LLAMA3_INSTR+"""<|eot_id|>
-<|start_header_id|>assistant<|end_header_id|> 
-
-"""+"""Alternate Answer :{sub_answer}""" + """<|eot_id|>"""
-INST_QAS_LLAMA3_TEMPLATE_QUERY = """<|begin_of_text|><|start_header_id|>system<|end_header_id|>
-
-You are a helpful AI assistant<|eot_id|>
-<|start_header_id|>user<|end_header_id|>
-
-Question: {question}\nAnswer: {answer}\n"""+INST_QAS_LLAMA3_INSTR+"""<|eot_id|>
-<|start_header_id|>assistant<|end_header_id|> 
-
-"""+"""Alternate Answer :"""
+# Setup logger
+logger = logging.getLogger(__name__)
 
 
 HF_HOME = os.getenv('HF_HOME', '~/.cache/huggingface')
 
 def get_model(config):
     # Check if the model name is in the predefined list or not
+    model_name = config['model_kwargs']['pretrained_model_name_or_path']
+    logger.info(f"Loading model: {model_name}")
     model = AutoModelForCausalLM.from_pretrained(**config['model_kwargs'], cache_dir=HF_HOME)
-    tokenizer = AutoTokenizer.from_pretrained(config['model_kwargs']['pretrained_model_name_or_path'])
+    tokenizer = AutoTokenizer.from_pretrained(model_name)
     
     # Setting the padding token for tokenizer (has to be done manually - not taken care by Hugging face library)
     if tokenizer.pad_token:
-        pass
+        logger.debug("Using existing pad_token")
     elif tokenizer.unk_token:
         tokenizer.pad_token_id = tokenizer.unk_token_id
+        logger.debug("Set pad_token_id to unk_token_id")
     elif tokenizer.eos_token:
         tokenizer.pad_token_id = tokenizer.eos_token_id
+        logger.debug("Set pad_token_id to eos_token_id")
     else:
         raise ValueError("Unable to set the pad token for the model")
+    logger.info("Model and tokenizer loaded successfully")
     # returns model and the tokenizer
     return model, tokenizer
 
 
 def get_dataset(config):
-    if config['dataset_name'] == 'tofu':
+    dataset_name = config['dataset_name']
+    logger.info(f"Loading dataset: {dataset_name}")
+    if dataset_name == 'tofu':
         dataset = load_dataset(**config['dataset_kwargs'])
     else:
-        raise ValueError("dataset not implemented")
+        raise ValueError(f"Dataset '{dataset_name}' not implemented")
     def add_numbering(example, idx):
         example_new = {}
         example_new['doc_id'] = idx
@@ -68,6 +65,7 @@ def get_dataset(config):
         return example_new
     # return the loaded dataset (stored in cache)
     numbered_dataset = dataset.map(add_numbering, with_indices=True)
+    logger.info(f"Dataset loaded successfully. Total examples: {len(numbered_dataset)}")
     return numbered_dataset
 
 def read_json(path):
@@ -82,21 +80,27 @@ def aggregate_fewshot(prompts, prompt_query, **kwargs):
 
 def get_prompts(config):
     # returns the constant defined in the src
-    if config['prompt_name'] == 'INST_QAS_TEMPLATE':
+    prompt_name = config['prompt_name']
+    logger.info(f"Using prompt template: {prompt_name}")
+    if prompt_name == 'INST_QAS_TEMPLATE':
         prompt_template = INST_QAS_TEMPLATE
         prompt_template_query = INST_QAS_TEMPLATE_QUERY
-    elif config['prompt_name'] == 'INST_QAS_LLAMA3_TEMPLATE':
+    elif prompt_name == 'INST_QAS_LLAMA3_TEMPLATE':
         prompt_template = INST_QAS_LLAMA3_TEMPLATE
         prompt_template_query = INST_QAS_LLAMA3_TEMPLATE_QUERY 
     else:
-        raise NotImplementedError
+        raise NotImplementedError(f"Prompt template '{prompt_name}' not implemented")
 
     examples_path = config.get('examples_path', None)
     if examples_path is None:
         examples = []
+        logger.debug("No examples path provided, using zero-shot")
     else:
+        logger.info(f"Loading examples from: {examples_path}")
         examples = read_json(examples_path)
-        examples = examples[:config.get("n_shot", len(examples))]
+        n_shot = config.get("n_shot", len(examples))
+        examples = examples[:n_shot]
+        logger.info(f"Using {len(examples)} examples for few-shot prompting")
     prompts = [prompt_template.format(**example) for example in examples]
     aggregated_template = aggregate_fewshot(prompts, prompt_template_query,**config)
     return aggregated_template
@@ -209,13 +213,32 @@ def stop_sequences_criteria(
 def collate_fn(batch):
     return {key: [i[key] for i in batch] for key in batch[0]}
 
+
 @hydra.main(version_base=None, config_path=".", config_name="generate")
 def main(config):
-    set_seed(config.get('seed', 0))
+    # Setup logging - use Hydra's output directory if available
+    try:
+        hydra_cfg = GlobalHydra.instance().hydra
+        output_dir = hydra_cfg.runtime.output_dir
+        log_file = f"{output_dir}/generate.log"
+    except:
+        log_file = None
+    setup_logging_config(log_file=log_file)
+    
+    logger.info("=" * 80)
+    logger.info("Starting generation process")
+    logger.info("=" * 80)
+    
+    seed = config.get('seed', 0)
+    logger.info(f"Setting random seed: {seed}")
+    set_seed(seed)
+    
     # Loading the model and the tokenizer
     model, tokenizer = get_model(config['model_config'])
+    
     # Load the dataset - a list of dictionary - question and answer pairs
     dataset = get_dataset(config['dataset_config'])
+    
     # Having prompts defined for the model input 
     prompt = get_prompts(config['prompt_config'])
     suff = ""
@@ -224,20 +247,34 @@ def main(config):
         split_symbol = f'-+{prompt_num}'
         suff = f'_v{prompt_num}'
         prompt = prompt.replace(split_symbol, '')
+        logger.debug(f"Processed prompt suffix: {suff}")
+    
     # get the outdir
     outdir = config.get("outdir", "outdir")
     limit = config.get('limit', None)
     if limit:
         # If there is a limit, we select top n questions from the dataset
+        logger.info(f"Limiting dataset to {limit} examples")
         dataset = dataset.select(range(limit))
+    
+    batch_size = config['batch_size']
+    logger.info(f"Batch size: {batch_size}")
+    
     # Loading the question answer pairs from the dataset
-    data_loader = DataLoader(dataset, batch_size=config['batch_size'], shuffle=False, collate_fn= collate_fn)
+    data_loader = DataLoader(dataset, batch_size=batch_size, shuffle=False, collate_fn=collate_fn)
+    logger.info(f"DataLoader created with {len(data_loader)} batches")
+    
     # Padding and truncation
     left_truncate_len = config.get('left_truncate_len', None)
     padding_side = config.get('padding_side', 'left')
     truncation = config.get('truncation', False)
+    logger.debug(f"Tokenization settings: padding_side={padding_side}, truncation={truncation}, left_truncate_len={left_truncate_len}")
+    
     # self consistency
     repeats = config.get('repeats', 1)
+    if repeats > 1:
+        logger.info(f"Using self-consistency with {repeats} repeats")
+    
     # Get all the different parameters used in model.generate() function
     generation_kwargs = config.get('generation_kwargs', {})
     # Convert to dict if it's a DictConfig
@@ -251,15 +288,28 @@ def main(config):
     
     # Remove sampling-related parameters if do_sample is False to avoid warnings
     if not generation_kwargs.get("do_sample", False):
+        removed_params = []
         for key in ["top_k", "top_p", "temperature"]:
-            generation_kwargs.pop(key, None)
+            if key in generation_kwargs:
+                generation_kwargs.pop(key, None)
+                removed_params.append(key)
+        if removed_params:
+            logger.debug(f"Removed sampling parameters (do_sample=False): {removed_params}")
+    
+    logger.info(f"Generation kwargs: {generation_kwargs}")
     
     # These are the list of tokens that stops further generation when encountered 
     until = config.get('until', [])
+    if until:
+        logger.info(f"Stop sequences: {until}")
+    
     device = config.get('device')
+    logger.info(f"Using device: {device}")
+    
     results = []
+    logger.info("Starting generation loop...")
     # a batch is generated. It is a dictionary having question and answer as keys, and corresponding values as a list
-    for batch in tqdm(data_loader):
+    for batch_idx, batch in enumerate(tqdm(data_loader, desc="Generating")):
         # Replacing the variables with actual values/questions in prompt
         inputs = prompt_infilling_batch(batch, prompt)
         input_ids, attention_mask = tok_batch_encode(inputs, tokenizer, padding_side, left_truncate_len, truncation)
@@ -291,11 +341,16 @@ def main(config):
             batch.update({'input':inputs, "sub_answer":res})
             res_sc += [{k: v[i] for k, v in batch.items()} for i in range(len(list(batch.values())[0]))]
         results += res_sc
-    outdir = os.path.dirname(config.output_file)
+        if (batch_idx + 1) % 10 == 0:
+            logger.debug(f"Processed {batch_idx + 1} batches, {len(results)} total results")
+    
+    output_file = config.output_file
+    outdir = os.path.dirname(output_file)
+    logger.info(f"Saving results to: {output_file}")
     # Write the list to a JSON file
     os.makedirs(outdir, exist_ok=True)
     # r_dump = []
-    with open(config.output_file, 'w') as f:
+    with open(output_file, 'w') as f:
         for result in results:
             r = {
                 "question": result["question"],
@@ -305,6 +360,9 @@ def main(config):
             # r = result
             json.dump(r, f)
             f.write('\n')
+    
+    logger.info(f"Generation completed successfully. Generated {len(results)} results")
+    logger.info("=" * 80)
     
 if __name__ == '__main__':
     main()

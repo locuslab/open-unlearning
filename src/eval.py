@@ -1,9 +1,10 @@
 import hydra
+from hydra.core.global_hydra import GlobalHydra
 from omegaconf import DictConfig
 
-from trainer.utils import seed_everything
-from model import get_model
 from evals import get_evaluators
+from model import get_model
+from trainer.utils import seed_everything
 from utils.logging import setup_logging, get_logger
 
 logger = get_logger(__name__)
@@ -17,7 +18,6 @@ def main(cfg: DictConfig):
     """
     # Setup logging - use Hydra's output directory if available
     try:
-        from hydra.core.global_hydra import GlobalHydra
         hydra_cfg = GlobalHydra.instance().hydra
         output_dir = hydra_cfg.runtime.output_dir
         log_file = f"{output_dir}/eval.log"

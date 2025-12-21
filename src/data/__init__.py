@@ -1,13 +1,12 @@
-from typing import Dict, Any, Union
-from omegaconf import DictConfig
 import logging
+from typing import Any, Dict, Union
 
-from data.qa import QADataset, QAwithIdkDataset, QAwithAlternateDataset
-from data.collators import (
-    DataCollatorForSupervisedDataset,
-)
+from omegaconf import DictConfig
+
+from data.collators import DataCollatorForSupervisedDataset
+from data.pretraining import CompletionDataset, PretrainingDataset
+from data.qa import QAwithAlternateDataset, QAwithIdkDataset, QADataset
 from data.unlearn import ForgetRetainDataset
-from data.pretraining import PretrainingDataset, CompletionDataset
 
 logger = logging.getLogger(__name__)
 
@@ -34,12 +33,13 @@ def _load_single_dataset(dataset_name, dataset_cfg: DictConfig, **kwargs):
             f"{dataset_handler_name} not implemented or not registered"
         )
     dataset_args = dataset_cfg.args
-    logger.debug(f"Loading dataset '{dataset_name}' with handler '{dataset_handler_name}'")
-    return dataset_handler(**dataset_args, **kwargs)
-
-
-def get_datasets(dataset_cfgs: Union[Dict, DictConfig], **kwargs):
-    dataset = {}
+    logger.debug(f"Loading dataset '{dataset_name}' with handler '{datasfrom typing import Dict, Any, Union
+from omegaconf import DictConfig
+from data.qa import QADataset, QAwithIdkDataset, QAwithAlternateDataset
+from data.collators import (
+    DataCollatorForSupervisedDataset,
+)
+from 
     for dataset_name, dataset_cfg in dataset_cfgs.items():
         access_name = dataset_cfg.get("access_key", dataset_name)
         dataset[access_name] = _load_single_dataset(dataset_name, dataset_cfg, **kwargs)

@@ -1,12 +1,11 @@
+import logging
+from typing import Any, Dict
+
 import torch
-from typing import Dict, Any
 from omegaconf import DictConfig
-from transformers import Trainer, TrainingArguments
+from transformers import TrainingArguments, Trainer
 
 from trainer.base import FinetuneTrainer
-
-
-import logging
 
 logger = logging.getLogger(__name__)
 

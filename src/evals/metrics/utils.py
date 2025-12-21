@@ -1,15 +1,17 @@
-from typing import List
-from tqdm import tqdm
-from rouge_score import rouge_scorer
+import warnings
 from collections import defaultdict
-from omegaconf import OmegaConf
+from typing import List
+
 import numpy as np
 import scipy as sc
-from torch import nn
 import torch
-from transformers import StoppingCriteria, StoppingCriteriaList, PreTrainedTokenizer
+from omegaconf import OmegaConf
+from rouge_score import rouge_scorer
+from tqdm import tqdm
+from torch import nn
+from transformers import PreTrainedTokenizer, StoppingCriteria, StoppingCriteriaList
+
 from data.utils import IGNORE_INDEX
-import warnings
 
 
 def dict_transpose(evals):

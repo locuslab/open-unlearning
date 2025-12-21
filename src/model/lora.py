@@ -1,12 +1,14 @@
-from transformers import AutoModelForCausalLM, AutoTokenizer
-from peft import LoraConfig, get_peft_model, TaskType
-from omegaconf import DictConfig, open_dict, ListConfig
-from typing import Optional
-import torch
+import json
 import logging
 import os
 from pathlib import Path
+from typing import Optional
+
+import torch
 from dotenv import load_dotenv
+from omegaconf import DictConfig, ListConfig, open_dict
+from peft import LoraConfig, TaskType, get_peft_model
+from transformers import AutoModelForCausalLM, AutoTokenizer
 
 # Load .env file from project root
 env_path = Path(__file__).parent.parent.parent / ".env"
@@ -112,8 +114,6 @@ class LoRAModelForCausalLM:
 
         # Test JSON serialization to ensure compatibility
         try:
-            import json
-
             json.dumps(lora_params)
             logger.info("✅ LoRA parameters are JSON serializable")
         except Exception as e:
