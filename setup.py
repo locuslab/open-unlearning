@@ -25,7 +25,6 @@ setup(
         "scipy==1.14.1",
         "tensorboard==2.18.0",
         "scikit-learn==1.5.2",
-        "deepspeed==0.15.4",
         "peft==0.17.1",
         "python-dotenv==1.2.1",
     ],
