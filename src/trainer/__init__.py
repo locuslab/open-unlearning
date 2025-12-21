@@ -18,7 +18,7 @@ def _register_trainer(trainer_class):
 
 
 def _lazy_import_unlearn_trainers():
-    """Lazy import of unlearn trainers to avoid importing deepspeed when not needed."""
+    """Lazy import of unlearn trainers."""
     from trainer.unlearn.grad_ascent import GradAscent
     from trainer.unlearn.grad_diff import GradDiff
     from trainer.unlearn.npo import NPO
@@ -109,4 +109,3 @@ _register_trainer(Trainer)
 _register_trainer(FinetuneTrainer)
 
 # Unlearn trainers are registered lazily via _lazy_import_unlearn_trainers()
-# to avoid importing deepspeed when not needed

@@ -277,7 +277,7 @@ python src/train.py --config-name=train.yaml experiment=finetune/tofu/default \
 
 ## Distributed Training
 
-Distributed training configurations enable scaling experiments across multiple devices or nodes. In most cases, default distributed settings from [`configs/accelerate/default_config.yaml`](../configs/accelerate/default_config.yaml) are sufficient. You can run distributed training with the below command that uses DeepSpeed for distributed training (which is our default setup):
+Distributed training configurations enable scaling experiments across multiple devices or nodes. In most cases, default distributed settings from [`configs/accelerate/default_config.yaml`](../configs/accelerate/default_config.yaml) are sufficient. You can run distributed training with the below command:
 
 ```bash
 CUDA_VISIBLE_DEVICES=0,1 accelerate launch \

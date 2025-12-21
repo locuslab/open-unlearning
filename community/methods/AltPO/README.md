@@ -20,7 +20,7 @@ python generate.py dataset_config.dataset_kwargs.name=forget10
 The original paper experiments with LLaMA2-7B; however, the following parameter ranges are reasonable to explore. You can adjust them based on the model and task. Perform a grid search over: beta in [0.05, 0.1, 0.5], learning rate in [1e-5, 2e-5, 5e-5], and alpha in [1, 2, 5].
 
 #### Computational Setup
-All experiments in `run.sh` are run on single A100 GPU. If larger models are used you can use deepspeed to launch the unlearning job.
+All experiments in `run.sh` are run on single A100 GPU. If larger models are used you can use distributed training with accelerate to launch the unlearning job.
 
 
 ## Results

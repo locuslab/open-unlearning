@@ -11,7 +11,6 @@ Please include the experimental setup such as
 
 - [ ] **Hyperparameters & Search Space:** Specify key hyperparameters, their search ranges, number of trials etc.
 - [ ] **Computational Setup:** Mention the type and number of GPUs used.
-- [ ] **DeepSpeed Configuration** (if used): If any modifications were made to the default DeepSpeed config, specify them here. (You may include the config as a code block.)
 - [ ] **Other Details:** Any additional setup details crucial for reproducing your method.
 
 # Results
