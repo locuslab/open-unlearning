@@ -293,8 +293,11 @@ def eval_text_similarity(model, tokenizer, batch, generation_args):
         generation_args["stopping_criteria"] = sc
     
     # Remove sampling-related parameters if do_sample is False to avoid warnings
-    # Check both explicit False and absence of do_sample (defaults to False)
+    # Convert do_sample to boolean explicitly to handle None, strings, etc.
     do_sample = generation_args.get("do_sample", False)
+    if do_sample is None or (isinstance(do_sample, str) and do_sample.lower() == "false"):
+        do_sample = False
+    do_sample = bool(do_sample)
     
     # Sampling parameters that should be removed when do_sample=False
     sampling_params = ["top_k", "top_p", "temperature"]
@@ -307,7 +310,7 @@ def eval_text_similarity(model, tokenizer, batch, generation_args):
             # This prevents warnings about unused sampling parameters
             generation_args.pop(key, None)
         
-            # Ensure do_sample is explicitly set to False to override any defaults
+        # Ensure do_sample is explicitly set to False to override any defaults
         generation_args["do_sample"] = False
     
     output = model.generate(
@@ -325,7 +328,7 @@ def eval_text_similarity(model, tokenizer, batch, generation_args):
     # cut off at stopwords
     if stopwords is None:
         stopwords = []
-    stopwords = [tokenizer.decode([tokenizer.eos_token_id])] + stopwords
+    stopwords = [tokenizer.decode([tokenizer.eos_token_id])] + stopwords if tokenizer.eos_token_id is not None else []
     for i in range(len(gen_texts)):
         raw_text = gen_texts[i]
         for word in stopwords:
