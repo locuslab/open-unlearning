@@ -293,8 +293,15 @@ def eval_text_similarity(model, tokenizer, batch, generation_args):
         generation_args["stopping_criteria"] = sc
     
     # Remove sampling-related parameters if do_sample is False to avoid warnings
-    if not generation_args.get("do_sample", False):
-        for key in ["top_k", "top_p", "temperature"]:
+    # Check both explicit False and absence of do_sample (defaults to False)
+    do_sample = generation_args.get("do_sample", False)
+    if not do_sample:
+        # Remove all sampling-related parameters to avoid warnings
+        # These parameters are only used when do_sample=True
+        sampling_params = ["top_k", "top_p", "temperature"]
+        for key in sampling_params:
+            # Always remove these parameters when do_sample=False, regardless of their value
+            # This prevents warnings about unused sampling parameters
             generation_args.pop(key, None)
     
     output = model.generate(

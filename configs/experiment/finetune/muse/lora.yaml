@@ -32,7 +32,7 @@ trainer:
     logging_steps: 10
     save_steps: 500
     eval_steps: 500
-    evaluation_strategy: steps
+    eval_strategy: steps
     save_strategy: steps
     load_best_model_at_end: false  # Disable to avoid metric issues
     save_total_limit: 2
