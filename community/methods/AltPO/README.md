@@ -9,12 +9,25 @@ LLMs struggle to suppress forget set responses using only negative feedback duri
 
 ## Setup
 
-#### Generate Alternate Dataset
+### Project Structure
+
+The AltPO method implementation consists of the following files:
+
+- `generate.py` - Main script for generating alternate responses
+- `prompts.py` - Contains prompt templates for Llama2 and Llama3.2 models
+- `log_config.py` - Logging configuration utilities
+- `generate.yaml` - Hydra configuration file
+- `run.sh` - Script to run unlearning experiments
+
+### Generate Alternate Dataset
 
 The following command generates alternate responses for TOFU, which are then used for unlearning.
-```python
+```bash
+cd community/methods/AltPO
 python generate.py dataset_config.dataset_kwargs.name=forget10
 ```
+
+**Note:** The script includes comprehensive logging. Logs are saved to `generate.log` in the Hydra output directory (if available) and also printed to the console.
 
 #### Hyperparameters & Search Space
 The original paper experiments with LLaMA2-7B; however, the following parameter ranges are reasonable to explore. You can adjust them based on the model and task. Perform a grid search over: beta in [0.05, 0.1, 0.5], learning rate in [1e-5, 2e-5, 5e-5], and alpha in [1, 2, 5].
