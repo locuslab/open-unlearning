@@ -1,0 +1,15 @@
+use_lora: true
+model_args:
+  pretrained_model_name_or_path: "meta-llama/Llama-2-7b-chat-hf"
+  attn_implementation: 'eager'
+  torch_dtype: bfloat16
+  device_map: "auto"
+tokenizer_args:
+  pretrained_model_name_or_path: "meta-llama/Llama-2-7b-chat-hf"
+lora_config:
+  target_modules: ["q_proj", "v_proj", "k_proj", "o_proj", "gate_proj", "down_proj", "up_proj", "lm_head"]
+  lora_alpha: 128
+  lora_dropout: 0.05
+  r: 128
+  bias: "none"
+  task_type: "CAUSAL_LM"
