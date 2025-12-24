@@ -10,4 +10,4 @@ pre_compute:
     access_key: wrong
 
 handler: truth_ratio
-aggregator: prob_mean
+aggregator: closer_to_1_better
