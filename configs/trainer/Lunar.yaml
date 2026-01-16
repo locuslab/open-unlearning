@@ -1,0 +1,17 @@
+defaults:
+  - GradDiff
+
+handler: Lunar
+method_args:
+  # Lunar-specific parameters
+  # Note: These parameters need to be set appropriately for your use case
+  layer_idx_list: [22]  # List of layer indices to modify, e.g., [7, 8, 9]
+  direction: []  # List of direction vectors for perturbation (one per layer)
+  coeff_list: [2.0]  # List of coefficients for perturbation (one per layer), e.g., [2.0, 2.0, 2.0]
+  lr: 0.001  # Learning rate for training estimated networks
+  num_epochs: 100  # Number of epochs for training estimated networks
+  batch_size: 64  # Batch size for training estimated networks
+  # Standard GradDiff parameters
+  gamma: 1.0
+  alpha: 1.0
+  retain_loss_type: NLL
