@@ -1,0 +1,11 @@
+# Configuration for loading PISTOL retain dataset from JSON file with edge field
+
+PISTOL_QA_retain:
+  handler: QAEdgeDataset
+  args:
+    json_path: /home/judy/code/open-unlearning-dev/saves/dataset/unlearning/pistol_sample1.json
+    edge_filter: retain  # Filter to items with edge='retain'
+    question_key: question
+    answer_key: answer
+    edge_key: edge
+    max_length: 512

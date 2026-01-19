@@ -1,0 +1,13 @@
+# @package eval.retain
+# Evaluator for retain dataset from training
+
+defaults:
+  - retain_metrics:
+    - retain_Q_A_Prob
+
+handler: TrainDatasetEvaluator
+output_dir: ${paths.output_dir}
+metrics: {}
+overwrite: false
+batch_size: 32
+question_key: "question"

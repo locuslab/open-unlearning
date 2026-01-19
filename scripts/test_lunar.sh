@@ -11,7 +11,7 @@ echo "Master Port: $MASTER_PORT"
 # Configuration
 MODEL="Llama-3.2-1B-Instruct"  # Start with smaller model for testing
 FORGET_SPLIT="forget10"
-RETAIN_SPLIT="retain90"
+RETAIN_SPLIT="holdout10"
 HOLDOUT_SPLIT="holdout10"
 TASK_NAME="lunar_test_${MODEL}_${FORGET_SPLIT}"
 MODEL_PATH="open-unlearning/tofu_${MODEL}_full"
@@ -20,7 +20,7 @@ MODEL_PATH="open-unlearning/tofu_${MODEL}_full"
 # Note: These need to be adjusted based on your model architecture
 # For Llama models, typically we modify layers in the middle/end
 # In Hydra, lists can be passed as comma-separated values
-LAYER_IDX_LIST="22"  # Modify layers 7, 8, 9 (comma-separated)
+LAYER_IDX_LIST="7"  # Modify layers 7, 8, 9 (comma-separated)
 COEFF_LIST="2.0"  # Perturbation coefficients for each layer (comma-separated)
 LR=0.001  # Learning rate for training estimated networks
 NUM_EPOCHS=10  # Reduced for testing (increase for better results)

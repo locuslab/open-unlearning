@@ -1,5 +1,5 @@
 defaults:
-  - model: Llama-3.2-3B-Instruct
+  - model: Llama-3.1-8B-Instruct
   - trainer: GradAscent
   - data: unlearn
   - collator: DataCollatorForSupervisedDataset
@@ -14,4 +14,4 @@ trainer:
     remove_unused_columns: False
 
 mode: unlearn
-task_name: ???
+task_name: judy-test-benchmark-unlearn

@@ -1,0 +1,37 @@
+# @package _global_
+# Experiment config for Lunar trainer with forget/retain evaluators
+
+defaults:
+  - override /model: Llama-3.2-1B-Instruct
+  - override /trainer: Lunar
+  - override /data: unlearn
+  - override /data/datasets@data.forget: PISTOL_QA_forget
+  - override /data/datasets@data.retain: PISTOL_QA_retain
+  # Don't override eval - use forget/retain/factual evaluators from pistol_train.yaml
+
+model:
+  model_args:
+    pretrained_model_name_or_path: open-unlearning/tofu_Llama-3.2-1B-Instruct_full
+
+# Allow forget_split to be set from command line (for compatibility with scripts)
+forget_split: forget10  # Default value, can be overridden from command line
+retain_split: retain90  # Default value, can be overridden from command line
+
+trainer:
+  handler: Lunar
+  args:
+    learning_rate: 1e-5
+    weight_decay: 0.01
+    num_train_epochs: 10
+  method_args:
+    layer_idx_list: [7]  # Adjust based on your model
+    lr: 0.001
+    num_epochs: 100
+    batch_size: 64
+    use_harmful: true
+    use_unverified: false
+
+data:
+  anchor: forget
+
+task_name: pistol-lunar

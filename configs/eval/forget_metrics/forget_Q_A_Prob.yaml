@@ -1,0 +1,6 @@
+# @package eval.forget.metrics.forget_Q_A_Prob
+defaults:
+  - ../../collator@collators: DataCollatorForSupervisedDatasetwithIndex
+
+handler: probability
+batch_size: ${eval.forget.batch_size}

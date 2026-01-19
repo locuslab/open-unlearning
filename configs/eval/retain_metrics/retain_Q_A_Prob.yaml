@@ -1,0 +1,6 @@
+# @package eval.retain.metrics.retain_Q_A_Prob
+defaults:
+  - ../../collator@collators: DataCollatorForSupervisedDatasetwithIndex
+
+handler: probability
+batch_size: ${eval.retain.batch_size}

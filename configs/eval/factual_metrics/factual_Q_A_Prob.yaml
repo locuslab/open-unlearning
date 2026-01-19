@@ -1,0 +1,20 @@
+# @package eval.factual.metrics.factual_Q_A_Prob
+defaults:
+  - ../../collator@collators: DataCollatorForSupervisedDatasetwithIndex
+
+handler: probability
+batch_size: ${eval.factual.batch_size}
+
+datasets:
+  FACTUAL_QA:
+    handler: QAEdgeDataset
+    args:
+      # Load all data from factual_data.json (no edge filtering)
+      # You can modify this to filter by edge if needed
+      data_path: /home/judy/code/open-unlearning-dev/saves/dataset/unlearning/factual_data.json
+      format: json
+      edge: null  # Use all data, or specify an edge value like "retain" to filter
+      question_key: ${eval.factual.question_key}
+      answer_key: answer
+      edge_key: edge
+      max_length: 512

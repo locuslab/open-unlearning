@@ -1,0 +1,49 @@
+# @package _global_
+
+defaults:
+  - override /model: Llama-3.2-1B-Instruct
+  - override /trainer: GradAscent
+  - override /data: unlearn
+  - override /data/datasets@data.forget: PISTOL_QA_forget
+  - override /data/datasets@data.retain: PISTOL_QA_retain
+  # Don't override eval - use forget/retain/factual evaluators from pistol_train.yaml
+  # If you want TOFU evaluator instead, uncomment the line below:
+  # - override /eval: tofu
+
+model:
+  model_args:
+    pretrained_model_name_or_path: open-unlearning/tofu_Llama-3.2-1B-Instruct_full
+
+# Allow forget_split and retain_split to be set from command line (for compatibility with scripts)
+forget_split: forget10  # Default value, can be overridden from command line
+retain_split: retain90  # Default value, can be overridden from command line
+
+# TOFU-specific config (only needed if using override /eval: tofu)
+# holdout_split: holdout10
+# retain_logs_path: null
+# question_key: "question"
+
+# eval:
+#   tofu:
+#     forget_split: ${forget_split}
+#     holdout_split: ${holdout_split}
+#     retain_logs_path: ${retain_logs_path}
+#     overwrite: true
+#     question_key: ${question_key}
+    
+data:
+  anchor: forget
+  # Dataset configs are loaded via override /data/datasets@data.forget: PISTOL_QA_forget
+  # and override /data/datasets@data.retain: PISTOL_QA_retain above
+  # No need to define them here as they're already loaded from the dataset config files
+
+trainer:
+  args:
+    warmup_epochs: 1.0 # custom parameter
+    learning_rate: 1e-5
+    weight_decay: 0.01
+    num_train_epochs: 10
+    # save_strategy: steps
+    # save_steps: 0.5
+
+task_name: ???

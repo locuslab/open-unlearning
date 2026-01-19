@@ -1,0 +1,52 @@
+defaults:
+  - _self_
+  - model: Llama-3.1-8B-Instruct
+  - trainer: finetune
+  - data: unlearn  # Add data to defaults so experiment configs can override it
+  - collator: DataCollatorForSupervisedDataset
+  - eval: factual  # Evaluation on factual_data dataset
+  - hydra: default
+  - paths: default
+  - experiment: null
+
+mode: unlearn
+task_name: pistol-train
+
+# Data configuration with JSON format support
+# When format='json' and data_path are provided, datasets will be loaded from JSON file
+# The edge parameter filters the dataset by the 'edge' field (or specified edge_key)
+data:
+  format: json
+  anchor: forget
+  
+  forget:
+    data_path: /home/judy/code/open-unlearning-dev/saves/dataset/unlearning/pistol_sample1.json
+    handler: QAEdgeDataset
+    edge: A_B  # Filter to items with edge='A_B'
+    args:
+      question_key: question
+      answer_key: answer
+      edge_filter: None
+      edge_key: edge  # Name of the field in JSON (not the value!)
+      max_length: 512
+  
+  retain:
+    data_path: /home/judy/code/open-unlearning-dev/saves/dataset/unlearning/pistol_sample1.json
+    handler: QAEdgeDataset
+    args:
+      question_key: question
+      answer_key: answer
+      edge_key: edge  # Name of the field in JSON (not the value!)
+      edge_filter: A_B
+      max_length: 512
+  
+  eval:
+    data_path: /home/judy/code/open-unlearning-dev/saves/dataset/unlearning/factual_data.json
+    handler: QAEdgeDataset
+    edge: retain  # Filter to items with edge='retain'
+    args:
+      question_key: question
+      answer_key: answer
+      edge_key: retain  # Name of the field in JSON (not the value!)
+      edge_filter: None
+      max_length: 512

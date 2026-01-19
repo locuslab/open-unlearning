@@ -44,12 +44,13 @@ def main(cfg: DictConfig):
             model=model,
             tokenizer=tokenizer,
         )
-
+    # import IPython; IPython.embed()
     trainer, trainer_args = load_trainer(
         trainer_cfg=trainer_cfg,
         model=model,
         train_dataset=data.get("train", None),
         eval_dataset=data.get("eval", None),
+        retain_dataset=data.get("retain", None),  # Pass retain dataset separately for trainers that need it
         tokenizer=tokenizer,
         data_collator=collator,
         evaluators=evaluators,

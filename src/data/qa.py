@@ -1,4 +1,5 @@
 import torch
+import json
 from torch.utils.data import Dataset
 
 from data.utils import load_hf_dataset, preprocess_chat_instance, add_dataset_index
@@ -132,3 +133,64 @@ class QAwithAlternateDataset(QADataset):
                 return_item["alternate"] = alt_item
                 # return_item.append([sample_item, idk_item])
         return return_item if self.return_original else return_item["alternate"]
+
+
+class QAEdgeDataset(QADataset):
+    """QA Dataset that loads from JSON file and filters by edge field.
+    
+    This dataset is useful when you have a single JSON file with both forget and retain
+    samples marked by an 'edge' field. It filters the data based on the edge value.
+    """
+    def __init__(
+        self,
+        dataset,
+        template_args,
+        tokenizer,
+        question_key="question",
+        answer_key="answer",
+        few_shot_dataset_hf_args=None,
+        max_length=512,
+        predict_with_generate=False,
+    ):
+        """Initialize QAEdgeDataset.
+        
+        Args:
+            dataset: List of dictionaries from JSON file (already filtered by edge)
+            template_args: Template configuration for chat formatting
+            tokenizer: Tokenizer to use
+            question_key (str): Key for question field in JSON
+            answer_key (str): Key for answer field in JSON
+            few_shot_dataset_hf_args: Optional few-shot dataset args
+            max_length (int): Maximum sequence length
+            predict_with_generate (bool): Whether to prepare for generation
+        """
+        # Initialize parent Dataset class directly (bypassing QADataset.__init__)
+        # since we handle data loading differently
+        Dataset.__init__(self)
+        
+        # Convert list of dicts to HuggingFace dataset format
+        import datasets
+        if isinstance(dataset, list):
+            hf_dataset = datasets.Dataset.from_list(dataset)
+        else:
+            hf_dataset = dataset
+        
+        # Add dataset index
+        self.data = add_dataset_index(hf_dataset)
+        
+        # Set up attributes required by parent class
+        self.tokenizer = tokenizer
+        self.max_length = max_length
+        self.template_args = template_args
+        self.question_key = question_key
+        self.answer_key = answer_key
+        self.predict_with_generate = predict_with_generate
+        
+        # Handle few-shot dataset if provided
+        self.fs_data = None
+        if few_shot_dataset_hf_args is not None:
+            raw_data = load_hf_dataset(**few_shot_dataset_hf_args)
+            self.fs_data = {}
+            self.fs_data[question_key] = raw_data[question_key]
+            self.fs_data[answer_key] = raw_data[answer_key]
+        

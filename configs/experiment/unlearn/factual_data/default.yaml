@@ -1,0 +1,41 @@
+# @package _global_
+# Example configuration for using a JSON file with edge field for forget/retain splitting
+# This uses the QAEdgeDataset handler to load from saves/dataset/unlearning/factual_data.json
+
+defaults:
+  - override /model: Llama-3.2-1B-Instruct
+  - override /trainer: Lunar
+  - override /data: unlearn
+  - override /data/datasets@data.forget: FactualDataEdge_forget
+  - override /data/datasets@data.retain: FactualDataEdge_retain
+
+data:
+  anchor: forget
+  forget:
+    FactualDataEdge_forget:
+      args:
+        json_path: saves/dataset/unlearning/factual_data.json
+        edge_filter: forget
+        question_key: question
+        answer_key: answer
+        edge_key: edge
+        max_length: 512
+  retain:
+    FactualDataEdge_retain:
+      args:
+        json_path: saves/dataset/unlearning/factual_data.json
+        edge_filter: retain
+        question_key: question
+        answer_key: answer
+        edge_key: edge
+        max_length: 512
+
+trainer:
+  args:
+    learning_rate: 1e-5
+    weight_decay: 0.01
+    num_train_epochs: 10
+    per_device_train_batch_size: 4
+    gradient_accumulation_steps: 4
+
+task_name: factual_data_lunar_unlearn

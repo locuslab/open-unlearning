@@ -3,6 +3,7 @@ from omegaconf import DictConfig
 from evals.tofu import TOFUEvaluator
 from evals.muse import MUSEEvaluator
 from evals.lm_eval import LMEvalEvaluator
+from evals.train_eval import TrainDatasetEvaluator
 
 EVALUATOR_REGISTRY: Dict[str, Any] = {}
 
@@ -33,3 +34,5 @@ def get_evaluators(eval_cfgs: DictConfig, **kwargs):
 _register_evaluator(TOFUEvaluator)
 _register_evaluator(MUSEEvaluator)
 _register_evaluator(LMEvalEvaluator)
+_register_evaluator(TrainDatasetEvaluator)
+# _register_evaluator(FactualEvaluator)

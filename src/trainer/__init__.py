@@ -51,6 +51,7 @@ def load_trainer(
     model,
     train_dataset=None,
     eval_dataset=None,
+    retain_dataset=None,
     tokenizer=None,
     data_collator=None,
     evaluators=None,
@@ -67,17 +68,33 @@ def load_trainer(
     assert trainer_cls is not None, NotImplementedError(
         f"{trainer_handler_name} not implemented or not registered"
     )
-    trainer = trainer_cls(
-        model=model,
-        train_dataset=train_dataset,
-        eval_dataset=eval_dataset,
-        tokenizer=tokenizer,
-        data_collator=data_collator,
-        args=trainer_args,
-        evaluators=evaluators,
-        template_args=template_args,
-        **method_args,
-    )
+    # import IPython; IPython.embed()
+    if "Lunar" in trainer_handler_name:
+        trainer = trainer_cls(
+            model=model,
+            train_dataset=train_dataset,
+            eval_dataset=eval_dataset,
+            retain_dataset=retain_dataset,
+            tokenizer=tokenizer,
+            data_collator=data_collator,
+            args=trainer_args,
+            evaluators=evaluators,
+            template_args=template_args,
+            **method_args,
+        )
+    
+    else:
+        trainer = trainer_cls(
+            model=model,
+            train_dataset=train_dataset,
+            eval_dataset=eval_dataset,
+            tokenizer=tokenizer,
+            data_collator=data_collator,
+            args=trainer_args,
+            evaluators=evaluators,
+            template_args=template_args,
+            **method_args,
+        )
     logger.info(
         f"{trainer_handler_name} Trainer loaded, output_dir: {trainer_args.output_dir}"
     )

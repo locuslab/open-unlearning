@@ -1,0 +1,11 @@
+# Configuration for loading PISTOL forget dataset from JSON file with edge field
+
+PISTOL_QA_forget:
+  handler: QAEdgeDataset
+  args:
+    json_path: /home/judy/code/open-unlearning-dev/saves/dataset/unlearning/pistol_sample1.json
+    edge_filter: A_B  # Filter to items with edge='A_B' (or adjust based on your edge values)
+    question_key: question
+    answer_key: answer
+    edge_key: edge
+    max_length: 512

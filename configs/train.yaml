@@ -1,6 +1,6 @@
 defaults:
   - _self_
-  - model: Llama-3.2-3B-Instruct
+  - model: Llama-3.1-8B-Instruct
   - trainer: finetune
   - data: finetune
   - collator: DataCollatorForSupervisedDataset
@@ -10,4 +10,4 @@ defaults:
   - experiment: null
 
 mode: train
-task_name: ???
+task_name: judy-test-benchmark

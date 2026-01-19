@@ -1,0 +1,22 @@
+# Example configuration for loading a JSON file with edge field
+# This allows using a single JSON file where forget/retain is indicated by an 'edge' field
+
+FactualDataEdge_forget:
+  handler: QAEdgeDataset
+  args:
+    json_path: saves/dataset/unlearning/factual_data.json
+    edge_filter: forget
+    question_key: question
+    answer_key: answer
+    edge_key: edge
+    max_length: 512
+
+FactualDataEdge_retain:
+  handler: QAEdgeDataset
+  args:
+    json_path: saves/dataset/unlearning/factual_data.json
+    edge_filter: retain
+    question_key: question
+    answer_key: answer
+    edge_key: edge
+    max_length: 512

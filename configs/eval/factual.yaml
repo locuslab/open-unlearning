@@ -1,0 +1,13 @@
+# @package eval.factual
+# Simple evaluation config for factual_data dataset
+
+defaults:
+  - factual_metrics:
+    - factual_Q_A_Prob
+
+handler: TOFUEvaluator
+output_dir: ${paths.output_dir}
+metrics: {}
+overwrite: false
+batch_size: 32
+question_key: "question"

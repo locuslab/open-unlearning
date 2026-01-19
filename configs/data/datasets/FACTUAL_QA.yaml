@@ -1,0 +1,11 @@
+# Configuration for loading FACTUAL QA dataset from JSON file
+# This dataset is used for evaluation on factual_data.json
+
+FACTUAL_QA:
+  handler: QAEdgeDataset
+  args:
+    # dataset will be loaded from JSON file path in the metric config
+    question_key: question
+    answer_key: answer
+    edge_key: edge
+    max_length: 512
