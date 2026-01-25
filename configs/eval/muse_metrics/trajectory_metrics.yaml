@@ -1,0 +1,18 @@
+# @package eval.muse.metrics.trajectory_metrics
+# Trajectory-based metrics for dLLM evaluation
+# Computes metrics at each diffusion step across three trajectory types
+
+handler: trajectory_metrics
+batch_size: 1  # Start with 1 for testing (trajectory metrics can be memory-intensive)
+metrics:
+  - probability
+  - exact_memorization
+  # - rouge  # Uncomment to test text-based metrics
+trajectory_config:
+  logits_source: sampler  # Use sampler output
+  return_logits: true  # Sampler config: store logits
+  return_fixation_steps: true  # Sampler config: compute fixation steps
+  sampler_kwargs:  # Additional sampler arguments
+    steps: 32  # Reduced for testing (use 128 for full evaluation)
+    temperature: 0.0
+    max_new_tokens: 64  # Reduced for testing
