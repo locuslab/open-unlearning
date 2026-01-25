@@ -53,7 +53,7 @@ def get_model(model_cfg: DictConfig):
         "Model config not found or model_args absent in configs/model."
     )
     model_args = model_cfg.model_args
-    tokenizer_args = model_cfg.tokenizer_args
+    tokenizer_args = model_cfg.get("tokenizer_args", None)
     torch_dtype = get_dtype(model_args)
     model_handler = model_cfg.get("model_handler", "AutoModelForCausalLM")
     model_cls = MODEL_REGISTRY[model_handler]
