@@ -43,6 +43,9 @@ class Evaluator:
     def prepare_model(self, model):
         """Prepare model for evaluation"""
         model.eval()
+        # If model is already wrapped (e.g., DiffusionModelAdapter), it handles eval()
+        if hasattr(model, 'model'):
+            model.model.eval()
         return model
 
     def load_metrics(self, metrics_cfg):

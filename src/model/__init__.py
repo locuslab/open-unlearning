@@ -6,6 +6,16 @@ import torch
 import logging
 from model.probe import ProbedLlamaForCausalLM
 
+# Try to import diffusion adapter from main repo (if available)
+try:
+    from dllm.integrations.open_unlearning_adapter import wrap_model_if_diffusion
+    _DIFFUSION_ADAPTER_AVAILABLE = True
+except ImportError:
+    _DIFFUSION_ADAPTER_AVAILABLE = False
+    def wrap_model_if_diffusion(model, tokenizer, config=None):
+        """Fallback if adapter not available."""
+        return model
+
 hf_home = os.getenv("HF_HOME", default=None)
 
 logger = logging.getLogger(__name__)
@@ -62,6 +72,13 @@ def get_model(model_cfg: DictConfig):
             f"Error {e} while fetching model using {model_handler}.from_pretrained()."
         )
     tokenizer = get_tokenizer(tokenizer_args)
+    
+    # Auto-wrap diffusion models to be compatible with AR-based metrics
+    # (only if adapter is available from main dllm repo)
+    if _DIFFUSION_ADAPTER_AVAILABLE:
+        diffusion_config = model_cfg.get("diffusion_adapter", None)
+        model = wrap_model_if_diffusion(model, tokenizer, config=diffusion_config)
+    
     return model, tokenizer
 
 
