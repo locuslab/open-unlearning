@@ -1,6 +1,7 @@
-# @package eval.muse.metrics.trajectory_metrics
+# @package _global_.eval.metrics.trajectory_metrics
 # Trajectory-based metrics for dLLM evaluation
 # Computes metrics at each diffusion step across three trajectory types
+# Note: Using _global_ to allow this metric to work with any eval config (muse, trajectory_test, etc.)
 
 handler: trajectory_metrics
 batch_size: 1  # Start with 1 for testing (trajectory metrics can be memory-intensive)
