@@ -28,7 +28,6 @@ datasets:
         path: muse-bench/MUSE-News  # Use News as default, can be overridden via CLI
       predict_with_generate: True
 collators:
-  DataCollatorForSupervisedDatasetwithIndex:
-    handler: DataCollatorForSupervisedDatasetwithIndex
+  DataCollatorForSupervisedDataset:
     args:
       padding_side: left  # For generation
