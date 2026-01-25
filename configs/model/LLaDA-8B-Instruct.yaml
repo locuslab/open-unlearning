@@ -1,4 +1,3 @@
-# @package model.LLaDA-8B-Instruct
 model_handler: AutoModelForCausalLM
 model_args:
   pretrained_model_name_or_path: "GSAI-ML/LLaDA-8B-Instruct"
