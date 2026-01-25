@@ -1,0 +1,13 @@
+# @package model.LLaDA-8B-Instruct
+model_handler: AutoModelForCausalLM
+model_args:
+  pretrained_model_name_or_path: "GSAI-ML/LLaDA-8B-Instruct"
+  device_map: cuda
+  trust_remote_code: true
+  attn_implementation: flash_attention_2
+
+tokenizer_args:
+  pretrained_model_name_or_path: "GSAI-ML/LLaDA-8B-Instruct"
+  trust_remote_code: true
+
+template_args: null
