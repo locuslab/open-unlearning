@@ -14,7 +14,7 @@ def main(cfg: DictConfig):
     """
     seed_everything(cfg.seed)
     model_cfg = cfg.model
-    template_args = model_cfg.template_args
+    template_args = model_cfg.get("template_args", None)
     assert model_cfg is not None, "Invalid model yaml passed in train config."
     model, tokenizer = get_model(model_cfg)
 
