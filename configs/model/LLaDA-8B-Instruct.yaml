@@ -4,6 +4,7 @@ model_args:
   device_map: cuda
   trust_remote_code: true
   attn_implementation: flash_attention_2
+  torch_dtype: bfloat16
 
 tokenizer_args:
   pretrained_model_name_or_path: "GSAI-ML/LLaDA-8B-Instruct"
