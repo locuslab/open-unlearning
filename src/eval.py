@@ -19,6 +19,22 @@ def main(cfg: DictConfig):
     model, tokenizer = get_model(model_cfg)
 
     eval_cfgs = cfg.eval
+    # When using eval=trajectory_test, cfg.eval might be the config directly
+    # or a dict. Check if it has 'handler' (direct config) vs keys (dict)
+    from omegaconf import OmegaConf, open_dict
+    if hasattr(eval_cfgs, 'get') and eval_cfgs.get('handler') is not None:
+        # It's a direct config, wrap it in a dict
+        # Try to infer the name from Hydra's override or use a default
+        eval_name = 'trajectory_test'  # Default for our use case
+        # Check if there's a trajectory_test key
+        with open_dict(cfg):
+            if hasattr(cfg.eval, 'trajectory_test'):
+                eval_cfgs = {'trajectory_test': cfg.eval.trajectory_test}
+            else:
+                eval_cfgs = {eval_name: eval_cfgs}
+    elif not hasattr(eval_cfgs, 'items'):
+        # Convert to dict if needed
+        eval_cfgs = OmegaConf.to_container(eval_cfgs, resolve=False) if isinstance(eval_cfgs, DictConfig) else eval_cfgs
     evaluators = get_evaluators(eval_cfgs)
     for evaluator_name, evaluator in evaluators.items():
         eval_args = {
