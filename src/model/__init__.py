@@ -55,16 +55,19 @@ def get_model(model_cfg: DictConfig):
         assert model_args_dict is not None, ValueError("model_args absent in configs/model.")
         tokenizer_args = model_cfg.get("tokenizer_args", None)
         model_handler = model_cfg.get("model_handler", "AutoModelForCausalLM")
-    # Convert to regular dict to ensure proper access
-    model_args = OmegaConf.to_container(model_args_dict, resolve=True) if isinstance(model_args_dict, DictConfig) else model_args_dict
+    # Keep as DictConfig for get_dtype, but extract path first
+    model_args = model_args_dict
+    with open_dict(model_args):
+        model_path = model_args.pop("pretrained_model_name_or_path", None)
     torch_dtype = get_dtype(model_args)
     model_cls = MODEL_REGISTRY[model_handler]
-    model_path = model_args.pop("pretrained_model_name_or_path", None)
+    # Convert to regular dict for **model_args unpacking
+    model_args_dict_final = OmegaConf.to_container(model_args, resolve=True) if isinstance(model_args, DictConfig) else model_args
     try:
         model = model_cls.from_pretrained(
             pretrained_model_name_or_path=model_path,
             torch_dtype=torch_dtype,
-            **model_args,
+            **model_args_dict_final,
             cache_dir=hf_home,
         )
     except Exception as e:
