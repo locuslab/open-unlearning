@@ -20,17 +20,19 @@ def main(cfg: DictConfig):
 
     eval_cfgs = cfg.eval
     # When using eval=trajectory_test, Hydra loads the config and cfg.eval
-    # should be a DictConfig. Convert to container to ensure proper iteration
+    # should be a DictConfig. Handle both dict of configs and single config
     from omegaconf import OmegaConf, open_dict
-    # Convert to regular dict to ensure proper iteration
-    eval_cfgs_dict = OmegaConf.to_container(eval_cfgs, resolve=False) if isinstance(eval_cfgs, DictConfig) else eval_cfgs
-    # If it's a single config dict (has handler), wrap it
-    if isinstance(eval_cfgs_dict, dict) and 'handler' in eval_cfgs_dict and len(eval_cfgs_dict) > 1:
-        # It's a single config, wrap it in a dict with the eval name
-        # Try to get the name from Hydra override or use default
+    # Check if it's a single config (has handler) vs dict of configs
+    with open_dict(eval_cfgs):
+        has_handler = eval_cfgs.get('handler') is not None
+    # If it's a single config, wrap it in a dict
+    if has_handler:
         eval_name = 'trajectory_test'  # Default
-        eval_cfgs_dict = {eval_name: eval_cfgs_dict}
-    evaluators = get_evaluators(eval_cfgs_dict)
+        eval_cfgs = {eval_name: eval_cfgs}
+    # Ensure it's a DictConfig for get_evaluators
+    if not isinstance(eval_cfgs, DictConfig):
+        eval_cfgs = OmegaConf.create(eval_cfgs)
+    evaluators = get_evaluators(eval_cfgs)
     for evaluator_name, evaluator in evaluators.items():
         eval_args = {
             "template_args": template_args,
