@@ -25,7 +25,7 @@ datasets:
   MUSE_forget_knowmem:
     args:
       hf_args:
-        path: muse-bench/MUSE-${eval.muse.data_split}
+        path: muse-bench/MUSE-News  # Use News as default, can be overridden via CLI
       predict_with_generate: True
 collators:
   DataCollatorForSupervisedDatasetwithIndex:
