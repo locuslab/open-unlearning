@@ -58,7 +58,9 @@ def get_model(model_cfg: DictConfig):
     # Keep as DictConfig for get_dtype, but extract path first
     model_args = model_args_dict
     with open_dict(model_args):
-        model_path = model_args.pop("pretrained_model_name_or_path", None)
+        model_path = model_args.get("pretrained_model_name_or_path", None)
+        if model_path is not None:
+            del model_args["pretrained_model_name_or_path"]
     torch_dtype = get_dtype(model_args)
     model_cls = MODEL_REGISTRY[model_handler]
     # Convert to regular dict for **model_args unpacking
