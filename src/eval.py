@@ -20,13 +20,16 @@ def main(cfg: DictConfig):
 
     eval_cfgs = cfg.eval
     # When using eval=trajectory_test, cfg.eval might be the config directly
-    # or a dict. Check if it has 'handler' (direct config) vs keys (dict)
+    # or a dict. Check if it's a single config (has handler) vs dict of configs
     from omegaconf import OmegaConf, open_dict
-    if hasattr(eval_cfgs, 'get') and eval_cfgs.get('handler') is not None:
+    with open_dict(eval_cfgs):
+        has_handler = eval_cfgs.get('handler') is not None
+    # Check if it's a dict with multiple evaluators or a single config
+    if has_handler and not (hasattr(eval_cfgs, 'keys') and len(list(eval_cfgs.keys())) > 1):
         # It's a direct config, wrap it in a dict
         # Try to infer the name from Hydra's override or use a default
         eval_name = 'trajectory_test'  # Default for our use case
-        # Check if there's a trajectory_test key
+        # Check if there's a trajectory_test key in the parent
         with open_dict(cfg):
             if hasattr(cfg.eval, 'trajectory_test'):
                 eval_cfgs = {'trajectory_test': cfg.eval.trajectory_test}
