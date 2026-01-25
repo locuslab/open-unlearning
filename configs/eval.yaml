@@ -8,9 +8,8 @@ defaults:
   - hydra: eval
   - experiment: null
 
-model:
-  model_args:
-    device_map: cuda
+# Note: model.model_args.device_map is set via CLI or model config
+# Do not override model_args here as it replaces the entire dict
 
 mode: eval
 task_name: ???
