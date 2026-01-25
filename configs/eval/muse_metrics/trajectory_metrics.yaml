@@ -29,5 +29,6 @@ datasets:
       predict_with_generate: True
 collators:
   DataCollatorForSupervisedDatasetwithIndex:
+    handler: DataCollatorForSupervisedDatasetwithIndex
     args:
       padding_side: left  # For generation
