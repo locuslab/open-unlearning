@@ -15,6 +15,7 @@ class Evaluator:
         logger.info(
             f"Evaluations stored in the experiment directory: {self.eval_cfg.output_dir}"
         )
+        logger.info(f"Loaded {len(self.metrics)} metrics: {list(self.metrics.keys())}")
 
     def get_logs_file_path(self, output_dir, suffix="EVAL"):
         """Returns the path to json file to store results"""
@@ -84,6 +85,7 @@ class Evaluator:
         logger.info(
             f"Aggregated evaluations will be summarised in: {summary_file_path}"
         )
+        logger.info(f"Evaluating {len(self.metrics)} metrics: {list(self.metrics.keys())}")
         for metric_name, metric_fn in self.metrics.items():
             if not overwrite and metric_name in logs and logs[metric_name]:
                 logger.info(f"Skipping {metric_name}, already evaluated.")
