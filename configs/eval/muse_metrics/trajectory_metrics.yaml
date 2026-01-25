@@ -25,7 +25,7 @@ datasets:
   MUSE_forget_knowmem:
     args:
       hf_args:
-        path: muse-bench/MUSE-${eval.trajectory_test.data_split}
+        path: muse-bench/MUSE-${eval.muse.data_split}
       predict_with_generate: True
 collators:
   DataCollatorForSupervisedDatasetwithIndex:
