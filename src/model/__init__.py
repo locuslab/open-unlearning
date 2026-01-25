@@ -1,5 +1,5 @@
 from transformers import AutoModelForCausalLM, AutoTokenizer
-from omegaconf import DictConfig, open_dict
+from omegaconf import DictConfig, open_dict, OmegaConf
 from typing import Dict, Any
 import os
 import torch
@@ -51,14 +51,15 @@ def get_dtype(model_args):
 def get_model(model_cfg: DictConfig):
     assert model_cfg is not None, ValueError("Model config not found.")
     with open_dict(model_cfg):
-        model_args = model_cfg.get("model_args", None)
-        assert model_args is not None, ValueError("model_args absent in configs/model.")
+        model_args_dict = model_cfg.get("model_args", None)
+        assert model_args_dict is not None, ValueError("model_args absent in configs/model.")
         tokenizer_args = model_cfg.get("tokenizer_args", None)
         model_handler = model_cfg.get("model_handler", "AutoModelForCausalLM")
+    # Convert to regular dict to ensure proper access
+    model_args = OmegaConf.to_container(model_args_dict, resolve=True) if isinstance(model_args_dict, DictConfig) else model_args_dict
     torch_dtype = get_dtype(model_args)
     model_cls = MODEL_REGISTRY[model_handler]
-    with open_dict(model_args):
-        model_path = model_args.pop("pretrained_model_name_or_path", None)
+    model_path = model_args.pop("pretrained_model_name_or_path", None)
     try:
         model = model_cls.from_pretrained(
             pretrained_model_name_or_path=model_path,
