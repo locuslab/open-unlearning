@@ -2,7 +2,6 @@
 # Test configuration for trajectory metrics evaluation
 
 defaults:
-  - model: LLaDA-8B-Instruct
   - muse_metrics:
     - trajectory_metrics
 
