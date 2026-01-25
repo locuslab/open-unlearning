@@ -3,6 +3,10 @@
 # Computes metrics at each diffusion step across three trajectory types
 # Note: Using _global_ to allow this metric to work with any eval config (muse, trajectory_test, etc.)
 
+defaults:
+  - ../../data/datasets@datasets: MUSE_forget_knowmem
+  - ../../collator@collators: DataCollatorForSupervisedDatasetwithIndex
+
 handler: trajectory_metrics
 batch_size: 1  # Start with 1 for testing (trajectory metrics can be memory-intensive)
 metrics:
@@ -17,3 +21,13 @@ trajectory_config:
     steps: 32  # Reduced for testing (use 128 for full evaluation)
     temperature: 0.0
     max_new_tokens: 64  # Reduced for testing
+datasets:
+  MUSE_forget_knowmem:
+    args:
+      hf_args:
+        path: muse-bench/MUSE-${eval.trajectory_test.data_split}
+      predict_with_generate: True
+collators:
+  DataCollatorForSupervisedDatasetwithIndex:
+    args:
+      padding_side: left  # For generation
