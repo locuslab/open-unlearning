@@ -28,7 +28,6 @@ from evals.metrics.trajectory_adapters import (
     compute_logit_metric_at_step,
     compute_text_metric_at_step,
 )
-from evals.metrics import METRICS_REGISTRY
 
 logger = logging.getLogger("evaluator")
 
