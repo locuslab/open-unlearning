@@ -181,3 +181,15 @@ cython_debug/
 .idea/
 
 .vscode/
+
+multirun/
+CLAUDE.md
+slurm-*.out
+job.sh
+profile.prof
+.aim/
+*.lprof
+
+tmp_comm/
+**/*.pkl
+community/benchmarks/wmdp_low_mi/plots/*.pdf

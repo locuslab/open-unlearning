@@ -1,35 +1,8 @@
-from typing import Any, Dict, List, Optional, Tuple, Union
-
-import torch
-from torch import nn
 from copy import deepcopy
-from packaging import version
+
+from accelerate.utils import is_deepspeed_available
+
 from trainer.base import FinetuneTrainer
-
-from transformers.trainer_pt_utils import (
-    nested_detach,
-)
-
-
-from transformers.utils import (
-    is_sagemaker_mp_enabled,
-)
-
-from accelerate.utils import (
-    is_deepspeed_available,
-)
-
-if is_sagemaker_mp_enabled():
-    from smdistributed.modelparallel import __version__ as SMP_VERSION
-
-    IS_SAGEMAKER_MP_POST_1_10 = version.parse(SMP_VERSION) >= version.parse("1.10")
-
-    from transformers.trainer_pt_utils import (
-        smp_forward_only,
-        smp_nested_concat,
-    )
-else:
-    IS_SAGEMAKER_MP_POST_1_10 = False
 
 if is_deepspeed_available():
     import deepspeed
