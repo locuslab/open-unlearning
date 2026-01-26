@@ -9,7 +9,9 @@ class DPO(GradDiff):
         if self.ref_model is None:
             self.ref_model = self._prepare_ref_model(self.model)
 
-    def compute_loss(self, model, inputs, return_outputs=False):
+    def compute_unlearn_loss(
+        self, model, inputs, return_outputs=False, num_items_in_batch=None
+    ):
         forget_inputs = inputs["forget"]["original"]
         alternate_inputs = inputs["forget"]["alternate"]
 

@@ -49,7 +49,7 @@ def main(cfg: DictConfig):
         trainer_cfg=trainer_cfg,
         model=model,
         train_dataset=data.get("train", None),
-        eval_dataset=data.get("eval", None),
+        eval_dataset=data.get("eval", "dummy"), # None would trigger Trainer exception
         tokenizer=tokenizer,
         data_collator=collator,
         evaluators=evaluators,

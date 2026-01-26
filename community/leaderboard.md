@@ -9,7 +9,7 @@ We encourage the community to develop new methods, optimize them for specific be
 To implement a new method, refer to our [contributing guide](../docs/contributing.md).  
 
 > [!NOTE]
-> The [results.md](../docs/results.md) file is maintained for reproducibility purposes. However, we encourage contributors to update the leaderboard table instead of the reproducibility table. We will continue refining and tuning baseline methods to keep the leaderboard up to date.
+> The [results.md](../docs/repro.md) file is maintained for reproducibility purposes. However, we encourage contributors to update the leaderboard table instead of the reproducibility table. We will continue refining and tuning baseline methods to keep the leaderboard up to date.
 
 
 ### TOFU unlearning on the `Llama-2-7b-hf-chat` architecture
