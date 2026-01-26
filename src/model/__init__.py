@@ -50,6 +50,7 @@ def get_dtype(model_args):
 
 def get_model(model_cfg: DictConfig):
     assert model_cfg is not None, ValueError("Model config not found.")
+    logger.info("=== Starting model loading ===")
     with open_dict(model_cfg):
         model_args_dict = model_cfg.get("model_args", None)
         assert model_args_dict is not None, ValueError("model_args absent in configs/model.")
@@ -66,23 +67,38 @@ def get_model(model_cfg: DictConfig):
             model_path = model_args.get("pretrained_model_name_or_path", None)
             if model_path is not None:
                 del model_args["pretrained_model_name_or_path"]
+    logger.info(f"Model path: {model_path}")
+    logger.info(f"Model handler: {model_handler}")
     torch_dtype = get_dtype(model_args)
+    logger.info(f"Torch dtype: {torch_dtype}")
     model_cls = MODEL_REGISTRY[model_handler]
     # Convert to regular dict for **model_args unpacking
     model_args_dict_final = OmegaConf.to_container(model_args, resolve=True) if isinstance(model_args, DictConfig) else model_args
+    logger.info(f"Calling {model_handler}.from_pretrained()...")
+    logger.info(f"Model args: {list(model_args_dict_final.keys())}")
     try:
+        import time
+        start_time = time.time()
+        logger.info("Starting model download/loading (this may take several minutes)...")
         model = model_cls.from_pretrained(
             pretrained_model_name_or_path=model_path,
             torch_dtype=torch_dtype,
             **model_args_dict_final,
             cache_dir=hf_home,
         )
+        elapsed = time.time() - start_time
+        logger.info(f"Model loaded successfully in {elapsed:.2f} seconds")
     except Exception as e:
-        logger.warning(f"Model {model_path} requested with {model_cfg.model_args}")
+        logger.error(f"Model {model_path} requested with {model_cfg.model_args}")
+        logger.error(f"Error details: {type(e).__name__}: {str(e)}")
+        import traceback
+        logger.error(traceback.format_exc())
         raise ValueError(
             f"Error {e} while fetching model using {model_handler}.from_pretrained()."
         )
+    logger.info("Loading tokenizer...")
     tokenizer = get_tokenizer(tokenizer_args)
+    logger.info("Tokenizer loaded successfully")
     
     # Auto-wrap diffusion models to be compatible with AR-based metrics
     # (only if adapter is available from main dllm repo)
