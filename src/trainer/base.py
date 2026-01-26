@@ -52,7 +52,7 @@ class FinetuneTrainer(Trainer):
                     )
                 return eval_metrics
 
-        if eval_dataset is None:
+        if eval_dataset is None or eval_dataset == "dummy":
             return {}
         # Run the default HF Trainer evaluate method when eval dataset is provided
         return super().evaluate(eval_dataset, ignore_keys, metric_key_prefix)
