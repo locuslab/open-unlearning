@@ -79,24 +79,29 @@ def preprocess_chat_instance(
             wrapped_prompt += system_prompt_with_special_tokens
         # add in-context examples
         n_few_shot = len(prompt_msgs) - 1
+        # Use .get() with empty string defaults to handle missing keys
+        user_start_tag = template_config.get("user_start_tag", "")
+        user_end_tag = template_config.get("user_end_tag", "")
+        asst_start_tag = template_config.get("asst_start_tag", "")
+        asst_end_tag = template_config.get("asst_end_tag", "")
         for i in range(n_few_shot):
             fs_prompt, fs_response = prompt_msgs[i], response_msgs[i]
             wrapped_prompt += (
-                template_config["user_start_tag"]
+                user_start_tag
                 + fs_prompt
-                + template_config["user_end_tag"]
-                + template_config["asst_start_tag"]
+                + user_end_tag
+                + asst_start_tag
                 + fs_response
-                + template_config["asst_end_tag"]
+                + asst_end_tag
             )
 
         # add actual example
         final_prompt, final_response = prompt_msgs[-1], response_msgs[-1]
         wrapped_prompt += (
-            template_config["user_start_tag"]
+            user_start_tag
             + final_prompt
-            + template_config["user_end_tag"]
-            + template_config["asst_start_tag"]
+            + user_end_tag
+            + asst_start_tag
         )
         chat_ids = tokenizer(
             wrapped_prompt + final_response,
