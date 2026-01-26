@@ -48,7 +48,9 @@ def preprocess_chat_instance(
         assert isinstance(response_msgs, str)
         prompt_msgs, response_msgs = [prompt_msgs], [response_msgs]
 
-    if template_config["apply_chat_template"]:
+    # Use .get() with default False to handle missing keys (e.g., empty template_args: {})
+    apply_chat_template = template_config.get("apply_chat_template", False)
+    if apply_chat_template:
         chat = []
         system_prompt = template_config.get("system_prompt", None)
         if system_prompt:
