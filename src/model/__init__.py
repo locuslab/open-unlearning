@@ -6,6 +6,15 @@ import torch
 import logging
 from model.probe import ProbedLlamaForCausalLM
 
+# Enable verbose logging for HuggingFace libraries
+os.environ.setdefault("TRANSFORMERS_VERBOSITY", "info")
+os.environ.setdefault("HF_HUB_VERBOSITY", "1")
+os.environ.setdefault("HF_HUB_DISABLE_PROGRESS_BARS", "0")  # Show progress bars
+
+# Set up logging for huggingface_hub
+logging.getLogger("huggingface_hub").setLevel(logging.INFO)
+logging.getLogger("transformers").setLevel(logging.INFO)
+
 # Try to import diffusion adapter from main repo (if available)
 try:
     from dllm.integrations.open_unlearning_adapter import wrap_model_if_diffusion
@@ -76,10 +85,22 @@ def get_model(model_cfg: DictConfig):
     model_args_dict_final = OmegaConf.to_container(model_args, resolve=True) if isinstance(model_args, DictConfig) else model_args
     logger.info(f"Calling {model_handler}.from_pretrained()...")
     logger.info(f"Model args: {list(model_args_dict_final.keys())}")
+    logger.info(f"Cache dir: {hf_home if hf_home else 'default (~/.cache/huggingface)'}")
     try:
         import time
         start_time = time.time()
         logger.info("Starting model download/loading (this may take several minutes)...")
+        logger.info("HuggingFace will download model weights if not cached")
+        
+        # Check cache before loading
+        from pathlib import Path
+        if hf_home:
+            cache_path = Path(hf_home) / "hub" / f"models--{model_path.replace('/', '--')}"
+            if cache_path.exists():
+                logger.info(f"Model cache directory exists: {cache_path}")
+            else:
+                logger.info(f"Model cache directory does not exist, will download")
+        
         model = model_cls.from_pretrained(
             pretrained_model_name_or_path=model_path,
             torch_dtype=torch_dtype,
