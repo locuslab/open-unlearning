@@ -38,7 +38,7 @@ class GradDiff(UnlearnTrainer):
     def __init__(self, gamma, alpha, ...):
         ...
       
-    def compute_loss(self, model, inputs, return_outputs=False):
+    def compute_unlearn_loss(self, model, inputs, return_outputs=False, num_items_in_batch=None):
         ...
 ```
 
