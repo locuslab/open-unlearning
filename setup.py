@@ -17,7 +17,7 @@ setup(
     packages=find_packages(),
     install_requires=requirements,  # Uses requirements.txt
     extras_require={
-       "lm-eval": [
+        "lm-eval": [
             "lm-eval==0.4.11",
         ],  # Install using `pip install ".[lm-eval]"`
         "dev": [
