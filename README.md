@@ -114,7 +114,7 @@ We provide several variants for each of the components in the unlearning pipelin
 # Environment setup
 conda create -n unlearning python=3.11
 conda activate unlearning
-pip install .
+pip install ".[lm_eval]"
 pip install --no-build-isolation flash-attn==2.6.3
 
 # Data setup

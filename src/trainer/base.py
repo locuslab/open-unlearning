@@ -10,15 +10,17 @@ from transformers.trainer_utils import PREFIX_CHECKPOINT_DIR
 
 logger = logging.getLogger(__name__)
 
+# When using custom evaluators without an eval dataset, pass a dummy value
+# to prevent Trainer from raising on eval_dataset=None when eval_strategy is set
+_EVAL_PLACEHOLDER = "_EVAL_PLACEHOLDER"
+
 
 class FinetuneTrainer(Trainer):
     def __init__(self, evaluators=None, template_args=None, *args, **kwargs):
         self.evaluators = evaluators
         self.template_args = template_args
-        # When using custom evaluators without an eval dataset, pass a dummy value
-        # to prevent Trainer from raising on eval_dataset=None when eval_strategy is set
         if kwargs.get("eval_dataset") is None and evaluators:
-            kwargs["eval_dataset"] = "dummy"
+            kwargs["eval_dataset"] = _EVAL_PLACEHOLDER
         super().__init__(*args, **kwargs)
 
     def evaluate(
@@ -52,7 +54,7 @@ class FinetuneTrainer(Trainer):
             self.log(eval_metrics)
             return eval_metrics
 
-        if eval_dataset is None or eval_dataset == "dummy":
+        if eval_dataset is None or eval_dataset == _EVAL_PLACEHOLDER:
             return {}
         # Run the default HF Trainer evaluate method when eval dataset is provided
         return super().evaluate(eval_dataset, ignore_keys, metric_key_prefix)
