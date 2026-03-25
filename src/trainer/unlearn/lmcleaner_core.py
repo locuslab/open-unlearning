@@ -57,6 +57,8 @@ class AuditRecord(dict):
     delta: float = 0.0  # (ε,δ)-certified unlearning 的 δ
     # 历史参数重建
     used_historical_params: bool = False  # 是否实际使用了历史 θ[s]
+    # 效率追踪
+    wall_time_ms: float = 0.0  # 该 forget step 的处理耗时(毫秒)
 
     def __post_init__(self):
         # 使其可以像字典一样使用
@@ -74,6 +76,7 @@ class AuditRecord(dict):
             epsilon=self.epsilon,
             delta=self.delta,
             used_historical_params=self.used_historical_params,
+            wall_time_ms=self.wall_time_ms,
         )
 
 

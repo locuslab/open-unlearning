@@ -26,6 +26,7 @@ LMCleaner Batch-Level Implementation: 批次级在线遗忘
 
 import gc
 import logging
+import time
 from pathlib import Path
 from typing import List, Optional, Any
 
@@ -294,6 +295,7 @@ class LMCleanerBatchLevel(UnlearnTrainer):
 
         for i, tz in enumerate(forget_steps):
             logger.info(f"Processing forget step {i + 1}/{len(forget_steps)}: tz={tz}")
+            _step_start_time = time.perf_counter()
 
             try:
                 # 只加载初始记录 (tz 对应的记录，用于 Phase 1)
@@ -333,11 +335,17 @@ class LMCleanerBatchLevel(UnlearnTrainer):
 
                 # Phase 3: 应用校正
                 apply_correction(v, params)
+
+                # Record wall time for this forget step
+                _step_elapsed_ms = (time.perf_counter() - _step_start_time) * 1000
+                audit.wall_time_ms = _step_elapsed_ms
+                audit["wall_time_ms"] = _step_elapsed_ms
                 self.audit_records.append(audit)
 
                 logger.info(
                     f"Applied correction for step {tz}: "
-                    f"v_norm={audit.v_norm:.6f}, K_used={audit.K_used}, hvp_calls={audit.hvp_calls}"
+                    f"v_norm={audit.v_norm:.6f}, K_used={audit.K_used}, hvp_calls={audit.hvp_calls}, "
+                    f"time={_step_elapsed_ms:.0f}ms"
                     + (f", noise_σ={audit.noise_sigma:.6f}" if audit.noise_injected else "")
                 )
 

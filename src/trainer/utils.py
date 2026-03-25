@@ -218,6 +218,18 @@ class EfficiencyMetrics:
     # I/O metrics
     checkpoint_save_time_seconds: float = 0.0
 
+    # LMCleaner-specific metrics (populated from audit records)
+    lmcleaner_total_hvp_calls: int = 0
+    lmcleaner_num_forget_steps: int = 0
+    lmcleaner_K_configured: int = 0
+    lmcleaner_K_used_mean: float = 0.0
+    lmcleaner_K_used_max: int = 0
+    lmcleaner_correction_norm_mean: float = 0.0
+    lmcleaner_correction_norm_max: float = 0.0
+    lmcleaner_per_forget_step_time_mean_ms: float = 0.0
+    lmcleaner_per_forget_step_time_std_ms: float = 0.0
+    lmcleaner_train_logs_size_gb: float = 0.0
+
     def to_dict(self):
         return asdict(self)
 
@@ -547,6 +559,11 @@ class EfficiencyTracker(TrainerCallback):
             checkpoint_save_time_seconds=checkpoint_time,
         )
 
+        # Populate LMCleaner-specific metrics from audit records
+        trainer = kwargs.get("trainer")
+        if trainer is not None:
+            self._populate_lmcleaner_metrics(metrics, trainer)
+
         # Save metrics
         if self.output_dir:
             metrics.save(self.output_dir / "efficiency_metrics.json")
@@ -601,6 +618,50 @@ class EfficiencyTracker(TrainerCallback):
             checkpoint_time,
             "=" * 50,
         )
+
+
+    def _populate_lmcleaner_metrics(self, metrics: EfficiencyMetrics, trainer):
+        """Populate LMCleaner-specific fields from trainer's audit records."""
+        audit_records = getattr(trainer, "audit_records", None)
+        if not audit_records:
+            return
+
+        hvp_calls = []
+        k_used = []
+        v_norms = []
+        step_times = []
+
+        for rec in audit_records:
+            r = dict(rec) if not isinstance(rec, dict) else rec
+            hvp_calls.append(r.get("hvp_calls", 0))
+            k_used.append(r.get("K_used", 0))
+            v_norms.append(r.get("v_norm", 0.0))
+            if "wall_time_ms" in r:
+                step_times.append(r["wall_time_ms"])
+
+        metrics.lmcleaner_total_hvp_calls = sum(hvp_calls)
+        metrics.lmcleaner_num_forget_steps = len(audit_records)
+        metrics.lmcleaner_K_configured = getattr(trainer, "K", 0)
+
+        if k_used:
+            metrics.lmcleaner_K_used_mean = float(np.mean(k_used))
+            metrics.lmcleaner_K_used_max = int(np.max(k_used))
+        if v_norms:
+            metrics.lmcleaner_correction_norm_mean = float(np.mean(v_norms))
+            metrics.lmcleaner_correction_norm_max = float(np.max(v_norms))
+        if step_times:
+            metrics.lmcleaner_per_forget_step_time_mean_ms = float(np.mean(step_times))
+            metrics.lmcleaner_per_forget_step_time_std_ms = float(np.std(step_times))
+
+        # Measure train_logs directory size
+        train_log_dir = getattr(trainer, "train_log_dir", None)
+        if train_log_dir is None:
+            train_log_dir = getattr(trainer, "log_dir", None)
+        if train_log_dir and Path(train_log_dir).exists():
+            total_bytes = sum(
+                f.stat().st_size for f in Path(train_log_dir).rglob("*") if f.is_file()
+            )
+            metrics.lmcleaner_train_logs_size_gb = total_bytes / (1024**3)
 
 
 def compute_hvp_for_batch(
