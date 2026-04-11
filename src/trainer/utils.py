@@ -74,6 +74,8 @@ def compute_undial_loss(model, ref_model, inputs, beta):
 
     shift_labels = labels[..., 1:].contiguous()
     shift_logits = logits[..., :-1, :].contiguous()
+    valid_token_mask = shift_labels != -100
+    safe_shift_labels = shift_labels.masked_fill(~valid_token_mask, 0)
 
     # Forward pass on the teacher model (no grad)
     with torch.no_grad():
@@ -84,7 +86,9 @@ def compute_undial_loss(model, ref_model, inputs, beta):
     mask = torch.zeros_like(shift_teacher_logits)
     batch_idx = torch.arange(mask.shape[0]).view(-1, 1, 1)
     seq_idx = torch.arange(mask.shape[1]).view(1, -1, 1)
-    mask[batch_idx, seq_idx, shift_labels.unsqueeze(-1)] = 1.0
+    mask[batch_idx, seq_idx, safe_shift_labels.unsqueeze(-1)] = (
+        valid_token_mask.unsqueeze(-1).to(mask.dtype)
+    )
 
     # Adjust teacher logits: subtract di_strength on the correct token
     pre_softmax = shift_teacher_logits - mask * beta
@@ -95,7 +99,8 @@ def compute_undial_loss(model, ref_model, inputs, beta):
         shift_logits.view(-1, shift_logits.size(-1)),
         soft_label.view(-1, soft_label.size(-1)),
     )
-    return loss.mean(), outputs
+    valid_loss = loss[valid_token_mask.view(-1)]
+    return valid_loss.mean(), outputs
 
 def compute_undial_boost2ndBest_loss(model, ref_model, inputs, beta, delta=0.0):
     # Forward pass on the student (trainable) model
@@ -105,6 +110,8 @@ def compute_undial_boost2ndBest_loss(model, ref_model, inputs, beta, delta=0.0):
 
     shift_labels = labels[..., 1:].contiguous()
     shift_logits = logits[..., :-1, :].contiguous()
+    valid_token_mask = shift_labels != -100
+    safe_shift_labels = shift_labels.masked_fill(~valid_token_mask, 0)
 
     # Forward pass on the teacher model (no grad)
     with torch.no_grad():
@@ -116,14 +123,27 @@ def compute_undial_boost2ndBest_loss(model, ref_model, inputs, beta, delta=0.0):
 
     # Build the suppression mask for the ground-truth (forget) tokens
     suppress_mask = torch.zeros_like(shift_teacher_logits)
-    suppress_mask[batch_idx, seq_idx, shift_labels.unsqueeze(-1)] = 1.0
+    suppress_mask[batch_idx, seq_idx, safe_shift_labels.unsqueeze(-1)] = (
+        valid_token_mask.unsqueeze(-1).to(suppress_mask.dtype)
+    )
 
     # Build the boost mask for the 2nd-best token from the teacher
     masked_teacher = shift_teacher_logits.clone()
-    masked_teacher[batch_idx, seq_idx, shift_labels.unsqueeze(-1)] = -float("inf")
+    gt_values = masked_teacher.gather(dim=-1, index=safe_shift_labels.unsqueeze(-1))
+    masked_teacher.scatter_(
+        dim=-1,
+        index=safe_shift_labels.unsqueeze(-1),
+        src=torch.where(
+            valid_token_mask.unsqueeze(-1),
+            torch.full_like(gt_values, -float("inf")),
+            gt_values,
+        ),
+    )
     alt_tokens = masked_teacher.argmax(dim=-1)  # (batch, seq)
     boost_mask = torch.zeros_like(shift_teacher_logits)
-    boost_mask[batch_idx, seq_idx, alt_tokens.unsqueeze(-1)] = 1.0
+    boost_mask[batch_idx, seq_idx, alt_tokens.unsqueeze(-1)] = (
+        valid_token_mask.unsqueeze(-1).to(boost_mask.dtype)
+    )
 
     # Suppress GT token and boost 2nd-best token before computing soft labels
     pre_softmax = shift_teacher_logits - suppress_mask * beta + boost_mask * delta
@@ -134,7 +154,8 @@ def compute_undial_boost2ndBest_loss(model, ref_model, inputs, beta, delta=0.0):
         shift_logits.view(-1, shift_logits.size(-1)),
         soft_label.view(-1, soft_label.size(-1)),
     )
-    return loss.mean(), outputs
+    valid_loss = loss[valid_token_mask.view(-1)]
+    return valid_loss.mean(), outputs
 
 
 def compute_undial_boostTopK_loss(model, ref_model, inputs, beta, k, delta=0.0):
@@ -181,6 +202,8 @@ def compute_undial_probRedistribution_loss(
 
     shift_labels = labels[..., 1:].contiguous()
     shift_logits = logits[..., :-1, :].contiguous()
+    valid_token_mask = shift_labels != -100
+    safe_shift_labels = shift_labels.masked_fill(~valid_token_mask, 0)
 
     # Forward pass on the teacher model (no grad)
     with torch.no_grad():
@@ -196,7 +219,9 @@ def compute_undial_probRedistribution_loss(
     batch_idx = torch.arange(shift_teacher_logits.shape[0]).view(-1, 1, 1)
     seq_idx = torch.arange(shift_teacher_logits.shape[1]).view(1, -1, 1)
     suppress_mask = torch.zeros_like(teacher_probs)
-    suppress_mask[batch_idx, seq_idx, shift_labels.unsqueeze(-1)] = 1.0
+    suppress_mask[batch_idx, seq_idx, safe_shift_labels.unsqueeze(-1)] = (
+        valid_token_mask.unsqueeze(-1).to(suppress_mask.dtype)
+    )
 
     # Heavily suppress (but don't zero) the forget token's mass, then renormalise.
     # suppress_alpha controls the residual mass kept at the forget token (0 = hard zero).
@@ -214,7 +239,8 @@ def compute_undial_probRedistribution_loss(
         shift_logits.view(-1, shift_logits.size(-1)),
         soft_label.view(-1, soft_label.size(-1)),
     )
-    return loss.mean(), outputs
+    valid_loss = loss[valid_token_mask.view(-1)]
+    return valid_loss.mean(), outputs
 
 
 def compute_wga_loss(model, inputs, beta):
