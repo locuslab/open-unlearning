@@ -38,11 +38,17 @@ class T3(UnlearnTrainer):
         self.guidance_kwargs = OmegaConf.to_container(guidance_cfg, resolve=True)
         self.pooling = pooling
         self.pool_temp = pool_temp
-        if self.pool_temp is not None and self.pooling != "attn":
-            raise RuntimeError(f"Attempting to set pool_temp for pooling function {pooling}, but pool_temp is only supported for attn pooling.")
         self.extraction_layer = extraction_layer
-        self.guidance_scale=guidance_scale
-        self.base_temp=base_temp
+        if self.pooling != "mean":
+            raise ValueError("T3 currently supports only pooling='mean'.")
+        if self.pool_temp is not None:
+            raise ValueError("T3 does not currently support pool_temp.")
+        if self.extraction_layer != -1:
+            raise ValueError(
+                "T3 classifier training currently supports only extraction_layer=-1."
+            )
+        self.guidance_scale = guidance_scale
+        self.base_temp = base_temp
         kwargs["model"] = T3CausalLM.from_pretrained_base_obj(
             base_lm,
             guidance_kwargs=self.guidance_kwargs,
@@ -104,18 +110,20 @@ class T3(UnlearnTrainer):
         # classifier_labels = classifier_labels.to(classifier_logits.dtype)
         # return F.binary_cross_entropy_with_logits(classifier_logits, classifier_labels)
 
-        loss_sum = 0.0
-        total_valid = 0
+        loss_sum = torch.tensor(0.0, device=retain_classifier_logits.device)
+        total_valid = torch.tensor(0.0, device=retain_classifier_logits.device)
 
         for logits, labels in (
             (retain_classifier_logits, retain_classifier_labels),
             (forget_classifier_logits, forget_classifier_labels),
         ):
-            valid = labels != -100
+            valid = labels != IGNORE_INDEX
             if valid.any():
                 y = labels[valid].to(logits.dtype)
                 x = logits[valid]
-                loss_sum = loss_sum + F.binary_cross_entropy_with_logits(x, y, reduction="sum")
-                total_valid += valid.sum()
+                loss_sum = loss_sum + F.binary_cross_entropy_with_logits(
+                     x, y, reduction="sum"
+                 )
+                total_valid = total_valid + valid.sum()
 
         return loss_sum / total_valid.clamp_min(1)

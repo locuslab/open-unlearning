@@ -107,7 +107,7 @@ class T3CausalLMOutputWithPast(CausalLMOutputWithPast):
 class T3CausalLMConfig(PretrainedConfig):
     model_type = "t3_causal_lm"
 
-    def __init__(self, guidance_kwargs=None, pooling="last", pool_temp=None, extraction_layer=-1, guidance_scale=1, base_temp=1, **kwargs):
+    def __init__(self, guidance_kwargs=None, pooling="mean", pool_temp=None, extraction_layer=-1, guidance_scale=1, base_temp=1, **kwargs):
         super().__init__(**kwargs)
         self.base_config_dict = kwargs.copy()
         self.guidance = guidance_kwargs or {}
@@ -199,7 +199,7 @@ class T3CausalLM(PreTrainedModel):
         self.lm_loss = nn.CrossEntropyLoss(ignore_index=IGNORE_INDEX)
         logger.info(
             f"Initialized a T3CausalLM model:\n"
-            f"base_lm: {self.base_lm.model.config._name_or_path}\n"
+            f"base_lm: {self.base_lm.config._name_or_path}\n"
             f"pooling: {config.pooling}\n"
             f"pool_temp: {config.pool_temp}\n"
             f"extraction layer: {self.extraction_layer}\n"
@@ -231,8 +231,11 @@ class T3CausalLM(PreTrainedModel):
                 base_temp=base_temp,
                 **base_kwargs
             )
-        except Exception as e:
-            print(f"Failed to load config.json from {pretrained_model_name_or_path} due to error {e}")
+        except Exception:
+            logger.exception(
+                "Failed to load config.json from %s", pretrained_model_name_or_path
+            )
+            raise
 
         try:
             model_path_single = join(pretrained_model_name_or_path,"model.safetensors")
@@ -290,8 +293,10 @@ class T3CausalLM(PreTrainedModel):
         return model
     
     @classmethod
-    def from_pretrained_base(cls, pretrained_model_name_or_path: str, *args, guidance_kwargs=None, pooling="last", pool_temp=None, extraction_layer=-1, guidance_scale=1, base_temp=1, **kwargs):
-        base_lm = super(T3CausalLM, cls).from_pretrained(pretrained_model_name_or_path, *args, **kwargs)
+    def from_pretrained_base(cls, pretrained_model_name_or_path: str, *args, guidance_kwargs=None, pooling="mean", pool_temp=None, extraction_layer=-1, guidance_scale=1, base_temp=1, **kwargs):
+        base_lm = AutoModelForCausalLM.from_pretrained(
+            pretrained_model_name_or_path, *args, **kwargs
+        )
         return cls.from_pretrained_base_obj(
             base_lm=base_lm,
             guidance_kwargs=guidance_kwargs,
@@ -303,7 +308,7 @@ class T3CausalLM(PreTrainedModel):
         )
 
     @classmethod
-    def from_pretrained_base_obj(cls, base_lm, guidance_kwargs=None, pooling="last", pool_temp=None, extraction_layer=-1, guidance_scale=1, base_temp=1):
+    def from_pretrained_base_obj(cls, base_lm, guidance_kwargs=None, pooling="mean", pool_temp=None, extraction_layer=-1, guidance_scale=1, base_temp=1):
         config = T3CausalLMConfig(
             guidance_kwargs=guidance_kwargs,
             pooling=pooling,
