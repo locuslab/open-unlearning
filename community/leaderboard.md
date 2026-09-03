@@ -139,3 +139,69 @@ To implement a new method, refer to our [contributing guide](../docs/contributin
   </tbody>
 </table>
 </div>
+
+
+<br><br>
+
+### TOFU unlearning on the `Llama-3.1-8B-Instruct` architecture
+
+<div style="overflow-x: auto; max-width: 100%;">
+<table class="dataframe">
+  <thead>
+    <tr>
+      <th>Method</th>
+      <th style="text-align: center;" colspan="2" halign="left">forget10</th>
+    </tr>
+    <tr>
+      <th></th>
+      <th>forget_quality</th>
+      <th>model_utility</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>Base Model (No Unlearning)</th>
+      <td>1.0e-25</td>
+      <td>0.64</td>
+    </tr>
+    <tr>
+      <th>Membdel 2026</th>
+      <td>0.032</td>
+      <td>0.639</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<br><br>
+
+### WMDP (Cyber) unlearning on the `Qwen2.5-14B-Instruct` architecture
+
+<div style="overflow-x: auto; max-width: 100%;">
+<table class="dataframe">
+  <thead>
+    <tr>
+      <th>Method</th>
+      <th style="text-align: center;" colspan="2" halign="left">Cyber Split</th>
+    </tr>
+    <tr>
+      <th></th>
+      <th>wmdp_cyber_accuracy</th>
+      <th>model_utility (MMLU)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>Base Model (No Unlearning)</th>
+      <td>0.750</td>
+      <td>0.795</td>
+    </tr>
+    <tr>
+      <th>Membdel 2026</th>
+      <td>0.574</td>
+      <td>0.782</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
