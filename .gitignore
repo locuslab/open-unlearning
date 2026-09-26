@@ -181,3 +181,5 @@ cython_debug/
 .idea/
 
 .vscode/
+# symlink to Google Drive made in Colab; the saves*/ pattern above does not match a symlink
+/saves
