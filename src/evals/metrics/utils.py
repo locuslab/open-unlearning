@@ -84,7 +84,7 @@ def evaluate_probability(model, batch):
     batch = {k: v.to(model.device) for k, v in batch.items()}
     with torch.no_grad():
         output = model(**batch)
-    logits = output.logits
+    logits = output.logits.float()  # bf16 -> float32, as transformers<4.46 did
     labels = batch["labels"]
     shifted_labels = labels[..., 1:].contiguous()
     logits = logits[..., :-1, :].contiguous()
@@ -115,7 +115,7 @@ def tokenwise_logprobs(model, batch, grad=False, return_labels=False):
     with torch.set_grad_enabled(grad):
         output = model(**batch)
 
-    logits = output.logits
+    logits = output.logits.float()  # bf16 -> float32, as transformers<4.46 did
     bsz, seq_len, V = logits.shape
     log_probs = torch.nn.functional.log_softmax(logits, dim=-1)[:, :-1, :]
     # ^ we don't predict next token for last token, bsz x seq_len-1 x V
@@ -158,7 +158,7 @@ def tokenwise_vocab_logprobs(model, batch, grad=False, return_labels=False):
     with torch.set_grad_enabled(grad):
         output = model(**batch)
 
-    logits = output.logits
+    logits = output.logits.float()  # bf16 -> float32, as transformers<4.46 did
     bsz, seq_len, V = logits.shape
     log_probs = torch.nn.functional.log_softmax(logits, dim=-1)[
         :, :-1, :
