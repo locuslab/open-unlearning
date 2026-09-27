@@ -23,7 +23,6 @@ class T3(UnlearnTrainer):
         *args,
         **kwargs,
     ):
-
         # Extract the base model from kwargs before super init, call init using the wrapped model
         if "model" in kwargs:
             base_lm = kwargs.pop("model")
@@ -34,7 +33,7 @@ class T3(UnlearnTrainer):
                 args = args[1:]  # Remove model from args
             else:
                 raise Exception("Couldn't parse model - no model provided")
-        
+
         self.guidance_kwargs = OmegaConf.to_container(guidance_cfg, resolve=True)
         self.pooling = pooling
         self.pool_temp = pool_temp
@@ -56,7 +55,7 @@ class T3(UnlearnTrainer):
             pool_temp=pool_temp,
             extraction_layer=extraction_layer,
             guidance_scale=guidance_scale,
-            base_temp=base_temp
+            base_temp=base_temp,
         )
 
         super().__init__(*args, **kwargs)
@@ -72,16 +71,19 @@ class T3(UnlearnTrainer):
             input_ids=inputs[split]["input_ids"],
             attention_mask=inputs[split]["attention_mask"],
             labels=inputs[split]["labels"],
-            classifier_only=True
+            classifier_only=True,
         )
 
-        shifted_labels = inputs[split]["labels"][:,1:].contiguous()
+        shifted_labels = inputs[split]["labels"][:, 1:].contiguous()
         classifier_labels = torch.full_like(shifted_labels, int(split == "retain"))
-        classifier_labels[shifted_labels == IGNORE_INDEX] = IGNORE_INDEX  #(batch, seq_len-1)
+        # (batch, seq_len-1)
+        classifier_labels[shifted_labels == IGNORE_INDEX] = IGNORE_INDEX
         classifier_logits = outputs.classifier_logits.contiguous()  # (batch, seq_len-1)
         return classifier_logits.flatten(), classifier_labels.flatten()
 
-    def compute_loss(self, model, inputs, return_outputs=False, num_items_in_batch=None):
+    def compute_loss(
+        self, model, inputs, return_outputs=False, num_items_in_batch=None
+    ):
         if return_outputs:
             raise Exception(
                 "\n[compute_loss] Unexpected call with return_outputs=True.\n"
@@ -91,13 +93,12 @@ class T3(UnlearnTrainer):
                 "be triggered during training."
             )
 
-        retain_classifier_logits, retain_classifier_labels = self._prep_classifier_loss_from_tokens(
-            model, inputs, "retain"
+        retain_classifier_logits, retain_classifier_labels = (
+            self._prep_classifier_loss_from_tokens(model, inputs, "retain")
         )
-        forget_classifier_logits, forget_classifier_labels = self._prep_classifier_loss_from_tokens(
-            model, inputs, "forget"
+        forget_classifier_logits, forget_classifier_labels = (
+            self._prep_classifier_loss_from_tokens(model, inputs, "forget")
         )
-
 
         # classifier_logits = torch.cat((retain_classifier_logits,forget_classifier_logits))
         # classifier_labels = torch.cat((retain_classifier_labels,forget_classifier_labels))
@@ -122,8 +123,8 @@ class T3(UnlearnTrainer):
                 y = labels[valid].to(logits.dtype)
                 x = logits[valid]
                 loss_sum = loss_sum + F.binary_cross_entropy_with_logits(
-                     x, y, reduction="sum"
-                 )
+                    x, y, reduction="sum"
+                )
                 total_valid = total_valid + valid.sum()
 
         return loss_sum / total_valid.clamp_min(1)

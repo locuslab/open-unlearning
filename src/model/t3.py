@@ -2,7 +2,15 @@ import logging
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from transformers import PretrainedConfig, AutoConfig, GenerationConfig, AutoModelForCausalLM, PreTrainedModel, CONFIG_MAPPING, MODEL_FOR_CAUSAL_LM_MAPPING
+from transformers import (
+    PretrainedConfig,
+    AutoConfig,
+    GenerationConfig,
+    AutoModelForCausalLM,
+    PreTrainedModel,
+    CONFIG_MAPPING,
+    MODEL_FOR_CAUSAL_LM_MAPPING,
+)
 from transformers.modeling_outputs import CausalLMOutputWithPast
 from os.path import isdir, exists, join
 from dataclasses import dataclass
@@ -15,24 +23,36 @@ from data.utils import IGNORE_INDEX
 
 logger = logging.getLogger("model")
 
+
 class DataSplitClassifier(nn.Module):
-    
     activation_map = {
         "relu": nn.ReLU,
         "gelu": nn.GELU,
         "tanh": nn.Tanh,
-        "id": nn.Identity
+        "id": nn.Identity,
     }
 
-    def __init__(self, input_dim, output_dim, hidden_size=100, num_hidden_layers=1, activation_str="id", bias=False):
+    def __init__(
+        self,
+        input_dim,
+        output_dim,
+        hidden_size=100,
+        num_hidden_layers=1,
+        activation_str="id",
+        bias=False,
+    ):
         super().__init__()
         if activation_str not in DataSplitClassifier.activation_map:
-            raise RuntimeError(f"Activation string {activation_str} not supported. Must be one of {DataSplitClassifier.activation_map.keys()}")
+            raise RuntimeError(
+                f"Activation string {activation_str} not supported. Must be one of {DataSplitClassifier.activation_map.keys()}"
+            )
         self.activation_str = activation_str
         act = self.get_activation_cls()
 
         if num_hidden_layers > 1 and self.activation_str == "id":
-            raise RuntimeError("Trying to set more than 1 hidden layer with identity activation is pointless")
+            raise RuntimeError(
+                "Trying to set more than 1 hidden layer with identity activation is pointless"
+            )
 
         layers = []
         # Down Proj layer
@@ -40,7 +60,7 @@ class DataSplitClassifier(nn.Module):
         layers.append(act())
 
         # Hidden layers
-        for _ in range(num_hidden_layers-1):
+        for _ in range(num_hidden_layers - 1):
             layers.append(nn.Linear(hidden_size, hidden_size, bias=bias))
             layers.append(act())
 
@@ -48,11 +68,12 @@ class DataSplitClassifier(nn.Module):
         layers.append(nn.Linear(hidden_size, output_dim, bias=False))
         self.proj = nn.Sequential(*layers)
 
-        logger.info(f"Initialized classifier head with {num_hidden_layers} hidden layers, hidden size {hidden_size}, and activation of type {self.get_activation_cls()}")
+        logger.info(
+            f"Initialized classifier head with {num_hidden_layers} hidden layers, hidden size {hidden_size}, and activation of type {self.get_activation_cls()}"
+        )
 
     def get_activation_cls(self):
         return DataSplitClassifier.activation_map[self.activation_str]
-    
 
     def forward(self, hidden_states: torch.Tensor) -> torch.Tensor:
         """
@@ -99,15 +120,26 @@ class DataSplitClassifier(nn.Module):
             )
         return selected_logits.view(batch_size, seq_len)
 
+
 @dataclass
 class T3CausalLMOutputWithPast(CausalLMOutputWithPast):
     classifier_logits: Optional[torch.FloatTensor] = None
     base_logits: Optional[torch.FloatTensor] = None
 
+
 class T3CausalLMConfig(PretrainedConfig):
     model_type = "t3_causal_lm"
 
-    def __init__(self, guidance_kwargs=None, pooling="mean", pool_temp=None, extraction_layer=-1, guidance_scale=1, base_temp=1, **kwargs):
+    def __init__(
+        self,
+        guidance_kwargs=None,
+        pooling="mean",
+        pool_temp=None,
+        extraction_layer=-1,
+        guidance_scale=1,
+        base_temp=1,
+        **kwargs,
+    ):
         super().__init__(**kwargs)
         self.base_config_dict = kwargs.copy()
         self.guidance = guidance_kwargs or {}
@@ -125,11 +157,16 @@ class T3CausalLMConfig(PretrainedConfig):
 
 def _mean_pool(hidden_states, attention_mask=None):
     if attention_mask is None:
-        _, seq_len, _ = hidden_states.shape # batch x seq_len x hidden_size
-        return hidden_states.cumsum(dim=1) / torch.arange(1,seq_len+1, device=hidden_states.device).view(1,-1,1)
-    mask = attention_mask.to(device=hidden_states.device, dtype=hidden_states.dtype).unsqueeze(-1)
+        _, seq_len, _ = hidden_states.shape  # batch x seq_len x hidden_size
+        return hidden_states.cumsum(dim=1) / torch.arange(
+            1, seq_len + 1, device=hidden_states.device
+        ).view(1, -1, 1)
+    mask = attention_mask.to(
+        device=hidden_states.device, dtype=hidden_states.dtype
+    ).unsqueeze(-1)
     token_counts = mask.cumsum(dim=1).clamp_min(1)
     return (hidden_states * mask).cumsum(dim=1) / token_counts
+
 
 class T3CausalLM(PreTrainedModel):
     """
@@ -155,11 +192,13 @@ class T3CausalLM(PreTrainedModel):
             self.base_lm = base_lm
 
         if not hasattr(self.base_lm, "generation_config"):
-            logger.warning("Could not find base model generation config, resorting to default")
+            logger.warning(
+                "Could not find base model generation config, resorting to default"
+            )
             self.base_lm.generation_config = GenerationConfig()
-        
+
         self.generation_config = self.base_lm.generation_config
-        
+
         # Freeze base model and set to eval
         self.base_lm.eval()
         for p in self.base_lm.parameters():
@@ -173,15 +212,17 @@ class T3CausalLM(PreTrainedModel):
         self.guidance_head = DataSplitClassifier(
             input_dim=self.config.hidden_size,
             output_dim=self.config.vocab_size,
-            **classifier_args
+            **classifier_args,
         ).to(device=base_device, dtype=base_dtype)
 
-        assert config.pooling in T3CausalLM.pooling_fn_dict.keys(), f"Pooling function string {config.pooling} not recognized"
+        assert (
+            config.pooling in T3CausalLM.pooling_fn_dict.keys()
+        ), f"Pooling function string {config.pooling} not recognized"
         self.pooling_fn = T3CausalLM.pooling_fn_dict[config.pooling]
         self.pooling_fn_name = config.pooling
         self.pool_temp = config.pool_temp
 
-        self.base_lm.config.output_hidden_states=True
+        self.base_lm.config.output_hidden_states = True
         self.base_lm.config.output_attentions = self.pooling_fn_name == "attn"
 
         self.extraction_layer = config.extraction_layer
@@ -189,11 +230,13 @@ class T3CausalLM(PreTrainedModel):
         self.base_temp = config.base_temp
 
         # Set attn support
-        base_lm_attn_implementation = self.base_lm.__class__._autoset_attn_implementation(
-            self.base_lm.config,
-            torch_dtype=self.base_lm.config.torch_dtype,
-            device_map=None
-        )._attn_implementation
+        base_lm_attn_implementation = (
+            self.base_lm.__class__._autoset_attn_implementation(
+                self.base_lm.config,
+                torch_dtype=self.base_lm.config.torch_dtype,
+                device_map=None,
+            )._attn_implementation
+        )
         self.config.attn_implementation = base_lm_attn_implementation
 
         self.lm_loss = nn.CrossEntropyLoss(ignore_index=IGNORE_INDEX)
@@ -207,10 +250,12 @@ class T3CausalLM(PreTrainedModel):
 
     @classmethod
     def from_pretrained(cls, pretrained_model_name_or_path: str, *args, **kwargs):
-        assert isdir(pretrained_model_name_or_path), "Tried to load T3CausalLM but did not pass a valid path to saved model"
-        
+        assert isdir(
+            pretrained_model_name_or_path
+        ), "Tried to load T3CausalLM but did not pass a valid path to saved model"
+
         try:
-            config_path = join(pretrained_model_name_or_path,"config.json")
+            config_path = join(pretrained_model_name_or_path, "config.json")
             logger.info(f"Found saved config at {config_path}")
             with open(config_path, "r") as f:
                 config_dict = json.load(f)
@@ -229,7 +274,7 @@ class T3CausalLM(PreTrainedModel):
                 extraction_layer=extraction_layer,
                 guidance_scale=guidance_scale,
                 base_temp=base_temp,
-                **base_kwargs
+                **base_kwargs,
             )
         except Exception:
             logger.exception(
@@ -238,14 +283,18 @@ class T3CausalLM(PreTrainedModel):
             raise
 
         try:
-            model_path_single = join(pretrained_model_name_or_path,"model.safetensors")
+            model_path_single = join(pretrained_model_name_or_path, "model.safetensors")
             if exists(model_path_single):
                 logger.info(f"Loading model from single file {model_path_single}")
                 state_dict = load_file(model_path_single)
             else:
-                logger.info(f"Couldn't find single model.safetensors file at path {pretrained_model_name_or_path}. Attempting to look for sharded files.")
+                logger.info(
+                    f"Couldn't find single model.safetensors file at path {pretrained_model_name_or_path}. Attempting to look for sharded files."
+                )
                 state_dict = defaultdict(dict)
-                index_file = join(pretrained_model_name_or_path, "model.safetensors.index.json")
+                index_file = join(
+                    pretrained_model_name_or_path, "model.safetensors.index.json"
+                )
                 if exists(index_file):
                     with open(index_file, "r") as f:
                         index = json.load(f)
@@ -254,23 +303,31 @@ class T3CausalLM(PreTrainedModel):
                         with safe_open(shard_path, framework="pt", device="cpu") as f:
                             state_dict[key] = f.get_tensor(key)
                 else:
-                    raise FileNotFoundError(f"No safetensors file found in {pretrained_model_name_or_path}")
+                    raise FileNotFoundError(
+                        f"No safetensors file found in {pretrained_model_name_or_path}"
+                    )
 
         except Exception as e:
-            logger.error(f"Failed to load safetensors, trying pytorch bin files. Error {e}")
-            state_dict = torch.load(join(pretrained_model_name_or_path,"pytorch_model.bin"), map_location="cpu")
-        
+            logger.error(
+                f"Failed to load safetensors, trying pytorch bin files. Error {e}"
+            )
+            state_dict = torch.load(
+                join(pretrained_model_name_or_path, "pytorch_model.bin"),
+                map_location="cpu",
+            )
+
         base_config = config.to_base()
         kwargs.pop("config", None)
 
         base_lm = AutoModelForCausalLM.from_pretrained(
-            base_config._name_or_path,
-            *args,
-            config=base_config,
-            **kwargs
+            base_config._name_or_path, *args, config=base_config, **kwargs
         )
 
-        base_lm_state_dict = {k.replace("base_lm.", ""): v for k,v in state_dict.items() if k.startswith("base_lm.")}
+        base_lm_state_dict = {
+            k.replace("base_lm.", ""): v
+            for k, v in state_dict.items()
+            if k.startswith("base_lm.")
+        }
         incomp = base_lm.load_state_dict(base_lm_state_dict, strict=False)
         if incomp.missing_keys or incomp.unexpected_keys:
             logger.warning(
@@ -281,19 +338,36 @@ class T3CausalLM(PreTrainedModel):
 
             for missing_key in incomp.missing_keys:
                 missing_weight = base_lm.state_dict()[missing_key]
-                for n,p in base_lm.named_parameters():
+                for n, p in base_lm.named_parameters():
                     if n != missing_key and p.data_ptr() == missing_weight.data_ptr():
-                        logger.info(f"Missing key {missing_key} is tied to {n}. If {n} is loaded this will be fixed by tie_weights().")
+                        logger.info(
+                            f"Missing key {missing_key} is tied to {n}. If {n} is loaded this will be fixed by tie_weights()."
+                        )
 
         base_lm.tie_weights()
 
         model = cls(config, base_lm=base_lm)
-        guidance_state_dict = {k.replace("guidance_head.", ""): v for k,v in state_dict.items() if k.startswith("guidance_head.")}
+        guidance_state_dict = {
+            k.replace("guidance_head.", ""): v
+            for k, v in state_dict.items()
+            if k.startswith("guidance_head.")
+        }
         model.guidance_head.load_state_dict(guidance_state_dict)
         return model
-    
+
     @classmethod
-    def from_pretrained_base(cls, pretrained_model_name_or_path: str, *args, guidance_kwargs=None, pooling="mean", pool_temp=None, extraction_layer=-1, guidance_scale=1, base_temp=1, **kwargs):
+    def from_pretrained_base(
+        cls,
+        pretrained_model_name_or_path: str,
+        *args,
+        guidance_kwargs=None,
+        pooling="mean",
+        pool_temp=None,
+        extraction_layer=-1,
+        guidance_scale=1,
+        base_temp=1,
+        **kwargs,
+    ):
         base_lm = AutoModelForCausalLM.from_pretrained(
             pretrained_model_name_or_path, *args, **kwargs
         )
@@ -304,11 +378,20 @@ class T3CausalLM(PreTrainedModel):
             pool_temp=pool_temp,
             extraction_layer=extraction_layer,
             guidance_scale=guidance_scale,
-            base_temp=base_temp
+            base_temp=base_temp,
         )
 
     @classmethod
-    def from_pretrained_base_obj(cls, base_lm, guidance_kwargs=None, pooling="mean", pool_temp=None, extraction_layer=-1, guidance_scale=1, base_temp=1):
+    def from_pretrained_base_obj(
+        cls,
+        base_lm,
+        guidance_kwargs=None,
+        pooling="mean",
+        pool_temp=None,
+        extraction_layer=-1,
+        guidance_scale=1,
+        base_temp=1,
+    ):
         config = T3CausalLMConfig(
             guidance_kwargs=guidance_kwargs,
             pooling=pooling,
@@ -316,7 +399,8 @@ class T3CausalLM(PreTrainedModel):
             extraction_layer=extraction_layer,
             guidance_scale=guidance_scale,
             base_temp=base_temp,
-            **base_lm.config.to_dict())
+            **base_lm.config.to_dict(),
+        )
         return cls(config, base_lm=base_lm)
 
     def can_generate(self):
@@ -354,7 +438,9 @@ class T3CausalLM(PreTrainedModel):
 
         num_beams = get_gen_param("num_beams", default=1)
         if num_beams not in (None, 1):
-            raise NotImplementedError("T3 custom generation does not support beam search.")
+            raise NotImplementedError(
+                "T3 custom generation does not support beam search."
+            )
 
         num_return_sequences = get_gen_param("num_return_sequences", default=1)
         if num_return_sequences not in (None, 1):
@@ -369,7 +455,9 @@ class T3CausalLM(PreTrainedModel):
 
         max_new_tokens = get_gen_param("max_new_tokens", default=None)
         if max_new_tokens is None:
-            raise ValueError("max_new_tokens must be specified for T3 custom generation.")
+            raise ValueError(
+                "max_new_tokens must be specified for T3 custom generation."
+            )
 
         use_cache = get_gen_param("use_cache", default=True)
         attention_mask = get_gen_param("attention_mask", default=None)
@@ -381,14 +469,22 @@ class T3CausalLM(PreTrainedModel):
         eos_token_id = get_gen_param("eos_token_id", default=None)
         if eos_token_id is not None:
             if torch.is_tensor(eos_token_id):
-                eos_token_id = eos_token_id.to(device=input_ids.device, dtype=torch.long).flatten()
+                eos_token_id = eos_token_id.to(
+                    device=input_ids.device, dtype=torch.long
+                ).flatten()
             elif isinstance(eos_token_id, (list, tuple)):
-                eos_token_id = torch.tensor(eos_token_id, dtype=torch.long, device=input_ids.device).flatten()
+                eos_token_id = torch.tensor(
+                    eos_token_id, dtype=torch.long, device=input_ids.device
+                ).flatten()
             else:
-                eos_token_id = torch.tensor([eos_token_id], dtype=torch.long, device=input_ids.device)
+                eos_token_id = torch.tensor(
+                    [eos_token_id], dtype=torch.long, device=input_ids.device
+                )
         pad_token_id = get_gen_param("pad_token_id", default=None)
         if pad_token_id is None:
-            pad_token_id = int(eos_token_id[0].item()) if eos_token_id is not None else 0
+            pad_token_id = (
+                int(eos_token_id[0].item()) if eos_token_id is not None else 0
+            )
         if torch.is_tensor(pad_token_id):
             pad_token_id = int(pad_token_id.flatten()[0].item())
 
@@ -588,25 +684,32 @@ class T3CausalLM(PreTrainedModel):
         base_logits: (batch, seq_len, vocab)
         classifier_logits: (batch, seq_len, vocab)
         """
-        
-        base_log_probs = F.log_softmax(base_logits, dim=2) # batch x seq_len x vocab
-        
+
+        base_log_probs = F.log_softmax(base_logits, dim=2)  # batch x seq_len x vocab
+
         # Consider clipping this for stability
         classifier_log_probs = F.logsigmoid(classifier_logits)
 
-        return base_log_probs/self.base_temp + self.guidance_scale*classifier_log_probs
+        return (
+            base_log_probs / self.base_temp + self.guidance_scale * classifier_log_probs
+        )
 
-    def forward(self, input_ids=None, attention_mask=None, classifier_only=False, **kwargs):
-
+    def forward(
+        self, input_ids=None, attention_mask=None, classifier_only=False, **kwargs
+    ):
         if classifier_only:
             labels = kwargs.pop("labels", None)
             if labels is None:
                 raise ValueError("labels must be passed when classifier_only=True")
             if not hasattr(self.base_lm, "get_decoder"):
-                raise NotImplementedError("classifier_only mode not implemented for base models without a get_decoder() method")
-            
+                raise NotImplementedError(
+                    "classifier_only mode not implemented for base models without a get_decoder() method"
+                )
+
             if self.extraction_layer != -1:
-                raise NotImplementedError("classifier_only mode with extraction_layer != -1 not implemented, as it would require replicating part of the base LM forward pass. Set extraction_layer to -1 to use the final hidden states for classification.")
+                raise NotImplementedError(
+                    "classifier_only mode with extraction_layer != -1 not implemented, as it would require replicating part of the base LM forward pass. Set extraction_layer to -1 to use the final hidden states for classification."
+                )
 
             decoder = self.base_lm.get_decoder()
             with torch.no_grad():
@@ -616,45 +719,55 @@ class T3CausalLM(PreTrainedModel):
                     output_hidden_states=False,
                     output_attentions=False,
                     use_cache=False,
-                    return_dict=True
-            )
-            extracted_states = dec_out.last_hidden_state  # (batch, seq_len, hidden_size)
+                    return_dict=True,
+                )
+            # (batch, seq_len, hidden_size)
+            extracted_states = dec_out.last_hidden_state
             pooled_states = self.pooling_fn(extracted_states, attention_mask)
             shifted_labels = labels[:, 1:].contiguous()
             # Assign token 0 to IGNORE_INDEX positions to avoid out of bounds error
-            safe_shifted_labels = shifted_labels.masked_fill(shifted_labels == IGNORE_INDEX, 0)
+            safe_shifted_labels = shifted_labels.masked_fill(
+                shifted_labels == IGNORE_INDEX, 0
+            )
+            # (batch, seq_len-1)
             classifier_logits = self.guidance_head.target_token_logits(
                 pooled_states[:, :-1, :].contiguous(),
                 safe_shifted_labels,
-            )  # (batch, seq_len-1)
+            )
             return T3CausalLMOutputWithPast(classifier_logits=classifier_logits)
 
         else:
             _ = kwargs.pop("labels", None)
             kwargs["output_hidden_states"] = True
             kwargs["output_attentions"] = False
-            base_outputs = self.base_lm(input_ids=input_ids, attention_mask=attention_mask, **kwargs)
+            base_outputs = self.base_lm(
+                input_ids=input_ids, attention_mask=attention_mask, **kwargs
+            )
 
             # Adjust logits using the classifier guidance
-            extracted_states = base_outputs.hidden_states[self.extraction_layer]  # (batch, seq_len, hidden_size)
+            # (batch, seq_len, hidden_size)
+            extracted_states = base_outputs.hidden_states[self.extraction_layer]
             pooled_states = self.pooling_fn(extracted_states, attention_mask)
 
-            classifier_logits = self.guidance_head(pooled_states)  # (batch, seq_len, vocab)
-            
+            # (batch, seq_len, vocab)
+            classifier_logits = self.guidance_head(pooled_states)
+
             with torch.no_grad():
-                guided_logits = self._guide_logits(base_outputs.logits, classifier_logits)
+                guided_logits = self._guide_logits(
+                    base_outputs.logits, classifier_logits
+                )
 
             outputs = T3CausalLMOutputWithPast(
                 loss=None,
                 logits=guided_logits,
-                past_key_values = base_outputs.past_key_values,
-                hidden_states = base_outputs.hidden_states,
-                attentions = base_outputs.attentions,
-                base_logits = base_outputs.logits,
-                classifier_logits = classifier_logits
+                past_key_values=base_outputs.past_key_values,
+                hidden_states=base_outputs.hidden_states,
+                attentions=base_outputs.attentions,
+                base_logits=base_outputs.logits,
+                classifier_logits=classifier_logits,
             )
             return outputs
-    
+
     def train(self, mode: bool = True):
         super().train(mode)
         self.guidance_head.train(mode)
