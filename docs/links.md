@@ -38,6 +38,7 @@ Links to research papers and resources corresponding to implemented features in 
 | WGA (G-effect)       | Paper[📄](https://arxiv.org/pdf/2502.19301), Code [🐙](https://github.com/tmlr-group/G-effect)                                                                                                     |
 | CE-U (Cross-Entropy unlearning)       | Paper[📄](https://arxiv.org/pdf/2503.01224)                                                                                                     |
 | PDU                  | Paper [📄](https://arxiv.org/abs/2506.05314) |
+| T3-Unlearning               | Paper[📄](https://arxiv.org/abs/2602.10217), Code [🐙](https://github.com/jacob-block/T3-Unlearning)                                                                                     |
 
 
 ---
