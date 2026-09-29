@@ -1,0 +1,21 @@
+# Hydra's *own* framework logs (the hydra_logging group), routed through Rich.
+# Pairs with configs/hydra/job_logging/rich.yaml (your application logs).
+# Requires: pip install rich
+version: 1
+formatters:
+  rich:
+    (): log_utils.RichNameFormatter
+    name_style: "dim cyan"   # dim, to visually separate Hydra's own logs from job logs
+handlers:
+  rich:
+    class: rich.logging.RichHandler
+    formatter: rich
+    rich_tracebacks: true
+    show_time: true
+    show_level: true
+    show_path: false
+    markup: true
+root:
+  level: INFO
+  handlers: [rich]
+disable_existing_loggers: false

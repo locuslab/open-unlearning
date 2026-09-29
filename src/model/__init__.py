@@ -1,12 +1,9 @@
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from omegaconf import DictConfig, open_dict
 from typing import Dict, Any
-import os
 import torch
 import logging
 from model.probe import ProbedLlamaForCausalLM
-
-hf_home = os.getenv("HF_HOME", default=None)
 
 logger = logging.getLogger(__name__)
 
@@ -50,19 +47,64 @@ def get_model(model_cfg: DictConfig):
     with open_dict(model_args):
         model_path = model_args.pop("pretrained_model_name_or_path", None)
     try:
+        # Note: we deliberately do NOT pass cache_dir here. Transformers resolves
+        # the cache from the HF_HOME / HF_HUB_CACHE env vars automatically, placing
+        # models under $HF_HOME/hub (the HF convention). Passing cache_dir=$HF_HOME
+        # would instead drop models directly under $HF_HOME (no /hub subdir) and
+        # diverge from where `datasets` caches data.
         model = model_cls.from_pretrained(
             pretrained_model_name_or_path=model_path,
-            torch_dtype=torch_dtype,
+            dtype=torch_dtype,  # transformers>=4.56 renamed `torch_dtype` -> `dtype`
             **model_args,
-            cache_dir=hf_home,
         )
     except Exception as e:
         logger.warning(f"Model {model_path} requested with {model_cfg.model_args}")
         raise ValueError(
             f"Error {e} while fetching model using {model_handler}.from_pretrained()."
         )
+    # Optional: wrap the loaded base model with a PEFT/LoRA adapter.
+    # This is additive and only triggers when a `peft_args` block is present in
+    # the model config, so existing (non-LoRA) configs are unaffected.
+    peft_args = model_cfg.get("peft_args", None)
+    if peft_args is not None:
+        model = get_peft_lora_model(model, peft_args)
+
     tokenizer = get_tokenizer(tokenizer_args)
     return model, tokenizer
+
+
+def get_peft_lora_model(model, peft_args: DictConfig):
+    """Wrap a base causal LM with a LoRA adapter using the `peft` library.
+
+    Args:
+        model: a freshly loaded base model (e.g. AutoModelForCausalLM).
+        peft_args (DictConfig): LoRA hyper-parameters. Recognised keys mirror
+            `peft.LoraConfig` (r, lora_alpha, lora_dropout, target_modules,
+            bias, task_type, ...). An optional `path` key can point to an
+            existing adapter checkpoint to resume/evaluate instead of creating
+            a fresh adapter.
+    """
+    try:
+        from peft import LoraConfig, get_peft_model, PeftModel
+    except ImportError as e:
+        raise ImportError(
+            "LoRA finetuning requires the `peft` library. Install it with "
+            "`pip install peft`."
+        ) from e
+
+    with open_dict(peft_args):
+        adapter_path = peft_args.pop("path", None)
+
+    if adapter_path is not None:
+        # Load a previously trained LoRA adapter on top of the base model.
+        model = PeftModel.from_pretrained(model, adapter_path, is_trainable=True)
+        logger.info(f"Loaded existing LoRA adapter from {adapter_path}")
+    else:
+        lora_config = LoraConfig(**peft_args)
+        model = get_peft_model(model, lora_config)
+        logger.info("Created a new LoRA adapter on top of the base model.")
+    model.print_trainable_parameters()
+    return model
 
 
 def _add_or_replace_eos_token(tokenizer, eos_token: str) -> None:
@@ -80,7 +122,7 @@ def _add_or_replace_eos_token(tokenizer, eos_token: str) -> None:
 
 def get_tokenizer(tokenizer_cfg: DictConfig):
     try:
-        tokenizer = AutoTokenizer.from_pretrained(**tokenizer_cfg, cache_dir=hf_home)
+        tokenizer = AutoTokenizer.from_pretrained(**tokenizer_cfg)
     except Exception as e:
         error_message = (
             f"{'--' * 40}\n"

@@ -8,7 +8,8 @@ args:
   bf16_full_eval: True
   logging_steps: 5
   output_dir: ${paths.output_dir}
-  logging_dir: ${trainer.args.output_dir}/logs
+  # logging_dir removed: deprecated in transformers (removed in v5.2). TensorBoard
+  # logs now default under ${output_dir}/runs. Set env TENSORBOARD_LOGGING_DIR to override.
   report_to: tensorboard
   ddp_find_unused_parameters: None
   gradient_checkpointing: False

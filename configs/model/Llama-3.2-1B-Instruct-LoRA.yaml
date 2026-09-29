@@ -1,9 +1,29 @@
+# LoRA variant of Llama-3.2-1B-Instruct.
+# Identical to the base model config, but adds a `peft_args` block which
+# `src/model/__init__.py:get_model` uses to wrap the base model with a LoRA
+# adapter (via the `peft` library). Remove/omit `peft_args` to train full weights.
 model_args:
   pretrained_model_name_or_path: "unsloth/Llama-3.2-1B-Instruct"
   attn_implementation: 'flash_attention_2'
   torch_dtype: bfloat16
 tokenizer_args:
   pretrained_model_name_or_path: "unsloth/Llama-3.2-1B-Instruct"
+peft_args:
+  # mirrors peft.LoraConfig
+  r: 8
+  lora_alpha: 32
+  lora_dropout: 0.05
+  bias: none
+  task_type: CAUSAL_LM
+  target_modules:
+    - q_proj
+    - k_proj
+    - v_proj
+    - o_proj
+    - gate_proj
+    - up_proj
+    - down_proj
+  # path: null  # set to an existing adapter dir to resume / evaluate a LoRA checkpoint
 template_args:
   apply_chat_template: True
   system_prompt: You are a helpful assistant.

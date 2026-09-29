@@ -87,7 +87,7 @@ def mia_reference(model, **kwargs):
     logger.info(f"Loading reference model from {kwargs['reference_model_path']}")
     reference_model = AutoModelForCausalLM.from_pretrained(
         kwargs["reference_model_path"],
-        torch_dtype=model.dtype,
+        dtype=model.dtype,  # transformers>=4.56 renamed `torch_dtype` -> `dtype`
         device_map={"": model.device},
     )
     return mia_auc(
