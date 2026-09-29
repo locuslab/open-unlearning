@@ -63,6 +63,7 @@ Links to research papers and resources corresponding to implemented features in 
 | Extraction Strength (ES)                                                     | Carlini et al., 2021 ([📄](https://www.usenix.org/conference/usenixsecurity21/presentation/carlini-extracting)), used for unlearning in Wang et al., 2025 ([📄](https://openreview.net/pdf?id=wUtCieKuQU))                                    |
 | Exact Memorization (EM)                                                      | Tirumala et al., 2022 ([📄](https://proceedings.neurips.cc/paper_files/paper/2022/hash/fa0509f4dab6807e2cb465715bf2d249-Abstract-Conference.html)), used for unlearning in Wang et al., 2025 ([📄](https://openreview.net/pdf?id=wUtCieKuQU)) |
 | lm-evaluation-harness                                                        | Repository: [💻](https://github.com/EleutherAI/lm-evaluation-harness/tree/main)                                                                                                                                                                        |
+| Unlearning Depth Score (UDS)                                                 | Project Page[🌐](https://gnueaj.github.io/unlearning-depth-score/), Paper[📄](https://arxiv.org/abs/2605.24614), Code [🐙](https://github.com/gnueaj/unlearning-depth-score)                                                                          |
 
 ---
 
