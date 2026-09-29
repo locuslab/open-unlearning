@@ -115,7 +115,9 @@ We provide several variants for each of the components in the unlearning pipelin
 conda create -n unlearning python=3.11
 conda activate unlearning
 pip install ".[lm-eval]"
-pip install --no-build-isolation flash-attn==2.6.3
+pip install --no-build-isolation flash-attn==2.8.3
+# Or to avoid building flash-attn:
+pip install "https://github.com/mjun0812/flash-attention-prebuild-wheels/releases/download/v0.7.16/flash_attn-2.8.3+cu128torch2.9-cp311-cp311-linux_x86_64.whl"
 
 # Data setup
 python setup_data.py --eval # saves/eval now contains evaluation results of the uploaded models
@@ -124,6 +126,8 @@ python setup_data.py --eval # saves/eval now contains evaluation results of the 
 # Additional datasets (e.g., WMDP) are supported — run below for options:
 # python setup_data.py --help
 ```
+
+We also provide a [Docker image](https://hub.docker.com/r/filyp/open-unlearning), with this environment already installed.
 
 ---
 

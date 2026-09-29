@@ -1,9 +1,11 @@
-from typing import Any, Optional, Union
+from typing import Any
 
 import torch
 from torch import nn
 from copy import deepcopy
-from packaging import version
+
+from accelerate.utils import is_deepspeed_available
+
 from trainer.base import FinetuneTrainer
 
 from transformers.trainer_pt_utils import (
@@ -15,21 +17,8 @@ from transformers.utils import (
     is_sagemaker_mp_enabled,
 )
 
-from accelerate.utils import (
-    is_deepspeed_available,
-)
-
 if is_sagemaker_mp_enabled():
-    from smdistributed.modelparallel import __version__ as SMP_VERSION
-
-    IS_SAGEMAKER_MP_POST_1_10 = version.parse(SMP_VERSION) >= version.parse("1.10")
-
-    from transformers.trainer_pt_utils import (
-        smp_forward_only,
-        smp_nested_concat,
-    )
-else:
-    IS_SAGEMAKER_MP_POST_1_10 = False
+    from transformers.trainer_pt_utils import smp_forward_only, smp_nested_concat
 
 if is_deepspeed_available():
     import deepspeed
@@ -78,10 +67,10 @@ class UnlearnTrainer(FinetuneTrainer):
     def prediction_step(
         self,
         model: nn.Module,
-        inputs: dict[str, Union[torch.Tensor, Any]],
+        inputs: dict[str, torch.Tensor | Any],
         prediction_loss_only: bool,
-        ignore_keys: Optional[list[str]] = None,
-    ) -> tuple[Optional[torch.Tensor], Optional[torch.Tensor], Optional[torch.Tensor]]:
+        ignore_keys: list[str] | None = None,
+    ) -> tuple[torch.Tensor | None, torch.Tensor | None, torch.Tensor | None]:
         """
         The only change to this function is calling the Trainer's compute_loss, as it's often overridden by unlearning methods, and we want to maintain the Trainer's evaluation setup.
         """
@@ -93,12 +82,10 @@ class UnlearnTrainer(FinetuneTrainer):
         # For CLIP-like models capable of returning loss values.
         # If `return_loss` is not specified or being `None` in `inputs`, we check if the default value of `return_loss`
         # is `True` in `model.forward`.
-        return_loss = inputs.get("return_loss", None)
+        return_loss = inputs.get("return_loss")
         if return_loss is None:
             return_loss = self.can_return_loss
-        loss_without_labels = (
-            True if len(self.label_names) == 0 and return_loss else False
-        )
+        loss_without_labels = len(self.label_names) == 0 and return_loss
 
         inputs = self._prepare_inputs(inputs)
         if ignore_keys is None:
@@ -148,9 +135,18 @@ class UnlearnTrainer(FinetuneTrainer):
             else:
                 if has_labels or loss_without_labels:
                     with self.compute_loss_context_manager():
-                        ### Call compute_loss of super class since overridden compute_loss is not applicable to eval_dataset.
+                        num_items_in_batch = self._get_num_items_in_batch(
+                            [inputs], self.args.device
+                        )
+                        # !!!!!!! Call compute_loss of super class since overridden compute_loss is not applicable to eval_dataset.
+                        # loss, outputs = self.compute_loss(
+                        #     model, inputs, return_outputs=True, num_items_in_batch=num_items_in_batch
+                        # )
                         loss, outputs = super().compute_loss(
-                            model, inputs, return_outputs=True
+                            model,
+                            inputs,
+                            return_outputs=True,
+                            num_items_in_batch=num_items_in_batch,
                         )
                     loss = loss.detach().mean()
 
@@ -172,9 +168,6 @@ class UnlearnTrainer(FinetuneTrainer):
                         )
                     else:
                         logits = outputs
-                    # TODO: this needs to be fixed and made cleaner later.
-                    if self.args.past_index >= 0:
-                        self._past = outputs[self.args.past_index - 1]
 
         if prediction_loss_only:
             return (loss, None, None)
