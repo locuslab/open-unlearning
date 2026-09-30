@@ -267,3 +267,53 @@ def extraction_strength(model, **kwargs):
     )
     es_values = aggregate_to_1D(es_values)
     return {"agg_value": np.mean(es_values), "value_by_index": scores_by_index}
+
+
+@unlearning_metric(name="retain_extraction_strength")
+def retain_extraction_strength(model, **kwargs):
+    data = kwargs["data"]
+    collator = kwargs["collators"]
+    batch_size = kwargs["batch_size"]
+    dataloader = DataLoader(data, batch_size=batch_size, collate_fn=collator)
+
+    def _extraction_strength(model, batch):
+        log_probs_batch, labels_batch = tokenwise_vocab_logprobs(
+            model, batch, grad=False, return_labels=True
+        )
+        es_batch = []
+        for log_probs, labels in zip(log_probs_batch, labels_batch):
+            valid_len = len(labels)
+            preds = torch.argmax(log_probs, dim=-1)
+            for k in range(valid_len):
+                suff_preds = preds[k:]
+                suff_labels = labels[k:]
+                if torch.equal(suff_preds, suff_labels):
+                    break
+            if valid_len == 0:
+                # Rarely, tokenization can result in a mismatch with no valid target
+                # tokens for loss computation (see preprocess_chat_instance() for
+                # reference). Since this condition makes no sense in terms of
+                # computing ES, we just choose to set ES=None
+                logger.warning(
+                    "ES score for an instance is marked None, due to "
+                    "tokenization issues that resulted in no valid target tokens."
+                )
+                es_batch.append({"score": 0})
+            else:
+                es_score = 1 - (k / valid_len)
+                es_batch.append({"score": es_score})
+        return es_batch
+
+    fun_args = {}
+    scores_by_index = run_batchwise_evals(
+        model, dataloader, _extraction_strength, fun_args, "Calculating ES"
+    )
+    es_values = np.array(
+        [
+            evals["score"]
+            for evals in scores_by_index.values()
+            if evals["score"] is not None
+        ]
+    )
+    es_values = aggregate_to_1D(es_values)
+    return {"agg_value": np.mean(es_values), "value_by_index": scores_by_index}

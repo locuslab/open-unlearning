@@ -1,0 +1,15 @@
+# @package eval.tofu.metrics.retain_extraction_strength
+defaults:
+  - ../../data/datasets@datasets: TOFU_QA_retain_eval
+  - ../../collator@collators: DataCollatorForSupervisedDatasetwithIndex
+  # ^ get default dataset and generation config information
+
+handler: retain_extraction_strength
+batch_size: ${eval.tofu.batch_size}
+
+datasets:
+  TOFU_QA_retain_eval:
+    args:
+      hf_args:
+        name: "retain_perturbed"
+      question_key: ${eval.tofu.question_key}
