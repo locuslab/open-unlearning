@@ -8,7 +8,7 @@ args: # HuggingFace TrainingArguments
   num_train_epochs: 5
 
 method_args:
-  use_popularity: true # true: read popularity from the forget data (set popularity_key); false: every fact gets default_popularity
+  use_popularity: false # false: every fact gets default_popularity; true: read popularity from the forget data (set popularity_key)
   default_popularity: 100.0
   beta_a: 58.7 # beta_i = clip(beta_a * popularity_i^(-beta_b), 0.05, 2.0)
   beta_b: 0.796

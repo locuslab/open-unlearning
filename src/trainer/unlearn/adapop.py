@@ -1,8 +1,12 @@
+import logging
+
 import torch
 from transformers import TrainerCallback
 
 from trainer.unlearn.grad_diff import GradDiff
 from trainer.utils import compute_wga_loss_per_example_beta, popularity_to_beta
+
+logger = logging.getLogger(__name__)
 
 
 class AdaPop(GradDiff):
@@ -17,7 +21,7 @@ class AdaPop(GradDiff):
 
     def __init__(
         self,
-        use_popularity=True,
+        use_popularity=False,
         default_popularity=100.0,
         beta_a=58.7,
         beta_b=0.796,
@@ -51,18 +55,27 @@ class AdaPop(GradDiff):
         self.alpha_k = alpha0
         self.retain_ema = None
         self.retain_ref = None
+        self._warned_unused_popularity = False
         self.add_callback(AdaPopCallback(self))
 
     def get_popularity(self, forget_inputs, batch_size, device):
         if not self.use_popularity:
+            if "popularity" in forget_inputs and not self._warned_unused_popularity:
+                logger.warning(
+                    "AdaPop: the forget data has popularity values but use_popularity=false, "
+                    "so every fact gets default_popularity. "
+                    "Set trainer.method_args.use_popularity=true to use them."
+                )
+                self._warned_unused_popularity = True
             # every fact gets the same popularity (default 100, i.e. beta ~= 1.5)
             return torch.full((batch_size,), self.default_popularity, device=device)
         if "popularity" not in forget_inputs:
             raise ValueError(
                 "AdaPop: use_popularity=true but the forget batch has no popularity values. "
                 "Set the popularity column of the forget dataset, e.g. "
-                "+data.forget.<DATASET>.args.popularity_key=pop_sum, "
-                "or run with trainer.method_args.use_popularity=false."
+                "+data.forget.DUET_QA_forget.args.popularity_key=pop_sum. "
+                "If the dataset has no popularity column (e.g. TOFU, MUSE), "
+                "run with trainer.method_args.use_popularity=false."
             )
         return forget_inputs["popularity"].to(device).float()
 

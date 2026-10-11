@@ -22,8 +22,8 @@ Implementation: [`src/trainer/unlearn/adapop.py`](../../../src/trainer/unlearn/a
 
 AdaPop reads the popularity of every forget example from a numeric (int / float) column of the forget dataset.
 
-- `trainer.method_args.use_popularity=true` (default): set the column with `+data.forget.<DATASET>.args.popularity_key=<column>`. Training stops with an error if the column is missing or is not numeric.
-- `trainer.method_args.use_popularity=false`: no column is needed. Every fact gets the same popularity `default_popularity` (100 by default), i.e. $\beta \approx 1.5$ for all facts, and AdaPop reduces to WGA with the adaptive retain weight.
+- `trainer.method_args.use_popularity=false` (default): no column is needed. Every fact gets the same popularity `default_popularity` (100 by default), i.e. $\beta \approx 1.5$ for all facts, and AdaPop reduces to WGA with the adaptive retain weight.
+- `trainer.method_args.use_popularity=true`: set the column with `+data.forget.<DATASET>.args.popularity_key=<column>` (`<DATASET>` is the forget dataset's config name, e.g. `DUET_QA_forget`). Training stops with an error if the column is missing or is not numeric. This is the setting of the paper.
 
 The defaults $a = 58.7$, $b = 0.796$ come from two anchor points on the DUET `pop_sum` scale: a rare fact with popularity $s_r = 100$ gets $\beta_r = 1.5$, a popular fact with $s_p = 3000$ gets $\beta_p = 0.1$ ($\beta = 1$ at a popularity of about 167). For a popularity column on another scale, pick a rare and a popular anchor on that scale and set
 
