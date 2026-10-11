@@ -49,6 +49,7 @@ Links to research papers and resources corresponding to implemented features in 
 | TOFU      | Paper[📄](https://arxiv.org/abs/2401.06121) |
 | MUSE      | Paper[📄](https://arxiv.org/abs/2407.06460) |
 | WMDP      | Paper[📄](https://arxiv.org/abs/2403.03218) |
+| DUET      | Paper[📄](https://arxiv.org/abs/2602.19612), Data [🤗](https://huggingface.co/datasets/SwetieePawsss/DUET), Models [🤗](https://huggingface.co/SwetieePawsss/DUET_ft_models) |
 
 ---
 

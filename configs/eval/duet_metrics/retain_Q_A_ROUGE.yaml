@@ -1,0 +1,23 @@
+# @package eval.duet.metrics.retain_Q_A_ROUGE
+defaults:
+  - ../../data/datasets@datasets: DUET_QA_retain
+  - ../../collator@collators: DataCollatorForSupervisedDatasetwithIndex
+  - ../../generation@generation_args: default
+
+handler: rouge
+rouge_type: rougeL_recall
+batch_size: ${eval.duet.batch_size}
+
+datasets:
+  DUET_QA_retain:
+    args:
+      hf_args:
+        split: ${eval.duet.retain_split}
+      question_key: ${eval.duet.question_key}
+      predict_with_generate: True
+collators:
+  DataCollatorForSupervisedDataset:
+    args:
+      padding_side: left
+generation_args:
+  max_new_tokens: 64
