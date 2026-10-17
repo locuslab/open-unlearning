@@ -22,6 +22,7 @@ from evals.metrics.utility import (
     hm_aggregate,
     classifier_prob,
 )
+from evals.metrics.t3 import t3_loss, t3_accuracy
 
 METRICS_REGISTRY: Dict[str, UnlearningMetric] = {}
 
@@ -52,6 +53,8 @@ def get_metrics(metric_cfgs: DictConfig, **kwargs):
 
 
 # Register metrics here
+_register_metric(t3_loss)
+_register_metric(t3_accuracy)
 _register_metric(probability)
 _register_metric(probability_w_options)
 _register_metric(rouge)
