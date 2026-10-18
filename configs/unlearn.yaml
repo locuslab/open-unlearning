@@ -10,7 +10,7 @@ defaults:
   - _self_
 
 trainer:
-  args: 
+  args:
     remove_unused_columns: False
 
 mode: unlearn

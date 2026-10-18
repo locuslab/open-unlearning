@@ -1,0 +1,31 @@
+# Hydra job_logging config that routes logs through rich.logging.RichHandler.
+# Select it via the defaults list (override job_logging: rich) in
+# configs/hydra/default.yaml, or per-run on the CLI: `hydra/job_logging=rich`.
+# Requires: pip install rich
+version: 1
+formatters:
+  rich:
+    # Custom formatter (src/log_utils.py): colors the logger name and escapes
+    # the message so brackets in log text aren't parsed as Rich markup.
+    (): log_utils.RichNameFormatter
+    name_style: "bold cyan"   # change to any Rich style, e.g. "magenta", "bold green"
+  plain:
+    # Plain text for the log file (no color markup written to disk).
+    format: "[%(asctime)s][%(name)s][%(levelname)s] - %(message)s"
+handlers:
+  rich:
+    class: rich.logging.RichHandler
+    formatter: rich
+    rich_tracebacks: true
+    show_time: true
+    show_level: true
+    show_path: false
+    markup: true   # required so the name's [bold cyan]..[/] tags are colored
+  file:
+    class: logging.FileHandler
+    formatter: plain
+    filename: ${hydra.runtime.output_dir}/${hydra.job.name}.log
+root:
+  level: INFO
+  handlers: [rich, file]
+disable_existing_loggers: false

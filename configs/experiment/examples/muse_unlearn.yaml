@@ -27,7 +27,7 @@ trainer:
     bf16_full_eval: true
     logging_steps: 5
     output_dir: ${paths.output_dir}
-    logging_dir: ${trainer.args.output_dir}/logs
+    # logging_dir removed: deprecated in transformers (removed in v5.2).
     report_to: tensorboard
     ddp_find_unused_parameters: None
     gradient_checkpointing: false

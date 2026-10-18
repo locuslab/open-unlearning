@@ -1,0 +1,9 @@
+defaults:
+  - finetune          # 继承 configs/trainer/finetune.yaml 里的 HuggingFace TrainingArguments
+
+handler: BoundedGradDiff   # 必须等于 src/trainer/unlearn/bounded_grad_diff.py 里的类名
+method_args:               # 这些会作为 **kwargs 传给 BoundedGradDiff.__init__
+  gamma: 1.0               # forget 项权重 (继承自 GradDiff)
+  alpha: 1.0               # retain 项权重 (继承自 GradDiff)
+  retain_loss_type: NLL    # NLL 或 KL (继承自 GradDiff)
+  forget_loss_bound: 4.0   # 本算法新增: forget NLL 的上界 tau
