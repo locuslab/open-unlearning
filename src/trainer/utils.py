@@ -115,6 +115,32 @@ def compute_wga_loss(model, inputs, beta):
     return forget_loss, outputs
 
 
+def popularity_to_beta(
+    popularity, beta_a=58.7, beta_b=0.796, beta_min=0.05, beta_max=2.0
+):
+    # AdaPop: beta_i = clip(beta_a * p_i^(-beta_b), beta_min, beta_max), so popular facts get a small beta
+    p = popularity.float().clamp(min=1e-8)
+    return (beta_a * p.pow(-beta_b)).clamp(min=beta_min, max=beta_max)
+
+
+def compute_wga_loss_per_example_beta(model, inputs, beta):
+    # WGA loss where beta is a tensor with one value per example in the batch
+    outputs = model(**inputs)
+    labels = inputs["labels"]
+    labels = labels.to(outputs.logits.device)
+
+    shift_logits = outputs.logits[..., :-1, :].contiguous()
+    shift_labels = labels[..., 1:].contiguous()
+
+    lm_loss = nn.CrossEntropyLoss(ignore_index=-100, reduction="none")(
+        shift_logits.view(-1, shift_logits.size(-1)), shift_labels.view(-1)
+    ).view(shift_labels.shape)
+    beta = beta.to(lm_loss.device).view(-1, 1)
+    weight_ce = ((-lm_loss).exp().detach()) ** beta
+    forget_loss = -(weight_ce * lm_loss)[shift_labels != -100].mean()
+    return forget_loss, outputs
+
+
 def compute_satimp_loss(model, inputs, beta1, beta2):
     outputs = model(**inputs)
     labels = inputs["labels"]
