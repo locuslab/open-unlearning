@@ -38,6 +38,7 @@ Links to research papers and resources corresponding to implemented features in 
 | WGA (G-effect)       | Paper[📄](https://arxiv.org/pdf/2502.19301), Code [🐙](https://github.com/tmlr-group/G-effect)                                                                                                     |
 | CE-U (Cross-Entropy unlearning)       | Paper[📄](https://arxiv.org/pdf/2503.01224)                                                                                                     |
 | PDU                  | Paper [📄](https://arxiv.org/abs/2506.05314) |
+| AdaPop               | Paper [📄](https://arxiv.org/abs/2608.14229), Popularity-annotated data [🤗](https://huggingface.co/datasets/SwetieePawsss/DUET) |
 
 
 ---
@@ -49,6 +50,7 @@ Links to research papers and resources corresponding to implemented features in 
 | TOFU      | Paper[📄](https://arxiv.org/abs/2401.06121) |
 | MUSE      | Paper[📄](https://arxiv.org/abs/2407.06460) |
 | WMDP      | Paper[📄](https://arxiv.org/abs/2403.03218) |
+| DUET      | Paper[📄](https://arxiv.org/abs/2602.19612), Data [🤗](https://huggingface.co/datasets/SwetieePawsss/DUET), Models [🤗](https://huggingface.co/SwetieePawsss/DUET_ft_models) |
 
 ---
 

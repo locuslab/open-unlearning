@@ -1,0 +1,59 @@
+# @package _global_
+
+defaults:
+  - override /model: Llama-3.1-8B-Instruct
+  - override /trainer: GradAscent
+  - override /data: unlearn
+  - override /data/datasets@data.forget: DUET_QA_forget
+  - override /data/datasets@data.retain: DUET_QA_retain
+  - override /eval: duet
+
+# Target models finetuned on DUET live in subfolders of one HF repo:
+# llama-3.1-8b-instruct-tripunlamb-ft, qwen2.5-7b-instruct-tripunlamb-ft, gemma-7b-it-tripunlamb-ft
+model_subfolder: llama-3.1-8b-instruct-tripunlamb-ft
+
+model:
+  model_args:
+    pretrained_model_name_or_path: SwetieePawsss/DUET_ft_models
+    subfolder: ${model_subfolder}
+  tokenizer_args:
+    pretrained_model_name_or_path: SwetieePawsss/DUET_ft_models
+    subfolder: ${model_subfolder}
+  template_args:
+    # system prompt used for unlearning and evaluation in the DUET paper (set to null for gemma, which has no system role)
+    system_prompt: "You are terse and fact-only QA assistant. Reply to the question clearly with few-words correct answer."
+
+forget_split: city_forget_rare_5 # or city_forget_popular_5, see community/benchmarks/DUET
+retain_split: city_fast_retain_500
+question_key: "question"
+
+eval:
+  duet:
+    forget_split: ${forget_split}
+    retain_split: ${retain_split}
+    overwrite: true
+    question_key: ${question_key}
+
+data:
+  anchor: forget
+  forget:
+    DUET_QA_forget:
+      args:
+        hf_args:
+          split: ${forget_split}
+  retain:
+    DUET_QA_retain:
+      args:
+        hf_args:
+          split: ${retain_split}
+
+trainer:
+  args:
+    per_device_train_batch_size: 4
+    gradient_accumulation_steps: 8
+    learning_rate: 1e-5
+    weight_decay: 0.01
+    num_train_epochs: 5
+    optim: paged_adamw_8bit
+
+task_name: ???

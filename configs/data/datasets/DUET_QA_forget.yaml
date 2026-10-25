@@ -1,0 +1,9 @@
+DUET_QA_forget:
+  handler: QADataset
+  args:
+    hf_args:
+      path: "SwetieePawsss/DUET"
+      split: "city_forget_rare_5"
+    question_key: "question"
+    answer_key: "answer"
+    max_length: 512
