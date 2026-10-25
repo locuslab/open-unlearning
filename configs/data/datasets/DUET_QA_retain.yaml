@@ -1,0 +1,9 @@
+DUET_QA_retain:
+  handler: QADataset
+  args:
+    hf_args:
+      path: "SwetieePawsss/DUET"
+      split: "city_fast_retain_500"
+    question_key: "question"
+    answer_key: "answer"
+    max_length: 512

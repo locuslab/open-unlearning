@@ -15,6 +15,7 @@ class QADataset(Dataset):
         few_shot_dataset_hf_args=None,
         max_length=512,
         predict_with_generate=False,
+        popularity_key=None,
     ):
         super(QADataset, self).__init__()
         self.tokenizer = tokenizer
@@ -31,6 +32,19 @@ class QADataset(Dataset):
         self.question_key = question_key
         self.answer_key = answer_key
         self.predict_with_generate = predict_with_generate
+        # optional numeric column returned as `popularity` (used by AdaPop)
+        self.popularity_key = popularity_key
+        if popularity_key is not None:
+            if popularity_key not in self.data.column_names:
+                raise ValueError(
+                    f"popularity_key '{popularity_key}' is not a column of the dataset, "
+                    f"available columns: {self.data.column_names}"
+                )
+            dtype = getattr(self.data.features[popularity_key], "dtype", None)
+            if not str(dtype).startswith(("int", "uint", "float")):
+                raise ValueError(
+                    f"popularity column '{popularity_key}' must be int or float, got {dtype}"
+                )
 
     def __len__(self):
         return len(self.data)
@@ -72,6 +86,8 @@ class QADataset(Dataset):
                 item[i] = sample_item
         else:
             raise NotImplementedError("answer format not found")
+        if self.popularity_key is not None and isinstance(answer, str):
+            item["popularity"] = float(self.data[idx][self.popularity_key])
         return item
 
 

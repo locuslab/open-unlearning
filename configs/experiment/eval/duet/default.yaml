@@ -1,0 +1,28 @@
+# @package _global_
+
+defaults:
+  - override /model: Llama-3.1-8B-Instruct
+  - override /eval: duet
+
+model_subfolder: llama-3.1-8b-instruct-tripunlamb-ft
+
+model:
+  model_args:
+    pretrained_model_name_or_path: SwetieePawsss/DUET_ft_models
+    subfolder: ${model_subfolder}
+  tokenizer_args:
+    pretrained_model_name_or_path: SwetieePawsss/DUET_ft_models
+    subfolder: ${model_subfolder}
+  template_args:
+    # system prompt used for unlearning and evaluation in the DUET paper (set to null for gemma, which has no system role)
+    system_prompt: "You are terse and fact-only QA assistant. Reply to the question clearly with few-words correct answer."
+
+forget_split: city_forget_rare_5
+retain_split: city_fast_retain_500
+
+eval:
+  duet:
+    forget_split: ${forget_split}
+    retain_split: ${retain_split}
+
+task_name: ???
