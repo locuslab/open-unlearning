@@ -111,7 +111,11 @@ class T3(UnlearnTrainer):
         # classifier_labels = classifier_labels.to(classifier_logits.dtype)
         # return F.binary_cross_entropy_with_logits(classifier_logits, classifier_labels)
 
-        loss_sum = torch.tensor(0.0, device=retain_classifier_logits.device)
+        # Keep empty batches connected to both classifier forward passes.
+        loss_sum = (
+            retain_classifier_logits.float().sum()
+            + forget_classifier_logits.float().sum()
+        ) * 0.0
         total_valid = torch.tensor(0.0, device=retain_classifier_logits.device)
 
         for logits, labels in (
