@@ -140,9 +140,13 @@ class T3CausalLMConfig(PretrainedConfig):
         base_temp=1,
         **kwargs,
     ):
+        base_config_dict = kwargs.pop("base_config_dict", None)
+        saved_guidance = kwargs.pop("guidance", None)
         super().__init__(**kwargs)
-        self.base_config_dict = kwargs.copy()
-        self.guidance = guidance_kwargs or {}
+        self.base_config_dict = (
+            base_config_dict if base_config_dict is not None else kwargs.copy()
+        )
+        self.guidance = guidance_kwargs or saved_guidance or {}
         self.pooling = pooling
         self.pool_temp = pool_temp
         self.extraction_layer = extraction_layer
@@ -229,16 +233,6 @@ class T3CausalLM(PreTrainedModel):
         self.guidance_scale = config.guidance_scale
         self.base_temp = config.base_temp
 
-        # Set attn support
-        base_lm_attn_implementation = (
-            self.base_lm.__class__._autoset_attn_implementation(
-                self.base_lm.config,
-                torch_dtype=self.base_lm.config.torch_dtype,
-                device_map=None,
-            )._attn_implementation
-        )
-        self.config.attn_implementation = base_lm_attn_implementation
-
         self.lm_loss = nn.CrossEntropyLoss(ignore_index=IGNORE_INDEX)
         logger.info(
             f"Initialized a T3CausalLM model:\n"
@@ -317,34 +311,31 @@ class T3CausalLM(PreTrainedModel):
             )
 
         base_config = config.to_base()
-        kwargs.pop("config", None)
-
-        base_lm = AutoModelForCausalLM.from_pretrained(
-            base_config._name_or_path, *args, config=base_config, **kwargs
-        )
+        loaded_config = kwargs.pop("config", None)
+        if loaded_config is not None:
+            if loaded_config.dtype is not None:
+                kwargs.setdefault("dtype", loaded_config.dtype)
+            if loaded_config._attn_implementation is not None:
+                kwargs.setdefault(
+                    "attn_implementation", loaded_config._attn_implementation
+                )
 
         base_lm_state_dict = {
             k.replace("base_lm.", ""): v
             for k, v in state_dict.items()
             if k.startswith("base_lm.")
         }
-        incomp = base_lm.load_state_dict(base_lm_state_dict, strict=False)
-        if incomp.missing_keys or incomp.unexpected_keys:
-            logger.warning(
-                f"Some weights of the base_lm could not be loaded.\n"
-                f"Missing keys: {incomp.missing_keys}\n"
-                f"Unexpected keys: {incomp.unexpected_keys}"
+        generation_config_path = join(
+            pretrained_model_name_or_path, "generation_config.json"
+        )
+        if "generation_config" not in kwargs and exists(generation_config_path):
+            kwargs["generation_config"] = GenerationConfig.from_pretrained(
+                pretrained_model_name_or_path
             )
-
-            for missing_key in incomp.missing_keys:
-                missing_weight = base_lm.state_dict()[missing_key]
-                for n, p in base_lm.named_parameters():
-                    if n != missing_key and p.data_ptr() == missing_weight.data_ptr():
-                        logger.info(
-                            f"Missing key {missing_key} is tied to {n}. If {n} is loaded this will be fixed by tie_weights()."
-                        )
-
-        base_lm.tie_weights()
+        base_lm_class = MODEL_FOR_CAUSAL_LM_MAPPING[type(base_config)]
+        base_lm = base_lm_class.from_pretrained(
+            None, *args, config=base_config, state_dict=base_lm_state_dict, **kwargs
+        )
 
         model = cls(config, base_lm=base_lm)
         guidance_state_dict = {
@@ -621,9 +612,9 @@ class T3CausalLM(PreTrainedModel):
             )
             extracted_states = base_outputs.hidden_states[self.extraction_layer]
             mask = current_token_mask.to(
-                device=extracted_states.device, dtype=extracted_states.dtype
+                device=extracted_states.device, dtype=torch.long
             )
-            step_hidden_sum = (extracted_states * mask.unsqueeze(-1)).sum(dim=1)
+            step_hidden_sum = (extracted_states.float() * mask.unsqueeze(-1)).sum(dim=1)
             step_token_count = mask.sum(dim=1, keepdim=True)
 
             if hidden_sum is None:
@@ -637,7 +628,9 @@ class T3CausalLM(PreTrainedModel):
                 hidden_sum = hidden_sum + step_hidden_sum
                 token_count = token_count + step_token_count
 
-            pooled_states = hidden_sum / token_count.clamp_min(1)
+            pooled_states = (hidden_sum / token_count.clamp_min(1)).to(
+                extracted_states.dtype
+            )
             classifier_logits = self.guidance_head(pooled_states.unsqueeze(1))
             guided_logits = self._guide_logits(
                 base_outputs.logits[:, -1:, :], classifier_logits
