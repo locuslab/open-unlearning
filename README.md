@@ -214,7 +214,9 @@ For more in-depth information on specific aspects of the framework, refer to the
 
 ## 🔗 Support & Contributors
 
-Developed and maintained by Vineeth Dorna ([@Dornavineeth](https://github.com/Dornavineeth)) and Anmol Mekala ([@molereddy](https://github.com/molereddy)).
+**Developed by:** Vineeth Dorna ([@Dornavineeth](https://github.com/Dornavineeth)) and Anmol Mekala ([@molereddy](https://github.com/molereddy)).
+
+**Maintained by:** Vineeth Dorna ([@Dornavineeth](https://github.com/Dornavineeth)), Anmol Mekala ([@molereddy](https://github.com/molereddy)), and Filip Sondej ([@filyp](https://github.com/filyp)).
 
 If you encounter any issues or have questions, feel free to raise an issue in the repository 🛠️.
 
