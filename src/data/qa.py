@@ -1,7 +1,12 @@
 import torch
 from torch.utils.data import Dataset
 
-from data.utils import load_hf_dataset, preprocess_chat_instance, add_dataset_index
+from data.utils import (
+    IGNORE_INDEX,
+    load_hf_dataset,
+    preprocess_chat_instance,
+    add_dataset_index,
+)
 
 
 class QADataset(Dataset):
@@ -148,3 +153,71 @@ class QAwithAlternateDataset(QADataset):
                 return_item["alternate"] = alt_item
                 # return_item.append([sample_item, idk_item])
         return return_item if self.return_original else return_item["alternate"]
+
+
+class QAwithEntityDataset(Dataset):
+    """QA pairs whose answers are annotated as `prefix + continuation`, with an entity
+    inside the continuation, e.g. the UDS-annotated TOFU forget set
+    (https://arxiv.org/abs/2605.24614). As in the reference UDS implementation, the
+    prompt is the raw text `Question: {question}` + newline + `Answer: {prefix}`, and
+    the continuation is tokenized separately and appended. `template_args` is not used,
+    to keep scores comparable with the paper. Only the entity tokens are labelled, so
+    metrics see teacher-forced predictions of the entity alone."""
+
+    def __init__(
+        self,
+        hf_args,
+        template_args,
+        tokenizer,
+        question_key="question",
+        answer_key="answer",
+        prefix_key="prefix",
+        entity_key="entity",
+        index_key="idx",
+        max_length=512,
+    ):
+        super(QAwithEntityDataset, self).__init__()
+        self.tokenizer = tokenizer
+        self.max_length = max_length
+        self.data = load_hf_dataset(**hf_args)
+        if index_key not in self.data.column_names:
+            self.data = add_dataset_index(self.data)
+            index_key = "index"
+        self.question_key = question_key
+        self.answer_key = answer_key
+        self.prefix_key = prefix_key
+        self.entity_key = entity_key
+        self.index_key = index_key
+
+    def __len__(self):
+        return len(self.data)
+
+    def __getitem__(self, idx):
+        item = self.data[idx]
+        prefix, answer = item[self.prefix_key], item[self.answer_key]
+        entity = item[self.entity_key]
+        assert answer.startswith(prefix), f"prefix not found in answer {idx}"
+        prompt = f"Question: {item[self.question_key]}\nAnswer: {prefix}"
+        continuation = answer[len(prefix) :]
+        if not continuation[:1].isspace() and not prompt[-1].isspace():
+            continuation = " " + continuation  # keep a word boundary, as in the paper
+        entity_start = continuation.find(entity)
+        assert entity_start >= 0, f"entity not found in answer {idx}"
+        entity_end = entity_start + len(entity)
+
+        prompt_ids = self.tokenizer(prompt, add_special_tokens=True)["input_ids"]
+        tokenized = self.tokenizer(
+            continuation, add_special_tokens=False, return_offsets_mapping=True
+        )
+        input_ids = (prompt_ids + tokenized["input_ids"])[: self.max_length]
+        labels = [IGNORE_INDEX] * len(input_ids)
+        for i, (start, end) in enumerate(tokenized["offset_mapping"]):
+            pos = len(prompt_ids) + i
+            if end > entity_start and start < entity_end and pos < len(input_ids):
+                labels[pos] = input_ids[pos]
+        return {
+            "input_ids": torch.tensor(input_ids),
+            "labels": torch.tensor(labels),
+            "attention_mask": torch.ones(len(input_ids), dtype=torch.long),
+            "index": item[self.index_key],
+        }
