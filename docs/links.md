@@ -39,6 +39,7 @@ Links to research papers and resources corresponding to implemented features in 
 | CE-U (Cross-Entropy unlearning)       | Paper[📄](https://arxiv.org/pdf/2503.01224)                                                                                                     |
 | PDU                  | Paper [📄](https://arxiv.org/abs/2506.05314) |
 | AdaPop               | Paper [📄](https://arxiv.org/abs/2608.14229), Popularity-annotated data [🤗](https://huggingface.co/datasets/SwetieePawsss/DUET) |
+| T3-Unlearning               | Paper[📄](https://arxiv.org/abs/2602.10217), Code [🐙](https://github.com/jacob-block/T3-Unlearning)                                                                                     |
 
 
 ---
