@@ -1,6 +1,6 @@
 # @package eval.tofu.metrics.uds
 defaults:
-  - ../../data/datasets@datasets: TOFU_QA_forget_entity # forget10 only
+  - ../../data/datasets@datasets: UDS_annotated_TOFU_forget10
   - ../../collator@collators: DataCollatorForSupervisedDatasetwithIndex
 
 handler: uds

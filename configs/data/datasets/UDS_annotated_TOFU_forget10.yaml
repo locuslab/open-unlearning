@@ -1,4 +1,4 @@
-TOFU_QA_forget_entity:
+UDS_annotated_TOFU_forget10:
   handler: QAwithEntityDataset
   args:
     hf_args:
