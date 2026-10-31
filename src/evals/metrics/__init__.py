@@ -24,6 +24,7 @@ from evals.metrics.utility import (
     classifier_prob,
 )
 from evals.metrics.t3 import t3_loss, t3_accuracy
+from evals.metrics.uds import uds
 
 METRICS_REGISTRY: Dict[str, UnlearningMetric] = {}
 
@@ -78,3 +79,6 @@ _register_metric(mia_reference)
 
 # Register Utility metrics
 _register_metric(classifier_prob)
+
+# Register representation-level metrics
+_register_metric(uds)

@@ -85,7 +85,7 @@ We provide several variants for each of the components in the unlearning pipelin
 |------------------------|----------------------|
 | **Benchmarks**        | [TOFU](https://arxiv.org/abs/2401.06121), [MUSE](https://muse-bench.github.io/), [WMDP](https://www.wmdp.ai/), [DUET](https://arxiv.org/abs/2602.19612) |
 | **Unlearning Methods** | GradAscent, GradDiff, NPO, SimNPO, DPO, RMU, UNDIAL, AltPO, SatImp, WGA, CE-U, PDU, AdaPop, T3 |
-| **Evaluation Metrics** | Verbatim Probability, Verbatim ROUGE, Knowledge QA-ROUGE, Model Utility, Forget Quality, TruthRatio, Extraction Strength, Exact Memorization, 6 MIA attacks, [lm-evaluation-harness](https://github.com/EleutherAI/lm-evaluation-harness) |
+| **Evaluation Metrics** | Verbatim Probability, Verbatim ROUGE, Knowledge QA-ROUGE, Model Utility, Forget Quality, TruthRatio, Extraction Strength, Exact Memorization, 6 MIA attacks, [Unlearning Depth Score](https://arxiv.org/abs/2605.24614), [lm-evaluation-harness](https://github.com/EleutherAI/lm-evaluation-harness) |
 | **Datasets**          | MUSE-News (BBC), MUSE-Books (Harry Potter), TOFU (different splits), WMDP-Bio, WMDP-Cyber, [DUET](https://huggingface.co/datasets/SwetieePawsss/DUET) (rare / popular Wikidata facts) |
 | **Model Families**    | TOFU: Llama-3.2, Llama-3.1, Llama-2; MUSE: Llama-2; DUET: Llama-3.1, Qwen2.5, Gemma; Additional: Phi-3.5, Phi-1.5, Gemma, Zephyr |
 

@@ -1,0 +1,12 @@
+UDS_annotated_TOFU_forget10:
+  handler: QAwithEntityDataset
+  args:
+    hf_args:
+      path: "jaeunglee/uds-annotated-tofu" # 367 forget10 QA pairs with entity annotations
+      split: "train"
+    question_key: "question"
+    answer_key: "answer"
+    prefix_key: "prefix"
+    entity_key: "entity"
+    index_key: "idx" # row index in TOFU forget10
+    max_length: 512
