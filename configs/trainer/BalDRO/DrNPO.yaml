@@ -1,0 +1,9 @@
+defaults:
+  - NPO
+
+handler: DrNPO
+method_args:
+  forget_dro: true
+  beta_dv_forget: 1.0
+  retain_dro: false
+  beta_dv_retain: 1.0

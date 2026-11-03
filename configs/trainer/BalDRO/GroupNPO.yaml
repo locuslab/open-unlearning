@@ -1,0 +1,6 @@
+defaults:
+  - NPO
+
+handler: GroupNPO
+method_args:
+  sampling_ratio: 0.5
