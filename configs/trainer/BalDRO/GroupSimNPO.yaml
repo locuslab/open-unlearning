@@ -1,5 +1,5 @@
 defaults:
-  - SimNPO
+  - /trainer/SimNPO@_here_
 
 handler: GroupSimNPO
 method_args:

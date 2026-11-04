@@ -1,5 +1,5 @@
 defaults:
-  - NPO
+  - /trainer/NPO@_here_
 
 handler: GroupNPO
 method_args:

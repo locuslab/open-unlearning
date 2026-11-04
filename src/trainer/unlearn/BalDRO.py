@@ -120,15 +120,25 @@ class _BalDROGroup:
         self.sampling_ratio = sampling_ratio
 
     def _select_groups(self, model, inputs):
+        """Select groups, excluding forget samples without valid shifted targets."""
         forget_inputs = {
             key: inputs["forget"][key]
             for key in ("input_ids", "attention_mask", "labels")
         }
+        valid_tokens = forget_inputs["labels"][..., 1:].ne(-100).sum(-1)
+        valid_samples = valid_tokens > 0
+        valid_count = valid_samples.sum().item()
+        if valid_count == 0:
+            raise ValueError(
+                "BalDRO-G requires at least one forget sample with valid target tokens"
+            )
+
         with torch.no_grad():
             nll, _ = compute_batch_nll(model, forget_inputs)
-            valid_tokens = forget_inputs["labels"][..., 1:].ne(-100).sum(-1)
             hardness = -nll / valid_tokens.clamp_min(1)
+            hardness = hardness.masked_fill(~valid_samples, -torch.inf)
             k = max(1, int(hardness.size(0) * self.sampling_ratio))
+            k = min(k, valid_count)
             indices = torch.topk(hardness, k, largest=True, sorted=False).indices
         forget_inputs = {
             key: value.index_select(0, indices) for key, value in forget_inputs.items()
@@ -171,7 +181,7 @@ class GroupSimNPO(_BalDROGroup, SimNPO):
         forget_inputs = inputs["forget"]
         forget_loss, forget_outputs = compute_batch_nll(model, forget_inputs)
         valid_tokens = forget_inputs["labels"][..., 1:].ne(-100).sum(-1)
-        forget_loss = forget_loss / valid_tokens - self.delta
+        forget_loss = forget_loss / valid_tokens.clamp_min(1) - self.delta
         forget_loss = -F.logsigmoid(self.beta * forget_loss).mean() * 2 / self.beta
         retain_loss = self.compute_retain_loss(model, inputs["retain"])
         loss = self.gamma * forget_loss + self.alpha * retain_loss

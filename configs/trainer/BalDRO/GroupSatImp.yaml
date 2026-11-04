@@ -1,5 +1,5 @@
 defaults:
-  - SatImp
+  - /trainer/SatImp@_here_
 
 handler: GroupSatImp
 method_args:
