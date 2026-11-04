@@ -1,0 +1,44 @@
+# @package _global_
+
+defaults:
+  - override /model: Llama-2-7b-chat-hf
+  - override /trainer: PALU
+  - override /data: unlearn
+  - override /data/datasets@data.forget: TOFU_QA_forget_palu
+  - override /data/datasets@data.retain: TOFU_QA_retain
+  - override /eval: tofu
+
+model:
+  model_args:
+    pretrained_model_name_or_path: open-unlearning/tofu_Llama-2-7b-chat-hf_full
+
+forget_split: forget10
+retain_split: retain90
+holdout_split: holdout10
+retain_logs_path: null
+question_key: question
+
+eval:
+  tofu:
+    forget_split: ${forget_split}
+    holdout_split: ${holdout_split}
+    retain_logs_path: ${retain_logs_path}
+    overwrite: true
+    question_key: ${question_key}
+
+data:
+  anchor: forget
+  retain:
+    TOFU_QA_retain:
+      args:
+        hf_args:
+          name: ${retain_split}
+
+trainer:
+  args:
+    warmup_epochs: 1.0
+    learning_rate: 1e-5
+    weight_decay: 0.01
+    num_train_epochs: 10
+
+task_name: ???
