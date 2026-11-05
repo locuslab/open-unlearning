@@ -11,7 +11,7 @@ REPORTTO="${REPORTTO:-none}"
 WANDB_PROJECT="${WANDB_PROJECT:-palu}"
 KL_DIRECTION="${KL_DIRECTION:-reverse}"
 OUTPUT_ROOT="${OUTPUT_ROOT:-.cache/palu/runs}"
-RETAIN_LOGS_ROOT="${RETAIN_LOGS_ROOT:-.cache/palu/retain_logs}"
+RETAIN_LOGS_ROOT="${RETAIN_LOGS_ROOT:-saves/eval}"
 
 TRAINER="PALU"
 PRETRAINED_PATH="open-unlearning/tofu_Llama-3.1-8B-Instruct_full"
