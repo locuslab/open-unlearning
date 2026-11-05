@@ -48,7 +48,19 @@ class _BalDRODV:
     def compute_loss(
         self, model, inputs, return_outputs=False, num_items_in_batch=None
     ):
-        forget_loss, forget_outputs = self._compute_forget_loss(model, inputs["forget"])
+        """Compute losses using forget samples with valid shifted targets."""
+        forget_inputs = inputs["forget"]
+        valid_samples = forget_inputs["labels"][..., 1:].ne(-100).any(-1)
+        if not valid_samples.any():
+            raise ValueError(
+                "BalDRO-DV requires at least one forget sample with valid target tokens"
+            )
+        forget_inputs = {
+            key: forget_inputs[key][valid_samples]
+            for key in ("input_ids", "attention_mask", "labels")
+        }
+
+        forget_loss, forget_outputs = self._compute_forget_loss(model, forget_inputs)
         if self.forget_dro:
             forget_loss = self._dv_aggregate(forget_loss, self.beta_dv_forget)
         else:
@@ -120,7 +132,7 @@ class _BalDROGroup:
         self.sampling_ratio = sampling_ratio
 
     def _select_groups(self, model, inputs):
-        """Select groups, excluding forget samples without valid shifted targets."""
+        """Select groups with valid shifted targets for forget and NLL retain losses."""
         forget_inputs = {
             key: inputs["forget"][key]
             for key in ("input_ids", "attention_mask", "labels")
@@ -145,6 +157,16 @@ class _BalDROGroup:
         }
 
         retain_inputs = inputs["retain"]
+        if self.retain_loss_type == "NLL":
+            valid_samples = retain_inputs["labels"][..., 1:].ne(-100).any(-1)
+            if not valid_samples.any():
+                raise ValueError(
+                    "BalDRO-G requires at least one retain sample with valid target tokens"
+                )
+            retain_inputs = {
+                key: retain_inputs[key][valid_samples]
+                for key in ("input_ids", "attention_mask", "labels")
+            }
         retain_size = retain_inputs["input_ids"].size(0)
         indices = torch.randperm(retain_size, device=retain_inputs["input_ids"].device)[
             : min(k, retain_size)
