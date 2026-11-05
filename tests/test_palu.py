@@ -13,6 +13,7 @@ from datasets import Dataset
 from tokenizers import Tokenizer
 from tokenizers.models import WordLevel
 from tokenizers.pre_tokenizers import Whitespace
+from tokenizers.processors import TemplateProcessing
 from transformers import PreTrainedTokenizerFast
 from transformers.modeling_outputs import CausalLMOutput
 
@@ -271,6 +272,23 @@ class PALUDataTests(unittest.TestCase):
                 self.assertEqual(
                     item["labels"][item["input_ids"] == 9].tolist(), [-200]
                 )
+
+    def test_existing_eos_labels(self):
+        full_length = len(self.make_dataset()[0]["input_ids"])
+        for max_length, expected_label in ((512, -200), (full_length, -200), (5, -100)):
+            with self.subTest(max_length=max_length):
+                dataset = self.make_dataset(max_length=max_length)
+                tokenizer = dataset.tokenizer
+                tokenizer.backend_tokenizer.post_processor = TemplateProcessing(
+                    single="$A <eos>",
+                    special_tokens=[("<eos>", tokenizer.eos_token_id)],
+                )
+                item = dataset[0]
+                self.assertEqual(len(item["input_ids"]), min(full_length, max_length))
+                self.assertEqual(item["input_ids"][-1].item(), tokenizer.eos_token_id)
+                self.assertEqual(item["labels"][-1].item(), expected_label)
+                if expected_label == -100:
+                    self.assertTrue((item["labels"] == -100).all())
 
     def test_truncation_empty_spans_and_collation(self):
         dataset = self.make_dataset(max_length=5)

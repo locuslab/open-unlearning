@@ -111,8 +111,10 @@ class PALUDataset(Dataset):
             else:
                 labels.append(-200)
         eos = self.tokenizer.eos_token_id
-        if eos is not None and len(input_ids) < self.max_length:
-            if not input_ids or input_ids[-1] != eos:
+        if eos is not None and any(label != -100 for label in labels):
+            if input_ids[-1] == eos:
+                labels[-1] = -200
+            elif len(input_ids) < self.max_length:
                 input_ids.append(eos)
                 labels.append(-200)
 
