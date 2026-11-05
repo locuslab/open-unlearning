@@ -136,7 +136,7 @@ class BalDROTests(unittest.TestCase):
                 selected = trainer._select_groups(TinyLM(), inputs)
                 self.assertEqual(selected["retain"]["input_ids"].size(0), 1)
 
-    def test_dv_matches_valid_only_forget_loss_and_gradients(self):
+    def test_dv_matches_valid_only_loss_and_gradients(self):
         labels = torch.tensor(
             [[1, -100, -100], [-100, -100, -100], [-100, 2, 3], [-100, 4, 5]]
         )
@@ -147,8 +147,10 @@ class BalDROTests(unittest.TestCase):
         }
         valid_forget = {key: value[2:] for key, value in forget.items()}
         for trainer_class in (DrNPO, DrSimNPO, DrSatImp):
-            for forget_dro in (True, False):
-                with self.subTest(trainer=trainer_class.__name__, dro=forget_dro):
+            for forget_dro, retain_dro in product((True, False), repeat=2):
+                with self.subTest(
+                    trainer=trainer_class.__name__, forget=forget_dro, retain=retain_dro
+                ):
                     model = TinyLM()
                     trainer = trainer_class.__new__(trainer_class)
                     trainer.ref_model = TinyLM()
@@ -157,12 +159,13 @@ class BalDROTests(unittest.TestCase):
                     trainer.delta = 0.0
                     trainer.forget_dro = forget_dro
                     trainer.beta_dv_forget = 0.5
-                    trainer.retain_dro = False
+                    trainer.beta_dv_retain = 0.5
+                    trainer.retain_dro = retain_dro
                     trainer.retain_loss_type = "NLL"
 
                     loss, outputs = trainer.compute_loss(
                         model,
-                        {"forget": forget, "retain": valid_forget},
+                        {"forget": forget, "retain": forget},
                         return_outputs=True,
                     )
                     loss.backward()
@@ -180,6 +183,50 @@ class BalDROTests(unittest.TestCase):
                         outputs = outputs[1]
                     self.assertEqual(outputs.logits.size(0), 2)
                     self.assertEqual(forget["labels"].size(0), 4)
+
+    def test_dv_rejects_empty_nll_retain_targets_but_allows_kl(self):
+        input_ids = torch.tensor([[1, 2, 3], [4, 5, 6]])
+        forget = {
+            "input_ids": input_ids,
+            "attention_mask": torch.ones_like(input_ids),
+            "labels": input_ids.clone(),
+        }
+        inputs = {
+            "forget": forget,
+            "retain": {
+                **forget,
+                "labels": torch.tensor([[1, -100, -100], [-100, -100, -100]]),
+            },
+        }
+        for trainer_class in (DrNPO, DrSimNPO, DrSatImp):
+            with self.subTest(trainer=trainer_class.__name__):
+                model = TinyLM()
+                trainer = trainer_class.__new__(trainer_class)
+                trainer.model = model
+                trainer.ref_model = TinyLM()
+                trainer.beta = trainer.beta1 = trainer.beta2 = 1.0
+                trainer.gamma = trainer.alpha = 1.0
+                trainer.delta = 0.0
+                trainer.forget_dro = False
+                trainer.retain_loss_type = "NLL"
+                trainer.beta_dv_retain = 0.5
+
+                for retain_dro in (True, False):
+                    with self.subTest(retain=retain_dro):
+                        trainer.retain_dro = retain_dro
+                        with self.assertRaisesRegex(ValueError, "retain sample"):
+                            trainer.compute_loss(model, inputs)
+
+                trainer.retain_dro = False
+                trainer.retain_loss_type = "KL"
+                loss = trainer.compute_loss(model, inputs)
+                expected_loss = trainer.compute_loss(
+                    model, {"forget": forget, "retain": forget}
+                )
+                torch.testing.assert_close(loss, expected_loss)
+                loss.backward()
+                self.assertTrue(torch.isfinite(model.embedding.weight.grad).all())
+                self.assertIsNone(trainer.ref_model.embedding.weight.grad)
 
 
 if __name__ == "__main__":

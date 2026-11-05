@@ -48,7 +48,11 @@ class _BalDRODV:
     def compute_loss(
         self, model, inputs, return_outputs=False, num_items_in_batch=None
     ):
-        """Compute losses using forget samples with valid shifted targets."""
+        """Compute losses using forget and NLL retain samples with valid shifted targets.
+
+        Raises:
+            ValueError: If forget or NLL retain inputs have no valid shifted targets.
+        """
         forget_inputs = inputs["forget"]
         valid_samples = forget_inputs["labels"][..., 1:].ne(-100).any(-1)
         if not valid_samples.any():
@@ -70,6 +74,16 @@ class _BalDRODV:
             key: inputs["retain"][key]
             for key in ("input_ids", "attention_mask", "labels")
         }
+        if self.retain_loss_type == "NLL":
+            valid_samples = retain_inputs["labels"][..., 1:].ne(-100).any(-1)
+            if not valid_samples.any():
+                raise ValueError(
+                    "BalDRO-DV requires at least one retain sample with valid target tokens"
+                )
+            retain_inputs = {
+                key: value[valid_samples] for key, value in retain_inputs.items()
+            }
+
         if self.retain_dro:
             retain_loss, _ = compute_batch_nll(model, retain_inputs)
             valid_tokens = retain_inputs["labels"][..., 1:].ne(-100).sum(-1)
