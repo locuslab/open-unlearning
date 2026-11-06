@@ -1,0 +1,31 @@
+defaults:
+  - finetune
+
+handler: KFORGE
+args:
+  num_train_epochs: 1
+  max_steps: 1
+  save_strategy: 'no'
+  eval_strategy: 'no'
+  gradient_checkpointing: False
+method_args:
+  target_modules_regex: .*mlp\.down_proj$
+  rank: 8
+  strength: 1.0
+  damping: 1e-4
+  damping_mode: fixed
+  adaptive_damping_coeff: 0.1
+  damping_floor: 1e-12
+  max_calibration_batches: 8
+  max_samples: null
+  normalize_factors: true
+  skip_modules_larger_than: null
+  max_target_modules: 4
+  factor_mode: kron
+  use_retain_fisher: true
+  spectrum_output_path: null
+  spectrum_top_k: 64
+  skip_edit: false
+  edit_variant: wiener_v2
+  lambda_tradeoff: 0.01
+  edit_weight_dtype: float32
