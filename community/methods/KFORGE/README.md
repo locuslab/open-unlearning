@@ -1,4 +1,4 @@
-# K-FORGE: Fisher-Guided Initialization for Preference-Based LLM Unlearning (Findings of ICJNLP-AACL 2026)
+# K-FORGE: Fisher-Guided Initialization for Preference-Based LLM Unlearning (Findings of IJCNLP-AACL 2026)
 
 - Authors: Daniil Moskovskiy (AIRI, Skoltech), Alexander Panchenko (Skoltech, AIRI)
 - Paper code and experiments: https://github.com/etomoscow/kron_unlearn
@@ -39,7 +39,7 @@ Strength `alpha` (`trainer.method_args.strength`) controls the utility/forgettin
 | `lambda_tradeoff` | 0.01 | Retain-Fisher budget (used by `wiener_v2` only) |
 | `max_target_modules` | 4 | Memory guard; set `null` for all matched modules |
 | `max_calibration_batches` | 8 | Forget and retain batches for factor estimation |
-| `edit_weight_dtype` | `float32` | Keeps small edits representable after serialization |
+| `edit_weight_dtype` | `float32` | Upcasts the model to fp32 before folding the edit, so small α·δ survive the `add_`; `preserve` keeps bf16, where a tiny α·δ can round to zero |
 | `damping` | 1e-4 | Relative Tikhonov damping before Cholesky |
 
 ## Results

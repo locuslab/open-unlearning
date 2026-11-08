@@ -16,7 +16,13 @@ EDIT_TASK="${EDIT_TASK:-tofu_kforge_edit}"
 # ---------------------------------------------------------------------------
 python src/train.py \
   --config-name=unlearn \
-  experiment=unlearn/tofu/kforge \
+  experiment=unlearn/tofu/default \
+  trainer=KFORGE \
+  trainer.method_args.target_modules_regex='.*mlp\.down_proj$' \
+  trainer.method_args.rank=2 \
+  trainer.method_args.strength=0.45 \
+  trainer.method_args.edit_variant=wiener_v2 \
+  trainer.method_args.lambda_tradeoff=0.01 \
   task_name="${EDIT_TASK}"
 
 # ---------------------------------------------------------------------------

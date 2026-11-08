@@ -40,7 +40,7 @@ Links to research papers and resources corresponding to implemented features in 
 | PDU                  | Paper [📄](https://arxiv.org/abs/2506.05314) |
 | AdaPop               | Paper [📄](https://arxiv.org/abs/2608.14229), Popularity-annotated data [🤗](https://huggingface.co/datasets/SwetieePawsss/DUET) |
 | T3-Unlearning               | Paper[📄](https://arxiv.org/abs/2602.10217), Code [🐙](https://github.com/jacob-block/T3-Unlearning)                                                                                     |
-| K-FORGE             | Findings of ICJNLP-AACL 2026, Code [🐙](https://github.com/etomoscow/kron_unlearn)                                                                                              |
+| K-FORGE             | Findings of IJCNLP-AACL 2026, Code [🐙](https://github.com/etomoscow/kron_unlearn)                                                                                              |
 
 
 ---
