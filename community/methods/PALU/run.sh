@@ -8,7 +8,10 @@ KL_DIRECTION="${KL_DIRECTION:-reverse}"
 TASK_NAME="palu_${MODEL}_forget01_${KL_DIRECTION}"
 
 python src/train.py --config-name=unlearn.yaml \
-    experiment=unlearn/tofu/palu \
+    experiment=unlearn/tofu/default \
+    trainer=PALU \
+    data/datasets@data.forget=TOFU_QA_forget_palu \
+    '~data.forget.TOFU_QA_forget' \
     model="${MODEL}" \
     model.model_args.pretrained_model_name_or_path="${PRETRAINED_PATH}" \
     model.tokenizer_args.pretrained_model_name_or_path="${PRETRAINED_PATH}" \

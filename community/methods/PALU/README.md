@@ -4,7 +4,7 @@ Implementation of [PALU](https://arxiv.org/abs/2601.03190) (Naixin Zhai, Univers
 
 ## Method and configuration
 
-Select `trainer=PALU` or use `experiment=unlearn/tofu/palu`, which also loads the annotated forget data. At each selected sensitive position, PALU selects the reference model's top-k vocabulary candidates and moves their current logits toward the current model's vocabulary-wide mean. 
+Use [run.sh](run.sh), which selects `experiment=unlearn/tofu/default`, `trainer=PALU`, and the annotated forget data through command-line overrides. At each selected sensitive position, PALU selects the reference model's top-k vocabulary candidates and moves their current logits toward the current model's vocabulary-wide mean.
 
 `first_n` selects a prefix of each contiguous sensitive span, independently for each example; EOS is excluded from sensitive positions.
 
