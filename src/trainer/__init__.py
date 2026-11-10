@@ -17,6 +17,7 @@ from trainer.unlearn.wga import WGA
 from trainer.unlearn.pdu import PDU
 from trainer.unlearn.adapop import AdaPop
 from trainer.unlearn.t3 import T3
+from trainer.unlearn.palu import PALU
 
 
 import logging
@@ -103,3 +104,4 @@ _register_trainer(WGA)
 _register_trainer(PDU)
 _register_trainer(AdaPop)
 _register_trainer(T3)
+_register_trainer(PALU)

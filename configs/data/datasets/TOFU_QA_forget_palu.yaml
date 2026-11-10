@@ -1,0 +1,8 @@
+TOFU_QA_forget_palu:
+  handler: PALUDataset
+  args:
+    data_path: community/methods/PALU/data/${forget_split}_with_common_words_gpt
+    question_key: question
+    answer_key: answer
+    target_key: target_words
+    max_length: 512
