@@ -1,25 +1,32 @@
+import logging
+from typing import Any, Dict
+
 import torch
-from typing import Dict, Any
 from omegaconf import DictConfig
 from transformers import Trainer, TrainingArguments
 
 from trainer.base import FinetuneTrainer
+from trainer.unlearn.adapop import AdaPop
+from trainer.unlearn.BalDRO import (
+    DrNPO,
+    DrSatImp,
+    DrSimNPO,
+    GroupNPO,
+    GroupSatImp,
+    GroupSimNPO,
+)
+from trainer.unlearn.ceu import CEU
+from trainer.unlearn.dpo import DPO
 from trainer.unlearn.grad_ascent import GradAscent
 from trainer.unlearn.grad_diff import GradDiff
 from trainer.unlearn.npo import NPO
-from trainer.unlearn.dpo import DPO
-from trainer.unlearn.simnpo import SimNPO
-from trainer.unlearn.rmu import RMU
-from trainer.unlearn.undial import UNDIAL
-from trainer.unlearn.ceu import CEU
-from trainer.unlearn.satimp import SatImp
-from trainer.unlearn.wga import WGA
 from trainer.unlearn.pdu import PDU
-from trainer.unlearn.adapop import AdaPop
+from trainer.unlearn.rmu import RMU
+from trainer.unlearn.satimp import SatImp
+from trainer.unlearn.simnpo import SimNPO
 from trainer.unlearn.t3 import T3
-
-
-import logging
+from trainer.unlearn.undial import UNDIAL
+from trainer.unlearn.wga import WGA
 
 logger = logging.getLogger(__name__)
 
@@ -103,3 +110,9 @@ _register_trainer(WGA)
 _register_trainer(PDU)
 _register_trainer(AdaPop)
 _register_trainer(T3)
+_register_trainer(DrNPO)
+_register_trainer(DrSimNPO)
+_register_trainer(DrSatImp)
+_register_trainer(GroupNPO)
+_register_trainer(GroupSimNPO)
+_register_trainer(GroupSatImp)
