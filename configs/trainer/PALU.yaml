@@ -1,0 +1,10 @@
+defaults:
+  - /trainer/GradDiff@_here_
+
+handler: PALU
+method_args:
+  top_k: 1
+  first_n: -1
+  target_mode: mean
+  non_sensitive_constraint_type: kl
+  kl_direction: reverse
