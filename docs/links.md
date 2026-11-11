@@ -41,6 +41,7 @@ Links to research papers and resources corresponding to implemented features in 
 | AdaPop               | Paper [📄](https://arxiv.org/abs/2608.14229), Popularity-annotated data [🤗](https://huggingface.co/datasets/SwetieePawsss/DUET) |
 | T3-Unlearning               | Paper[📄](https://arxiv.org/abs/2602.10217), Code [🐙](https://github.com/jacob-block/T3-Unlearning)                                                                                     |
 | PALU               | Paper[📄](https://arxiv.org/abs/2601.03190) (Naixin Zhai, University of Science and Technology of China, 2601.03190, Code [🐙](https://github.com/nxZhai/PALU) |
+| K-FORGE             | Findings of IJCNLP-AACL 2026, Code [🐙](https://github.com/etomoscow/kron_unlearn)                                                                                              |
 
 
 ---
