@@ -1,0 +1,38 @@
+# @package eval.tofu
+# NOTE: the above line is not a comment, but sets the package for config.
+
+# The TOFU evaluation with the forget metrics computed on a slice of the forget split
+# (forget_subset) instead of all of it. Used to evaluate on forget samples held out
+# from a relearning attack: relearn on "train[:50%]", evaluate on "train[50%:]".
+# forget_quality and privleak are left out: their reference logs cover the full split.
+
+defaults:
+  - tofu_metrics:
+    - forget_Truth_Ratio
+    - forget_Q_A_Prob
+    - forget_Q_A_ROUGE
+    - extraction_strength
+    - model_utility
+
+handler: TOFUEvaluator
+output_dir: ${paths.output_dir} # set to default eval directory
+metrics:
+  forget_Q_A_Prob:
+    datasets: {TOFU_QA_forget: {args: {hf_args: {split: "${eval.tofu.forget_subset}"}}}}
+  forget_Q_A_ROUGE:
+    datasets: {TOFU_QA_forget: {args: {hf_args: {split: "${eval.tofu.forget_subset}"}}}}
+  extraction_strength:
+    datasets: {TOFU_QA_forget: {args: {hf_args: {split: "${eval.tofu.forget_subset}"}}}}
+  forget_truth_ratio:
+    pre_compute:
+      forget_Q_A_PARA_Prob:
+        datasets: {TOFU_QA_forget_para: {args: {hf_args: {split: "${eval.tofu.forget_subset}"}}}}
+      forget_Q_A_PERT_Prob:
+        datasets: {TOFU_QA_forget_pert: {args: {hf_args: {split: "${eval.tofu.forget_subset}"}}}}
+overwrite: false
+forget_split: forget10
+forget_subset: "train[50%:]"
+holdout_split: holdout10
+retain_logs_path: null
+question_key: "question"
+batch_size: 32

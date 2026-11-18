@@ -35,24 +35,34 @@ Note: the main results in the paper use an older RepSelect variant, while this i
 
 # Results
 
-Run `community/methods/RepSelect/run.sh` to unlearn TOFU `forget10` from Llama-3.2-1B-Instruct and evaluate it.
+Run `community/methods/RepSelect/run_with_relearning_attack.sh` to reproduce the table below, or `community/methods/RepSelect/run.sh` for plain unlearning and the standard TOFU evaluation.
 
-TOFU `forget10`, Llama-3.2-1B-Instruct, `n_pcs=512`, no LoRA elicitation, one run per strength:
+RepSelect's purpose is robustness to attacks, so we evaluate it under a relearning attack, with held-out evaluation as in [Deeb & Roger (2024)](https://arxiv.org/abs/2410.08827).
+Each model is unlearned on all of TOFU `forget10`, then the attacker fine-tunes it for one epoch on the first half of `forget10` (10 authors), and we evaluate on the second half (the other 10 authors).
+The attacker never sees the evaluated questions, so what comes back on them was still in the weights.
 
-| strength           | forget_quality | forget_Q_A_Prob | forget_Q_A_ROUGE | extraction_strength | model_utility |
-| ------------------ | -------------- | --------------- | ---------------- | ------------------- | ------------- |
-| 0 (starting model) | 8.1e-22        | 0.880           | 0.821            | 0.704               | 0.598         |
-| 0.05               | 3.2e-15        | 0.462           | 0.477            | 0.191               | 0.595         |
-| 0.1                | 4.3e-10        | 0.282           | 0.395            | 0.114               | 0.591         |
-| 0.2                | 7.7e-04        | 0.162           | 0.357            | 0.081               | 0.570         |
+Llama-3.2-1B-Instruct, values are pre-attack → post-attack on the held-out half, `model_utility` is pre-attack, one run per row:
 
-The results of each run are written to `saves/unlearn/<task_name>/evals/TOFU_SUMMARY.json`.
+| model                             | forget_Q_A_Prob | forget_Q_A_ROUGE | extraction_strength | model_utility |
+| --------------------------------- | --------------- | ---------------- | ------------------- | ------------- |
+| Target model (no unlearning)      | 0.885 → 0.875   | 0.827 → 0.773    | 0.732 → 0.682       | 0.598         |
+| Retain model (never saw forget10) | 0.123 → 0.210   | 0.379 → 0.369    | 0.062 → 0.071       | 0.591         |
+| NPO                               | 0.102 → 0.505   | 0.302 → 0.445    | 0.103 → 0.178       | 0.577         |
+| RepSelect, strength 0.05          | 0.477 → 0.554   | 0.488 → 0.489    | 0.205 → 0.226       | 0.595         |
+| RepSelect, strength 0.1           | 0.295 → 0.412   | 0.418 → 0.430    | 0.121 → 0.148       | 0.591         |
+| RepSelect, strength 0.2           | 0.172 → 0.290   | 0.375 → 0.403    | 0.087 → 0.102       | 0.570         |
 
-Since relearning attacks aren't yet implemented in open-unlearning, the results above are only pre-attack.
+- RepSelect uses `n_pcs=512` and no LoRA elicitation.
+- NPO uses the repository's default hyperparameters for 250 steps.
+- The retain model was never trained on `forget10`: its row shows how much the attack raises the scores on its own.
+- The attack's learning rate (1e-5, batch size 8) is the value from {1e-6, 3e-6, 1e-5, 3e-5, 1e-4, 3e-4} that recovers the most forget probability on RepSelect (strength 0.1). It was not tuned against NPO.
 
-Note: RepSelect's purpose is to be robust to attacks.
-It applies a single edit instead of many optimizer steps, which is good for attack robustness, but doesn't push the pre-attack forget scores as low.
-For low forget scores both pre- and post-attack, you may want to also run additional unlearning on top of RepSelect.
+Note: in TOFU, the knowledge to forget was added to the model by a short fine-tuning.
+[Deeb & Roger (2024)](https://arxiv.org/abs/2410.08827) found that such recently added knowledge is easier to unlearn robustly than knowledge learned during pretraining.
+So the numbers above, for every method, likely overestimate robustness on real pretrained knowledge.
+
+The results of each run are written to `saves/unlearn/<task_name>/evals_heldout/TOFU_SUMMARY.json` (pre-attack) and `saves/finetune/<task_name>_relearned/evals_heldout/TOFU_SUMMARY.json` (post-attack).
+
 
 # Citation
 
