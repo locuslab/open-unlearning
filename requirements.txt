@@ -14,5 +14,7 @@ tensorboard==2.18.0
 scikit-learn==1.5.2
 deepspeed==0.15.4
 wandb==0.21.4
+# for the optional LoRA elicitation of RepSelect:
+peft==0.18.1
 # for Qwen3.5 speedup:
 flash-linear-attention==0.4.2

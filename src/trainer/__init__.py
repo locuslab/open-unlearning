@@ -19,6 +19,7 @@ from trainer.unlearn.adapop import AdaPop
 from trainer.unlearn.t3 import T3
 from trainer.unlearn.palu import PALU
 from trainer.unlearn.kforge import KFORGE
+from trainer.unlearn.repselect import RepSelect
 
 
 import logging
@@ -107,3 +108,4 @@ _register_trainer(AdaPop)
 _register_trainer(T3)
 _register_trainer(PALU)
 _register_trainer(KFORGE)
+_register_trainer(RepSelect)
