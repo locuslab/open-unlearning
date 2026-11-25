@@ -4,6 +4,14 @@ from omegaconf import DictConfig
 from transformers import Trainer, TrainingArguments
 
 from trainer.base import FinetuneTrainer
+from trainer.unlearn.BalDRO import (
+    DrNPO,
+    DrSatImp,
+    DrSimNPO,
+    GroupNPO,
+    GroupSatImp,
+    GroupSimNPO,
+)
 from trainer.unlearn.grad_ascent import GradAscent
 from trainer.unlearn.grad_diff import GradDiff
 from trainer.unlearn.npo import NPO
@@ -107,3 +115,9 @@ _register_trainer(AdaPop)
 _register_trainer(T3)
 _register_trainer(PALU)
 _register_trainer(KFORGE)
+_register_trainer(DrNPO)
+_register_trainer(DrSimNPO)
+_register_trainer(DrSatImp)
+_register_trainer(GroupNPO)
+_register_trainer(GroupSimNPO)
+_register_trainer(GroupSatImp)
