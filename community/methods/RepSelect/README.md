@@ -44,9 +44,9 @@ Llama-3.2-1B-Instruct, values are pre-attack → post-attack on the held-out hal
 
 | model                             | forget_Q_A_Prob | forget_Q_A_ROUGE | extraction_strength | model_utility |
 | --------------------------------- | --------------- | ---------------- | ------------------- | ------------- |
-| Target model (no unlearning)      | 0.885 → 0.875   | 0.827 → 0.773    | 0.732 → 0.682       | 0.598         |
-| Retain model (never saw forget10) | 0.123 → 0.210   | 0.379 → 0.369    | 0.062 → 0.071       | 0.591         |
-| NPO                               | 0.102 → 0.505   | 0.302 → 0.445    | 0.103 → 0.178       | 0.577         |
+| Target model (no unlearning)      | 0.885 → 0.875   | 0.829 → 0.779    | 0.729 → 0.689       | 0.597         |
+| Retain model (never saw forget10) | 0.123 → 0.210   | 0.378 → 0.369    | 0.061 → 0.071       | 0.590         |
+| NPO                               | 0.106 → 0.484   | 0.291 → 0.429    | 0.100 → 0.177       | 0.574         |
 | RepSelect, strength 2.5           | 0.477 → 0.562   | 0.476 → 0.498    | 0.209 → 0.234       | 0.597         |
 | RepSelect, strength 5             | 0.284 → 0.421   | 0.421 → 0.433    | 0.119 → 0.156       | 0.590         |
 | RepSelect, strength 10            | 0.149 → 0.298   | 0.376 → 0.408    | 0.086 → 0.099       | 0.573         |
