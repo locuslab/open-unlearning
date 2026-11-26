@@ -54,7 +54,7 @@ Llama-3.2-1B-Instruct, values are pre-attack → post-attack on the held-out hal
 - RepSelect uses `n_pcs=512` and no LoRA elicitation.
 - NPO uses the repository's default hyperparameters for 250 steps.
 - The retain model was never trained on `forget10`: its row shows how much the attack raises the scores on its own.
-- The attack's learning rate (1e-5, batch size 8) is the value from {1e-6, 3e-6, 1e-5, 3e-5, 1e-4, 3e-4} that recovers the most forget probability on RepSelect (strength 0.1). It was not tuned against NPO.
+- The attack's learning rate (1e-5, batch size 8) is the value from {1e-6, 3e-6, 1e-5, 3e-5, 1e-4, 3e-4} that recovers the most forget probability on RepSelect (strength 5). It was not tuned against NPO.
 
 Note: in TOFU, the knowledge to forget was added to the model by a short fine-tuning.
 [Deeb & Roger (2024)](https://arxiv.org/abs/2410.08827) found that such recently added knowledge is easier to unlearn robustly than knowledge learned during pretraining.
