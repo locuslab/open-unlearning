@@ -47,9 +47,9 @@ Llama-3.2-1B-Instruct, values are pre-attack → post-attack on the held-out hal
 | Target model (no unlearning)      | 0.885 → 0.875   | 0.827 → 0.773    | 0.732 → 0.682       | 0.598         |
 | Retain model (never saw forget10) | 0.123 → 0.210   | 0.379 → 0.369    | 0.062 → 0.071       | 0.591         |
 | NPO                               | 0.102 → 0.505   | 0.302 → 0.445    | 0.103 → 0.178       | 0.577         |
-| RepSelect, strength 0.05          | 0.477 → 0.554   | 0.488 → 0.489    | 0.205 → 0.226       | 0.595         |
-| RepSelect, strength 0.1           | 0.295 → 0.412   | 0.418 → 0.430    | 0.121 → 0.148       | 0.591         |
-| RepSelect, strength 0.2           | 0.172 → 0.290   | 0.375 → 0.403    | 0.087 → 0.102       | 0.570         |
+| RepSelect, strength 2.5           | 0.477 → 0.562   | 0.476 → 0.498    | 0.209 → 0.234       | 0.597         |
+| RepSelect, strength 5             | 0.284 → 0.421   | 0.421 → 0.433    | 0.119 → 0.156       | 0.590         |
+| RepSelect, strength 10            | 0.149 → 0.298   | 0.376 → 0.408    | 0.086 → 0.099       | 0.573         |
 
 - RepSelect uses `n_pcs=512` and no LoRA elicitation.
 - NPO uses the repository's default hyperparameters for 250 steps.
