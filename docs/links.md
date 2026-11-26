@@ -43,6 +43,7 @@ Links to research papers and resources corresponding to implemented features in 
 | PALU               | Paper[📄](https://arxiv.org/abs/2601.03190), Code [🐙](https://github.com/nxZhai/PALU) |
 | K-FORGE             | Findings of IJCNLP-AACL 2026, Code [🐙](https://github.com/etomoscow/kron_unlearn)                                                                                              |
 | BalDRO               | Paper[📄](https://arxiv.org/abs/2601.09172), Code [🐙](https://github.com/nxZhai/BalDRO) |
+| RepSelect            | Paper[📄](https://arxiv.org/abs/2606.17168), Code [🐙](https://github.com/filyp/RepSelect) |
 
 
 ---

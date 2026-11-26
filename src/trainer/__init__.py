@@ -27,6 +27,7 @@ from trainer.unlearn.adapop import AdaPop
 from trainer.unlearn.t3 import T3
 from trainer.unlearn.palu import PALU
 from trainer.unlearn.kforge import KFORGE
+from trainer.unlearn.repselect import RepSelect
 
 
 import logging
@@ -121,3 +122,4 @@ _register_trainer(DrSatImp)
 _register_trainer(GroupNPO)
 _register_trainer(GroupSimNPO)
 _register_trainer(GroupSatImp)
+_register_trainer(RepSelect)
