@@ -8,7 +8,7 @@ model="Llama-3.2-1B-Instruct"
 forget_retain_splits=(
     "forget10 retain90"
 )
-strengths=(0.05 0.1 0.2)
+strengths=(2.5 5 10)
 
 for split in "${forget_retain_splits[@]}"; do
     forget_split=$(echo $split | cut -d' ' -f1)

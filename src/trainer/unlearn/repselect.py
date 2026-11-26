@@ -2,8 +2,8 @@
 is taken as the update, after the components it shares with the retain gradient have
 been scaled down ("collapsed") on both sides of each weight matrix.
 
-Per MLP weight W (D_out, D_in), with G_r and G_f its gradients of minus the loss
-summed over one pass of the retain and of the forget set:
+Per MLP weight W (D_out, D_in), with G_r and G_f its gradients of minus the loss,
+averaged over all tokens of the retain and of the forget set:
     U, S, V = top n_pcs singular triplets of G_r
     G_f's components along the columns of V (input side) and along the columns of U
     (output side) are divided by S^2, normalized so that the smallest of the n_pcs
@@ -14,6 +14,7 @@ summed over one pass of the retain and of the forget set:
 import logging
 
 import torch
+from torch.utils.data import DataLoader
 from transformers.trainer_utils import TrainOutput
 
 from trainer.unlearn.base import UnlearnTrainer
@@ -52,6 +53,11 @@ def _collapse(mat: torch.Tensor, vecs: torch.Tensor, S: torch.Tensor) -> torch.T
     mat (..., n, d), vecs (..., d, n_pcs), S (..., n_pcs): the leading dimension, if
     any, is the experts of an MoE layer."""
     S = S**2
+    if (S.amin(dim=-1) == 0).any():
+        raise ValueError(
+            "The retain gradient of an MLP weight (or of an MoE expert) has fewer than "
+            "n_pcs nonzero singular values: the retain set is probably too small."
+        )
     S = S / S.amin(dim=-1, keepdim=True)
     projected = mat @ vecs
     return mat - (projected - projected / S.unsqueeze(-2)) @ vecs.mT
@@ -78,21 +84,44 @@ class RepSelect(UnlearnTrainer):
     """
 
     def __init__(
-        self, strength=0.05, n_pcs=512, lora_learning_rate=None, *args, **kwargs
+        self, strength=2.5, n_pcs=512, lora_learning_rate=None, *args, **kwargs
     ):
         super().__init__(*args, **kwargs)
+        if self.accelerator.num_processes > 1:
+            raise NotImplementedError(
+                "RepSelect currently does not support distributed training: run it in "
+                "a single process (without `accelerate launch --num_processes`)."
+            )
         self.strength = strength
         self.n_pcs = n_pcs
         self.lora_learning_rate = lora_learning_rate
 
+    def _batches(self, split):
+        """Batches of the whole `split` (forget | retain) set.
+        The paired loader of the other methods is not used because it samples only as
+        many retain examples as there are forget ones."""
+        loader = DataLoader(
+            getattr(self.train_dataset, split),
+            batch_size=self.args.train_batch_size,
+            collate_fn=self.data_collator,
+            shuffle=True,
+        )
+        return self.accelerator.prepare(loader)  # moves the batches to the device
+
     def _accumulate_grad(self, split):
         """One pass over `split` (forget | retain); leaves the gradient of minus the
-        loss, summed over the batches, in the .grad of the MLP weights."""
+        loss, averaged over all tokens of the pass, in the .grad of the MLP weights."""
         self.model.zero_grad(set_to_none=True)
-        for batch_pair in self.get_train_dataloader():
-            batch = batch_pair[split]
+        n_tokens = 0
+        for batch in self._batches(split):
             batch = {k: batch[k] for k in ("input_ids", "attention_mask", "labels")}
-            (-self.model(**batch).loss).backward()
+            # .loss is the mean over the batch's predicted tokens: undo that mean
+            n = (batch["labels"][:, 1:] != -100).sum().item()
+            (-self.model(**batch).loss * n).backward()
+            n_tokens += n
+        for param in self.model.parameters():
+            if param.grad is not None:
+                param.grad /= n_tokens
 
     def _elicit(self):
         """Wrap the MLP weights in a LoRA (in place) and train it with SGD for one
@@ -106,8 +135,7 @@ class RepSelect(UnlearnTrainer):
             config = LoraConfig(target_modules=DENSE_MODULES)
         peft_model = get_peft_model(self.model, config)  # freezes all but the LoRA
         lora_params = [p for p in peft_model.parameters() if p.requires_grad]
-        for batch_pair in self.get_train_dataloader():
-            batch = batch_pair["forget"]
+        for batch in self._batches("forget"):
             batch = {k: batch[k] for k in ("input_ids", "attention_mask", "labels")}
             peft_model.zero_grad(set_to_none=True)
             peft_model(**batch).loss.backward()

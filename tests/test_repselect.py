@@ -39,8 +39,8 @@ def unlearn(model, batches, **method_args):
     """Runs RepSelect on a copy of the model; returns the copy."""
 
     class Trainer(RepSelect):
-        def get_train_dataloader(self):
-            return batches
+        def _batches(self, split):
+            return [pair[split] for pair in batches]
 
     model = copy.deepcopy(model)
     with tempfile.TemporaryDirectory() as out_dir:
@@ -54,11 +54,27 @@ def unlearn(model, batches, **method_args):
     return model
 
 
-def summed_grads(model, batches, split):
+def mean_grads(model, batches, split):
+    """Gradient of minus the loss averaged over all tokens: one big batch."""
     model = copy.deepcopy(model)
-    for batch_pair in batches:
-        (-model(**batch_pair[split]).loss).backward()
+    keys = batches[0][split].keys()
+    batch = {k: torch.cat([pair[split][k] for pair in batches]) for k in keys}
+    (-model(**batch).loss).backward()
     return [weight.grad for weight in _mlp_weights(model)]
+
+
+def rebatch(batches, sizes):
+    """The same examples in the same order, split into batches of the given sizes."""
+    out, start = [], 0
+    for size in sizes:
+        pair = {}
+        for split in ("forget", "retain"):
+            keys = batches[0][split].keys()
+            full = {k: torch.cat([b[split][k] for b in batches]) for k in keys}
+            pair[split] = {k: v[start : start + size] for k, v in full.items()}
+        out.append(pair)
+        start += size
+    return out
 
 
 class RepSelectTests(unittest.TestCase):
@@ -85,12 +101,19 @@ class RepSelectTests(unittest.TestCase):
         for e in range(3):
             self.assertTrue(torch.allclose(out[e], _collapse(mat[e], vecs[e], S[e])))
 
+    def test_collapse_raises_on_a_zero_retain_gradient(self):
+        retain = torch.randn(3, 20, 16)
+        retain[1] = 0  # an expert that saw no retain token
+        U, S, V = torch.svd_lowrank(retain, q=4)
+        with self.assertRaisesRegex(ValueError, "retain set is probably too small"):
+            _collapse(torch.randn(3, 5, 16), V, S)
+
     def test_update_is_the_collapsed_forget_gradient(self):
         model, batches = tiny_llama(), make_batches()
         unlearned = unlearn(model, batches)
 
-        retain = summed_grads(model, batches, "retain")
-        forget = summed_grads(model, batches, "forget")
+        retain = mean_grads(model, batches, "retain")
+        forget = mean_grads(model, batches, "forget")
         torch.manual_seed(1)
         USVs = [torch.svd_lowrank(grad, q=N_PCS) for grad in retain]
         before, after = _mlp_weights(model), _mlp_weights(unlearned)
@@ -106,6 +129,22 @@ class RepSelectTests(unittest.TestCase):
             if id(p1) not in mlp:
                 self.assertTrue(torch.equal(p0, p1))
             self.assertTrue(p1.requires_grad)
+
+    def test_update_does_not_depend_on_the_batch_size(self):
+        model, batches = tiny_llama(), make_batches()  # 4 batches of 3 examples
+        for pair in batches:  # examples of different lengths: mask some labels
+            for batch in pair.values():
+                labels = batch["labels"].clone()
+                for row in labels:
+                    row[torch.randint(3, 10, ()) :] = -100
+                batch["labels"] = labels
+        reference = _mlp_weights(unlearn(model, batches))
+        for sizes in ([12], [1] * 12, [5, 1, 4, 2]):
+            other = _mlp_weights(unlearn(model, rebatch(batches, sizes)))
+            for w0, w_ref, w in zip(_mlp_weights(model), reference, other):
+                update = w0 - w_ref
+                self.assertGreater(float(update.norm()), 0)
+                self.assertTrue(torch.allclose(update, w0 - w, rtol=1e-3, atol=1e-7))
 
     def test_lora_elicitation_leaves_no_adapter(self):
         try:

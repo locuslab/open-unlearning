@@ -3,6 +3,6 @@ defaults:
 
 handler: RepSelect
 method_args:
-  strength: 0.05  # the size of the single update step (trainer.args.learning_rate is not used)
+  strength: 2.5  # the size of the single update step (trainer.args.learning_rate is not used)
   n_pcs: 512  # retain singular vectors to collapse along, per side of each weight
   lora_learning_rate: null  # null: no LoRA elicitation (default); else its SGD learning rate (e.g. 0.01)

@@ -81,7 +81,7 @@ unlearn_attack_eval() {  # <task name> <trainer overrides ...>
     evaluate saves/finetune/${task_name}_relearned saves/finetune/${task_name}_relearned/evals_heldout
 }
 
-for strength in 0.05 0.1 0.2; do
+for strength in 2.5 5 10; do
     unlearn_attack_eval tofu_${model}_${forget_split}_RepSelect_strength${strength} \
         trainer=RepSelect \
         trainer.method_args.strength=${strength} \

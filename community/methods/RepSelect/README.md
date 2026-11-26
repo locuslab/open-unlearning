@@ -26,12 +26,11 @@ Note: the main results in the paper use an older RepSelect variant, while this i
 # Setup
 
 - **Hyperparameters:**
-  - `trainer.method_args.strength` (default 0.05): the size of the single update step, and the main parameter to tune. It trades forgetting against utility.
+  - `trainer.method_args.strength` (default 2.5): the size of the single update step, and the main parameter to tune. It trades forgetting against utility.
   - `trainer.method_args.n_pcs` (default 512): the number of retain singular vectors to collapse along, per side.
   - `trainer.method_args.lora_learning_rate` (default `null`): SGD learning rate of the LoRA elicitation, e.g. 0.01; `null` skips it. Needs `peft`.
-  - `trainer.args.per_device_train_batch_size` only affects speed and memory. `learning_rate`, the scheduler, optimizer, weight decay and number of epochs have no effect.
 - **Computational Setup:** One GPU. The method needs one pass (forward and backward) over the retain batches and one over the forget batches, plus one low-rank SVD per MLP weight matrix. The elicitation adds one more pass over the forget batches.
-- **Other Details:** The model has to expose its blocks as `model.model.layers[i].mlp` with `gate_proj`, `up_proj`, `down_proj` (Llama, Qwen, Gemma, Mistral/Zephyr), or with transformers' fused MoE `experts` module.
+- **Other Minor Details:** The model has to expose its blocks as `model.model.layers[i].mlp` with `gate_proj`, `up_proj`, `down_proj` (Llama, Qwen, Gemma, Mistral/Zephyr), or with transformers' fused MoE `experts` module. The retain pass covers the whole retain set, unlike other methods here, which sample one retain example per forget example. For huge retain sets, you may cap it in the data config, e.g. `data.retain.TOFU_QA_retain.args.hf_args.split='"train[:10000]"'`.
 
 # Results
 
