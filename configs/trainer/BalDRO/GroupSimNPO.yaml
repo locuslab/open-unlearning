@@ -1,0 +1,6 @@
+defaults:
+  - /trainer/SimNPO@_here_
+
+handler: GroupSimNPO
+method_args:
+  sampling_ratio: 0.5

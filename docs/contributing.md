@@ -53,15 +53,15 @@ If there is a new feature you'd like to see in OpenUnlearning, please open an is
 
 ## Do You Want to Support New Components?
 
-Adding a new component listed below requires defining a new class, registering it, and creating a configuration file. Learn more about adding new components in [`docs/components.md`](docs/components.md).
+Adding a new component listed below requires defining a new class, registering it, and creating a configuration file. Learn more about adding new components in [`docs/components.md`](components.md).
 
-1. [Trainer](components#trainer) - Algorithm used in LLM training or unlearning  
-2. [Dataset](components#dataset) - Dataset class for preprocessing raw data  
-3. [Evaluation Metric](components#evaluation-metric) - Metric class implementing model evaluation  
-4. [Benchmark](components#benchmark) - Suite combining multiple evaluation metrics  
-5. [Model](components#model) - LLM used in unlearning  
-6. [Collator](components#collator) - Handles data collation logic  
-7. [Experiment](components#experiment) - Combines components into a final experiment config  
+1. [Trainer](components.md#trainer) - Algorithm used in LLM training or unlearning  
+2. [Dataset](components.md#dataset) - Dataset class for preprocessing raw data  
+3. [Evaluation Metric](components.md#evaluation-metric) - Metric class implementing model evaluation  
+4. [Benchmark](components.md#benchmark) - Suite combining multiple evaluation metrics  
+5. [Model](components.md#model) - LLM used in unlearning  
+6. [Collator](components.md#collator) - Handles data collation logic  
+7. [Experiment](components.md#experiment) - Combines components into a final experiment config  
 
 > [!IMPORTANT]  
 > **We especially encourage** contributions of methods and benchmarks that you've created, since you best understand them and know how to use them. We are ready to expedite their integration into OpenUnlearning.  
@@ -86,7 +86,7 @@ Some methods might involve multiple commands or steps while unlearning: ensure y
 
 ### 4. Update Leaderboard and Upload Model
 
-Don't forget to add your results to the [leaderboard](results.md) and upload your unlearned model to HuggingFace for broader accessibility and reproducibility. Also, if applicable, add a link to your paper in [`docs/links.md`](../docs/links.md)
+Don't forget to add your results to the [leaderboard](../community/leaderboard.md) and upload your unlearned model to HuggingFace for broader accessibility and reproducibility. Also, if applicable, add a link to your paper in [`docs/links.md`](../docs/links.md)
 
 ```bash
 pip install huggingface_hub
@@ -110,13 +110,13 @@ Evaluating LLM unlearning is essential for assessing the effectiveness of differ
 
 Your contributions toward defining or improving evaluation methods can significantly advance unlearning research. By proposing reliable benchmarks, you help ensure that unlearning methods are both effective and aligned with real-world requirements.
 
-- To add a new unlearning evaluation metric, refer to our [Metric Implementation Guide]((components.md#evaluation-metric).).
+- To add a new unlearning evaluation metric, refer to our [Metric Implementation Guide](components.md#evaluation-metric).
 - To integrate new datasets and models, follow our [Components Guide](components.md).
 
 ### Steps to add a new Unlearning Benchmark
 
 1. **Prepare Datasets & Models** – Create your dataset and train models to generate fine-tuned or retained models.  
-2. **Define a New Benchmark** (if needed) – Follow the [Benchmark Guide]((components.md#benchmark)) to implement a new evaluation benchmark.  
+2. **Define a New Benchmark** (if needed) – Follow the [Benchmark Guide](components.md#benchmark) to implement a new evaluation benchmark.  
 3. **Run and Tune Baseline Methods** – Evaluate existing unlearning methods on your benchmark and optimize them.  
 4. **Document & Share Findings** – Provide detailed steps for reproduction in [`community/benchmarks/<YOUR_BENCHMARK>`](../community/benchmarks). Also, if applicable, add a link to your paper in [`docs/links.md`](../docs/links.md)
 
@@ -134,7 +134,7 @@ Before writing any code, we strongly advise you to search through the existing P
 
 Follow the steps below to start contributing:
 
-1. Fork the [repository](https://github.com/huggingface/transformers) by clicking on the **[Fork](https://github.com/huggingface/transformers/fork)** button on the repository's page. This creates a copy of the code under your GitHub user account.
+1. Fork the [repository](https://github.com/locuslab/open-unlearning) by clicking on the **[Fork](https://github.com/locuslab/open-unlearning/fork)** button on the repository's page. This creates a copy of the code under your GitHub user account.
 
 2. Clone your fork to your local disk, and add the base repository as a remote:
 
